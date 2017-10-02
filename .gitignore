@@ -71,3 +71,17 @@ Thumbs.db
 *.dll
 *.exe
 
+# CMake generated files
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+.directory
+
+# Project related ignorables
+bin
