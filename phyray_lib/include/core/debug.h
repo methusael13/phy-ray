@@ -1,6 +1,6 @@
 
-#ifndef PHYRAY_DEBUG_H
-#define PHYRAY_DEBUG_H
+#ifndef PHYRAY_CORE_DEBUG_H
+#define PHYRAY_CORE_DEBUG_H
 
 #ifdef PHYRAY_OPTIMIZE
 #define NDEBUG
