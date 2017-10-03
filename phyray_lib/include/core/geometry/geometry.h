@@ -8,10 +8,14 @@
 namespace phyr {
 
 // Core geometry primitive class declarations
+class NaNCandidate {
+  public:
+    virtual bool hasNaNs() const = 0;
+};
 
 // Vector declarations
 template <typename T>
-class Vector2 {
+class Vector2 : public NaNCandidate {
   public:
     // Constructor definition
     Vector2() : x(0), y(0) {}
@@ -22,8 +26,6 @@ class Vector2 {
     bool hasNaNs() const { return isNaN(x) || isNaN(y); }
 
 #ifndef PHYRAY_OPTIMIZE
-    // Following should be used instead of the
-    // default when compiling a debug build
     Vector2(const Vector2<T>& ref) {
         ASSERT(!ref.hasNaNs());
         x = ref.x; y = ref.y;
@@ -72,14 +74,14 @@ class Vector2 {
     template <typename U>
     Vector2<T> operator/(U v) const {
         ASSERT(!isNaN(v) && !isZero(v));
-        Real inv = Real(1) / v;
-        return Vector2<T>(x * v, y * v);
+        Real inv = (Real) 1 / v;
+        return Vector2<T>(x * inv, y * inv);
     }
     template <typename U>
     Vector2<T>& operator/=(U v) {
         ASSERT(!isNaN(v) && !isZero(v));
-        Real inv = Real(1) / v;
-        x *= v; y *= v;
+        Real inv = (Real) 1 / v;
+        x *= inv; y *= inv;
         return *this;
     }
 
@@ -99,7 +101,7 @@ class Vector2 {
 
 
 template <typename T>
-class Vector3 {
+class Vector3 : public NaNCandidate {
   public:
     // Constructor definition
     Vector3() : x(0), y(0), z(0) {}
@@ -110,8 +112,6 @@ class Vector3 {
     bool hasNaNs() const { return isNaN(x) || isNaN(y) || isNaN(z); }
 
 #ifndef PHYRAY_OPTIMIZE
-    // Following should be used instead of the
-    // default when compiling a debug build
     Vector3(const Vector3<T>& ref) {
         ASSERT(!ref.hasNaNs());
         x = ref.x; y = ref.y; z = ref.z;
@@ -160,14 +160,14 @@ class Vector3 {
     template <typename U>
     Vector3<T> operator/(U v) const {
         ASSERT(!isNaN(v) && !isZero(v));
-        Real inv = Real(1) / v;
-        return Vector3<T>(x * v, y * v, z * v);
+        Real inv = (Real) 1 / v;
+        return Vector3<T>(x * inv, y * inv, z * inv);
     }
     template <typename U>
     Vector3<T>& operator/=(U v) {
         ASSERT(!isNaN(v) && !isZero(v));
-        Real inv = Real(1) / v;
-        x *= v; y *= v; z *= v;
+        Real inv = (Real) 1 / v;
+        x *= inv; y *= inv; z *= inv;
         return *this;
     }
 
@@ -210,7 +210,7 @@ inline std::ostream& operator<<(std::ostream& os, const Vector3<T>& vec) {
 
 // Point declarations
 template <typename T>
-class Point2 {
+class Point2 : public NaNCandidate {
   public:
     Point2() : x(0), y(0) {}
     Point2(T _x, T _y) : x(_x), y(_y) { ASSERT(!hasNaNs()); }
@@ -249,6 +249,7 @@ class Point2 {
     }
 #endif
 
+    // Point operations
     Point2<T> operator+(const Point2<T>& rhs) const {
         ASSERT(!rhs.hasNaNs());
         return Point2<T>(x + rhs.x, y + rhs.y);
@@ -301,12 +302,14 @@ class Point2 {
     template <typename U>
     Point2<T> operator/(U v) const {
         ASSERT(!isNaN(v) && !isZero(v));
-        return Point2<T>(x / v, y / v);
+        Real inv = (Real) 1 / v;
+        return Point2<T>(x * inv, y * inv);
     }
     template <typename U>
     Point2<T>& operator/=(U v) {
         ASSERT(!isNaN(v) && !isZero(v));
-        x /= v; y /= v;
+        Real inv = (Real) 1 / v;
+        x *= inv; y *= inv;
         return *this;
     }
 
@@ -321,7 +324,7 @@ class Point2 {
 
 
 template <typename T>
-class Point3 {
+class Point3 : public NaNCandidate {
   public:
     Point3() : x(0), y(0), z(0) {}
     Point3(T _x, T _y, T _z) : x(_x), y(_y), z(_z) { ASSERT(!hasNaNs()); }
@@ -359,6 +362,7 @@ class Point3 {
     }
 #endif
 
+    // Point operations
     Point3<T> operator+(const Point3<T>& rhs) const {
         ASSERT(!rhs.hasNaNs());
         return Point3<T>(x + rhs.x, y + rhs.y, z + rhs.z);
@@ -411,12 +415,14 @@ class Point3 {
     template <typename U>
     Point3<T> operator/(U v) const {
         ASSERT(!isNaN(v) && !isZero(v));
-        return Point3<T>(x / v, y / v, z / v);
+        Real inv = (Real) 1 / v;
+        return Point3<T>(x * inv, y * inv, z * inv);
     }
     template <typename U>
     Point3<T>& operator/=(U v) {
         ASSERT(!isNaN(v) && !isZero(v));
-        x /= v; y /= v; z /= v;
+        Real inv = (Real) 1 / v;
+        x *= inv; y *= inv; z *= inv;
         return *this;
     }
 
@@ -449,6 +455,108 @@ inline std::ostream& operator<<(std::ostream& os, const Point2<T>& p) {
 template <typename T>
 inline std::ostream& operator<<(std::ostream& os, const Point3<T>& p) {
     return (os << "[" << p.x << ", " << p.y << ", " << p.z << "]");
+}
+
+
+// Normal declarations
+template <typename T>
+class Normal3 : public NaNCandidate {
+  public:
+    Normal3() : x(0), y(0), z(0) {}
+    Normal3(T _x, T _y, T _z) : x(_x), y(_y), z(_z) { ASSERT(!hasNaNs()); }
+
+    explicit Normal3(const Vector3<T>& ref) {
+        ASSERT(!ref.hasNaNs());
+        x = ref.x; y = ref.y; z = ref.z;
+    }
+    bool hasNaNs() const { return isNaN(x) || isNaN(y) || isNaN(z); }
+
+#ifndef PHYRAY_OPTIMIZE
+    Normal3(const Normal3<T>& ref) {
+        ASSERT(!ref.hasNaNs());
+        x = ref.x; y = ref.y; z = ref.z;
+    }
+
+    Normal3<T>& operator=(const Normal3<T>& rhs) {
+        ASSERT(!rhs.hasNaNs());
+        x = ref.x; y = ref.y; z = ref.z;
+        return *this;
+    }
+#endif
+
+    // Normal operations
+    Normal3<T> operator+(const Normal3<T>& rhs) const {
+        ASSERT(!rhs.hasNaNs());
+        return Normal3<T>(x + rhs.x, y + rhs.y, z + rhs.z);
+    }
+    Normal3<T>& operator+=(const Normal3<T>& rhs) {
+        ASSERT(!rhs.hasNaNs());
+        x += rhs.x; y += rhs.y; z += rhs.z;
+        return *this;
+    }
+
+    Normal3<T> operator-(const Normal3<T>& rhs) const {
+        ASSERT(!rhs.hasNaNs());
+        return Normal3<T>(x - rhs.x, y - rhs.y, z - rhs.z);
+    }
+    Normal3<T>& operator-=(const Normal3<T>& rhs) {
+        ASSERT(!rhs.hasNaNs());
+        x -= rhs.x; y -= rhs.y; z -= rhs.z;
+        return *this;
+    }
+
+    template <typename U>
+    Normal3<T> operator*(U v) const {
+        ASSERT(!isNaN(v));
+        return Normal3<T>(x * v, y * v, z * v);
+    }
+    template <typename U>
+    Normal3<T>& operator*=(U v) {
+        ASSERT(!isNaN(v));
+        x *= v; y *= v; z *= v;
+        return *this;
+    }
+
+    template <typename U>
+    Normal3<T> operator/(U v) const {
+        ASSERT(!isNaN(v) && !isZero(v));
+        Real inv = (Real) 1 / v;
+        return Normal3<T>(x * inv, y * inv, z * inv);
+    }
+    template <typename U>
+    Normal3<T>& operator/=(U v) {
+        ASSERT(!isNaN(v) && !isZero(v));
+        Real inv = (Real) 1 / v;
+        x *= inv; y *= inv; z *= inv;
+        return *this;
+    }
+
+    Normal3<T> operator-() const { return Normal3<T>(-x, -y, -z); }
+
+    bool operator==(const Normal3<T>& rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z; }
+    bool operator!=(const Normal3<T>& rhs) const { return x != rhs.x || y == rhs.y || z == rhs.z; }
+
+    T operator[](int i) const {
+        ASSERT(i >= 0 && i <= 2);
+        return i == 0 ? x : i == 1 ? y : z;
+    }
+    T& operator[](int i) {
+        ASSERT(i >= 0 && i <= 2);
+        return i == 0 ? x : i == 1 ? y : z;
+    }
+
+    Real lengthSquared() const { return x * x + y * y + z * z; }
+    Real length() const { return std::sqrt(lengthSquared()); }
+
+    T x, y, z;
+};
+
+// Normal template typedefs
+typedef Normal3<Real> Normal3f;
+
+template <typename T>
+inline std::ostream& operator<<(std::ostream& os, const Normal3<T>& n) {
+    return (os << "[" << n.x << ", " << n.y << ", " << n.z << "]");
 }
 
 
