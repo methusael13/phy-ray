@@ -198,12 +198,12 @@ typedef Vector3<int> Vector3i;
 typedef Vector3<Real> Vector3f;
 
 template <typename T>
-inline std::ostream operator<<(std::ostream& os, const Vector2<T>& vec) {
+inline std::ostream& operator<<(std::ostream& os, const Vector2<T>& vec) {
     return (os << "[" << vec.x << ", " << vec.y << "]");
 }
 
 template <typename T>
-inline std::ostream operator<<(std::ostream& os, const Vector3<T>& vec) {
+inline std::ostream& operator<<(std::ostream& os, const Vector3<T>& vec) {
     return (os << "[" << vec.x << ", " << vec.y << ", " << vec.z << "]");
 }
 
@@ -442,12 +442,12 @@ typedef Point3<int> Point3i;
 typedef Point3<Real> Point3f;
 
 template <typename T>
-inline std::ostream operator<<(std::ostream& os, const Point2<T>& p) {
+inline std::ostream& operator<<(std::ostream& os, const Point2<T>& p) {
     return (os << "[" << p.x << ", " << p.y << "]");
 }
 
 template <typename T>
-inline std::ostream operator<<(std::ostream& os, const Point3<T>& p) {
+inline std::ostream& operator<<(std::ostream& os, const Point3<T>& p) {
     return (os << "[" << p.x << ", " << p.y << ", " << p.z << "]");
 }
 
