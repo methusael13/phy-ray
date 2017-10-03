@@ -2,7 +2,6 @@
 #define PHYRAY_CORE_GEOMETRY_H
 
 #include <ostream>
-
 #include <core/phyr.h>
 
 namespace phyr {
@@ -11,7 +10,10 @@ namespace phyr {
 class NaNCandidate {
   public:
     virtual bool hasNaNs() const = 0;
+    virtual ~NaNCandidate();
 };
+
+NaNCandidate::~NaNCandidate() {}
 
 // Vector declarations
 template <typename T>
@@ -74,13 +76,13 @@ class Vector2 : public NaNCandidate {
     template <typename U>
     Vector2<T> operator/(U v) const {
         ASSERT(!isNaN(v) && !isZero(v));
-        Real inv = (Real) 1 / v;
+        Real inv = Real(1) / v;
         return Vector2<T>(x * inv, y * inv);
     }
     template <typename U>
     Vector2<T>& operator/=(U v) {
         ASSERT(!isNaN(v) && !isZero(v));
-        Real inv = (Real) 1 / v;
+        Real inv = Real(1) / v;
         x *= inv; y *= inv;
         return *this;
     }
@@ -90,8 +92,8 @@ class Vector2 : public NaNCandidate {
     bool operator==(const Vector2<T>& rhs) const { return x == rhs.x && y == rhs.y; }
     bool operator!=(const Vector2<T>& rhs) const { return x != rhs.x || y == rhs.y; }
 
-    T operator[](int i) const { ASSERT(i == 0 || i == 1); return i ? y : x; }
-    T& operator[](int i) { ASSERT(i == 0 || i == 1); return i ? y : x; }
+    inline T operator[](int i) const { ASSERT(i == 0 || i == 1); return i ? y : x; }
+    inline T& operator[](int i) { ASSERT(i == 0 || i == 1); return i ? y : x; }
 
     Real lengthSquared() const { return x * x + y * y; }
     Real length() const { return std::sqrt(lengthSquared()); }
@@ -160,13 +162,13 @@ class Vector3 : public NaNCandidate {
     template <typename U>
     Vector3<T> operator/(U v) const {
         ASSERT(!isNaN(v) && !isZero(v));
-        Real inv = (Real) 1 / v;
+        Real inv = Real(1) / v;
         return Vector3<T>(x * inv, y * inv, z * inv);
     }
     template <typename U>
     Vector3<T>& operator/=(U v) {
         ASSERT(!isNaN(v) && !isZero(v));
-        Real inv = (Real) 1 / v;
+        Real inv = Real(1) / v;
         x *= inv; y *= inv; z *= inv;
         return *this;
     }
@@ -176,11 +178,11 @@ class Vector3 : public NaNCandidate {
     bool operator==(const Vector3<T>& rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z; }
     bool operator!=(const Vector3<T>& rhs) const { return x != rhs.x || y == rhs.y || z == rhs.z; }
 
-    T operator[](int i) const {
+    inline T operator[](int i) const {
         ASSERT(i >= 0 && i <= 2);
         return i == 0 ? x : i == 1 ? y : z;
     }
-    T& operator[](int i) {
+    inline T& operator[](int i) {
         ASSERT(i >= 0 && i <= 2);
         return i == 0 ? x : i == 1 ? y : z;
     }
@@ -232,9 +234,7 @@ class Point2 : public NaNCandidate {
     }
 
     template <typename U>
-    explicit operator Vector2<U>() const {
-        return Vector2<U>(x, y);
-    }
+    explicit operator Vector2<U>() const { return Vector2<U>(x, y); }
 
 #ifndef PHYRAY_OPTIMIZE
     Point2(const Point2<T>& ref) {
@@ -302,13 +302,13 @@ class Point2 : public NaNCandidate {
     template <typename U>
     Point2<T> operator/(U v) const {
         ASSERT(!isNaN(v) && !isZero(v));
-        Real inv = (Real) 1 / v;
+        Real inv = Real(1) / v;
         return Point2<T>(x * inv, y * inv);
     }
     template <typename U>
     Point2<T>& operator/=(U v) {
         ASSERT(!isNaN(v) && !isZero(v));
-        Real inv = (Real) 1 / v;
+        Real inv = Real(1) / v;
         x *= inv; y *= inv;
         return *this;
     }
@@ -316,8 +316,8 @@ class Point2 : public NaNCandidate {
     bool operator==(const Point2<T>& rhs) const { return x == rhs.x && y == rhs.y; }
     bool operator!=(const Point2<T>& rhs) const { return x != rhs.x || y != rhs.y; }
 
-    T operator[](int i) const { ASSERT(i == 0 || i == 1); return i ? y : x; }
-    T& operator[](int i) { ASSERT(i == 0 || i == 1); return i ? y : x; }
+    inline T operator[](int i) const { ASSERT(i == 0 || i == 1); return i ? y : x; }
+    inline T& operator[](int i) { ASSERT(i == 0 || i == 1); return i ? y : x; }
 
     T x, y;
 };
@@ -345,9 +345,7 @@ class Point3 : public NaNCandidate {
     }
 
     template <typename U>
-    explicit operator Vector3<U>() const {
-        return Vector3<U>(x, y, z);
-    }
+    explicit operator Vector3<U>() const { return Vector3<U>(x, y, z); }
 
 #ifndef PHYRAY_OPTIMIZE
     Point3(const Point3<T>& ref) {
@@ -415,13 +413,13 @@ class Point3 : public NaNCandidate {
     template <typename U>
     Point3<T> operator/(U v) const {
         ASSERT(!isNaN(v) && !isZero(v));
-        Real inv = (Real) 1 / v;
+        Real inv = Real(1) / v;
         return Point3<T>(x * inv, y * inv, z * inv);
     }
     template <typename U>
     Point3<T>& operator/=(U v) {
         ASSERT(!isNaN(v) && !isZero(v));
-        Real inv = (Real) 1 / v;
+        Real inv = Real(1) / v;
         x *= inv; y *= inv; z *= inv;
         return *this;
     }
@@ -429,16 +427,16 @@ class Point3 : public NaNCandidate {
     bool operator==(const Point3<T>& rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z; }
     bool operator!=(const Point3<T>& rhs) const { return x != rhs.x || y != rhs.y || z != rhs.z; }
 
-    T operator[](int i) const {
+    inline T operator[](int i) const {
         ASSERT(i >= 0 && i <= 2);
         return i == 0 ? x : i == 1 ? y : z;
     }
-    T& operator[](int i) {
+    inline T& operator[](int i) {
         ASSERT(i >= 0 && i <= 2);
         return i == 0 ? x : i == 1 ? y : z;
     }
 
-    T x, y;
+    T x, y, z;
 };
 
 // Point template typedefs
@@ -479,7 +477,7 @@ class Normal3 : public NaNCandidate {
 
     Normal3<T>& operator=(const Normal3<T>& rhs) {
         ASSERT(!rhs.hasNaNs());
-        x = ref.x; y = ref.y; z = ref.z;
+        x = rhs.x; y = rhs.y; z = rhs.z;
         return *this;
     }
 #endif
@@ -520,13 +518,13 @@ class Normal3 : public NaNCandidate {
     template <typename U>
     Normal3<T> operator/(U v) const {
         ASSERT(!isNaN(v) && !isZero(v));
-        Real inv = (Real) 1 / v;
+        Real inv = Real(1) / v;
         return Normal3<T>(x * inv, y * inv, z * inv);
     }
     template <typename U>
     Normal3<T>& operator/=(U v) {
         ASSERT(!isNaN(v) && !isZero(v));
-        Real inv = (Real) 1 / v;
+        Real inv = Real(1) / v;
         x *= inv; y *= inv; z *= inv;
         return *this;
     }
@@ -536,11 +534,11 @@ class Normal3 : public NaNCandidate {
     bool operator==(const Normal3<T>& rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z; }
     bool operator!=(const Normal3<T>& rhs) const { return x != rhs.x || y == rhs.y || z == rhs.z; }
 
-    T operator[](int i) const {
+    inline T operator[](int i) const {
         ASSERT(i >= 0 && i <= 2);
         return i == 0 ? x : i == 1 ? y : z;
     }
-    T& operator[](int i) {
+    inline T& operator[](int i) {
         ASSERT(i >= 0 && i <= 2);
         return i == 0 ? x : i == 1 ? y : z;
     }
@@ -560,7 +558,439 @@ inline std::ostream& operator<<(std::ostream& os, const Normal3<T>& n) {
 }
 
 
+// Bounds declarations
+template <typename T>
+class Bounds2 {
+  public:
+    Bounds2() {
+        T minN = std::numeric_limits<T>::lowest();
+        T maxN = std::numeric_limits<T>::max();
+        pMin = Point2<T>(minN, minN); pMax = Point2<T>(maxN, maxN);
+    }
+
+    explicit Bounds2(const Point2<T>& p) : pMin(p), pMax(p) {}
+    explicit Bounds2(const Point2<T>& p1, const Point2<T>& p2) {
+        pMin = Point2<T>(std::min(p1.x, p2.x), std::min(p1.y, p2.y));
+        pMax = Point2<T>(std::max(p1.x, p2.x), std::max(p1.y, p2.y));
+    }
+
+    template <typename U>
+    explicit operator Bounds2<U>() const {
+        return Bounds2<U>(Point2<U>(pMin), Point2<U>(pMax));
+    }
+
+    Vector2<T> diagonal() const { return pMax - pMin; }
+    T area() const { Vector2<T> d = diagonal(); return d.x * d.y; }
+    int maximumExtent() const { Vector2<T> d = diagonal(); return d.x > d.y ? 0 : 1; }
+
+    Point2<T> lerp(const Point2<T>& p) const {
+        return Point2<T>(phyr::lerp(p.x, pMin.x, pMax.x),
+                         phyr::lerp(p.y, pMin.y, pMax.y));
+    }
+
+    Vector2<T> offset(const Point2<T>& p) const {
+        Vector2<T> off = p - pMin;
+        if (pMax.x > pMin.x) off.x /= pMax.x - pMin.x;
+        if (pMax.y > pMin.y) off.y /= pMax.y - pMin.y;
+        return off;
+    }
+
+    bool operator==(const Bounds2<T>& b) const { return b.pMin == pMin && b.pMax == pMax; }
+    bool operator!=(const Bounds2<T>& b) const { return b.pMin != pMin || b.pMax != pMax; }
+
+    inline const Point2<T>& operator[](int i) const {
+        ASSERT(i == 0 || i == 1);
+        return i == 0 ? pMin : pMax;
+    }
+    inline Point2<T>& operator[](int i) {
+        ASSERT(i == 0 || i == 1);
+        return i == 0 ? pMin : pMax;
+    }
+
+    Point2<T> pMin, pMax;
+};
+
+
+template <typename T>
+class Bounds3 {
+  public:
+    Bounds3() {
+        T minN = std::numeric_limits<T>::lowest();
+        T maxN = std::numeric_limits<T>::max();
+        pMin = Point3<T>(minN, minN, minN); pMax = Point3<T>(maxN, maxN, maxN);
+    }
+
+    explicit Bounds3(const Point3<T>& p) : pMin(p), pMax(p) {}
+    explicit Bounds3(const Point3<T>& p1, const Point3<T>& p2) {
+        pMin = Point3<T>(std::min(p1.x, p2.x), std::min(p1.y, p2.y), std::min(p1.z, p2.z));
+        pMax = Point3<T>(std::max(p1.x, p2.x), std::max(p1.y, p2.y), std::max(p1.z, p2.z));
+    }
+
+    template <typename U>
+    explicit operator Bounds3<U>() const {
+        return Bounds3<U>(Point3<U>(pMin), Point3<U>(pMax));
+    }
+
+    Vector3<T> diagonal() const { return pMax - pMin; }
+    T volume() const { Vector3<T> d = diagonal(); return d.x * d.y * d.z; }
+    T surfaceArea() const {
+        Vector3<T> d = diagonal();
+        return 2 * (d.x * d.y + d.y * d.z + d.z * d.x);
+    }
+    int maximumExtent() const {
+        Vector3<T> d = diagonal();
+        return d.x > d.y ? (d.x > d.z) ? 0 : 2 : (d.y > d.z) ? 1 : 2;
+    }
+
+    /**
+     * Corner indexes of the box are labelled 0 to 7.
+     * Each corner can be specified by the individual components
+     * of pMin and pMax. The individual bits of the given corner
+     * index is tested to determine whether a component of the
+     * resultant corner point should be included from pMin or pMax.
+     * See the examples below:
+     *
+     * 5 => 101:
+     *      0th bit is 1, choose pMax.x as x component
+     *      1st bit is 0, choose pMin.y as y component
+     *      2nd bit is 1, choose pMax.z as z component
+     *
+     * 2 => 010:
+     *      0th bit is 0, choose pMin.x as x component
+     *      1st bit is 1, choose pMax.y as y component
+     *      2nd bit is 0, choose pMin.z as z component
+     */
+    Point3<T> corner(int i) const {
+        ASSERT(i >= 0 && i <= 7);
+        return Point3<T>((*this)[(i & 1)].x,
+                         (*this)[(i & 2) ? 1 : 0].y, (*this)[(i & 2) ? 1 : 0].z);
+    }
+
+    Point3<T> lerp(const Point3<T>& p) const {
+        return Point3<T>(phyr::lerp(p.x, pMin.x, pMax.x),
+                         phyr::lerp(p.y, pMin.y, pMax.y),
+                         phyr::lerp(p.z, pMin.z, pMax.z));
+    }
+
+    Vector3<T> offset(const Point3<T>& p) const {
+        Vector3<T> off = p - pMin;
+        if (pMax.x > pMin.x) off.x /= pMax.x - pMin.x;
+        if (pMax.y > pMin.y) off.y /= pMax.y - pMin.y;
+        if (pMax.z > pMin.z) off.z /= pMax.z - pMin.z;
+        return off;
+    }
+
+    bool operator==(const Bounds3<T>& b) const { return b.pMin == pMin && b.pMax == pMax; }
+    bool operator!=(const Bounds3<T>& b) const { return b.pMin != pMin || b.pMax != pMax; }
+
+    inline const Point3<T>& operator[](int i) const {
+        ASSERT(i == 0 || i == 1);
+        return i == 0 ? pMin : pMax;
+    }
+    inline Point3<T>& operator[](int i) {
+        ASSERT(i == 0 || i == 1);
+        return i == 0 ? pMin : pMax;
+    }
+
+    Point3<T> pMin, pMax;
+};
+
+// Bounds template typedefs
+typedef Bounds2<int> Bounds2i;
+typedef Bounds2<Real> Bounds2f;
+typedef Bounds3<int> Bounds3i;
+typedef Bounds3<Real> Bounds3f;
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const Bounds2<T>& b) {
+    return (os << "[ " << b.pMin << " - " << b.pMax << " ]");
+}
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const Bounds3<T>& b) {
+    return (os << "[ " << b.pMin << " - " << b.pMax << " ]");
+}
+
+
+// Left over constructors
+template <typename T>
+Vector2<T>::Vector2(const Point2<T>& p) { ASSERT(!p.hasNaNs()); x = p.x; y = p.y; }
+template <typename T>
+Vector2<T>::Vector2(const Point3<T>& p) { ASSERT(!p.hasNaNs()); x = p.x; y = p.y; }
+
+template <typename T>
+Vector3<T>::Vector3(const Point3<T>& p) { ASSERT(!p.hasNaNs()); x = p.x; y = p.y; z = p.z; }
+template <typename T>
+Vector3<T>::Vector3(const Normal3<T>& n) { ASSERT(!n.hasNaNs()); x = n.x; y = n.y; z = n.z; }
+
+template <typename T>
+Point2<T>::Point2(const Point3<T>& p) { ASSERT(!p.hasNaNs()); x = p.x; y = p.y; }
+
+
 // Geometry inline functions
+template <typename T, typename U>
+inline Vector2<T> operator*(U s, const Vector2<T>& v) { return v * s; }
+template <typename T, typename U>
+inline Vector3<T> operator*(U s, const Vector3<T>& v) { return v * s; }
+template <typename T, typename U>
+inline Point2<T> operator*(U s, const Point2<T>& p) { return p * s; }
+template <typename T, typename U>
+inline Point3<T> operator*(U s, const Point3<T>& p) { return p * s; }
+template <typename T, typename U>
+inline Normal3<T> operator*(U s, const Normal3<T>& n) { return n * s; }
+
+// Dot products
+template <typename T>
+inline T dot(const Vector2<T>& v1, const Vector2<T>& v2) {
+    ASSERT(!v1.hasNaNs() && !v2.hasNaNs());
+    return v1.x * v2.x + v1.y * v2.y;
+}
+template <typename T>
+inline T dot(const Vector3<T>& v1, const Vector3<T>& v2) {
+    ASSERT(!v1.hasNaNs() && !v2.hasNaNs());
+    return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
+template <typename T>
+inline T dot(const Vector3<T>& v, const Normal3<T>& n) {
+    ASSERT(!v.hasNaNs() && !n.hasNaNs());
+    return v.x * n.x + v.y * n.y + v.z * n.z;
+}
+template <typename T>
+inline T dot(const Normal3<T>& n, const Vector3<T>& v) {
+    ASSERT(!n.hasNaNs() && !v.hasNaNs());
+    return n.x * v.x + n.y * v.y + n.z * v.z;
+}
+template <typename T>
+inline T dot(const Normal3<T>& n1, const Normal3<T>& n2) {
+    ASSERT(!n1.hasNaNs() && !n2.hasNaNs());
+    return n1.x * n2.x + n1.y * n2.y + n1.z * n2.z;
+}
+
+// AbsDot products
+template <typename T>
+inline T absDot(const Vector2<T>& v1, const Vector2<T>& v2) {
+    return std::abs(dot(v1, v2));
+}
+template <typename T>
+inline T absDot(const Vector3<T>& v1, const Vector3<T>& v2) {
+    return std::abs(dot(v1, v2));
+}
+template <typename T>
+inline T absDot(const Vector3<T>& v, const Normal3<T>& n) {
+    return std::abs(dot(v, n));
+}
+template <typename T>
+inline T absDot(const Normal3<T>& n, const Vector3<T>& v) {
+    return std::abs(dot(n, v));
+}
+template <typename T>
+inline T absDot(const Normal3<T>& n1, const Normal3<T>& n2) {
+    return std::abs(dot(n1, n2));
+}
+
+// Abs operations
+template <typename T>
+Vector2<T> abs(const Vector2<T>& v) {
+    return Vector2<T>(std::abs(v.x), std::abs(v.y));
+}
+template <typename T>
+Vector3<T> abs(const Vector3<T>& v) {
+    return Vector3<T>(std::abs(v.x), std::abs(v.y), std::abs(v.z));
+}
+template <typename T>
+Point2<T> abs(const Point2<T>& p) {
+    return Point2<T>(std::abs(p.x), std::abs(p.y));
+}
+template <typename T>
+Point3<T> abs(const Point3<T>& p) {
+    return Point3<T>(std::abs(p.x), std::abs(p.y), std::abs(p.z));
+}
+template <typename T>
+Normal3<T> abs(const Normal3<T>& n) {
+    return Normal3<T>(std::abs(n.x), std::abs(n.y), std::abs(n.z));
+}
+
+// Cross products
+template <typename T>
+inline Vector3<T> cross(const Vector3<T>& v1, const Vector3<T>& v2) {
+    ASSERT(!v1.hasNaNs() && v2.hasNaNs());
+    double x1 = v1.x, y1 = v1.y, z1 = v1.z;
+    double x2 = v2.x, y2 = v2.y, z2 = v2.z;
+    return Vector3<T>((y1 * z2 - z1 * y2), (z1 * x2 - x1 * z2), (x1 * y2 - y1 * x2));
+}
+template <typename T>
+inline Vector3<T> cross(const Vector3<T>& v, const Normal3<T>& n) {
+    ASSERT(!v.hasNaNs() && n.hasNaNs());
+    double x1 = v.x, y1 = v.y, z1 = v.z;
+    double x2 = n.x, y2 = n.y, z2 = n.z;
+    return Vector3<T>((y1 * z2 - z1 * y2), (z1 * x2 - x1 * z2), (x1 * y2 - y1 * x2));
+}
+template <typename T>
+inline Vector3<T> cross(const Normal3<T>& n, const Vector3<T>& v) {
+    ASSERT(!n.hasNaNs() && v.hasNaNs());
+    double x1 = n.x, y1 = n.y, z1 = n.z;
+    double x2 = v.x, y2 = v.y, z2 = v.z;
+    return Vector3<T>((y1 * z2 - z1 * y2), (z1 * x2 - x1 * z2), (x1 * y2 - y1 * x2));
+}
+template <typename T>
+inline Normal3<T> cross(const Normal3<T>& n1, const Normal3<T>& n2) {
+    ASSERT(!n1.hasNaNs() && n2.hasNaNs());
+    double x1 = n1.x, y1 = n1.y, z1 = n1.z;
+    double x2 = n2.x, y2 = n2.y, z2 = n2.z;
+    return Normal3<T>((y1 * z2 - z1 * y2), (z1 * x2 - x1 * z2), (x1 * y2 - y1 * x2));
+}
+
+// Normalize operations
+template <typename T>
+inline Vector2<T> normalize(const Vector2<T>& v) { return v / v.length(); }
+template <typename T>
+inline Vector3<T> normalize(const Vector3<T>& v) { return v / v.length(); }
+template <typename T>
+inline Normal3<T> normalize(const Normal3<T>& n) { return n / n.length(); }
+
+// Miscellaneous operations
+template <typename T>
+T minComponent(const Vector3<T>& v) { return std::min(v.x, std::min(v.y, v.z)); }
+template <typename T>
+T maxComponent(const Vector3<T>& v) { return std::max(v.x, std::max(v.y, v.z)); }
+
+template <typename T>
+int maxDimension(const Vector3<T>& v) {
+    return (v.x > v.y) ? (v.x > v.z ? 0 : 2) : (v.y > v.z ? 1 : 2);
+}
+
+template <typename T>
+Vector3<T> permute(const Vector3<T>& v, int i, int j, int k) {
+    return Vector3<T>(v[i], v[j], v[k]);
+}
+template <typename T>
+Point3<T> permute(const Point3<T>& v, int i, int j, int k) {
+    return Point3<T>(v[i], v[j], v[k]);
+}
+
+template <typename T>
+inline Real distanceSquared(const Point2<T>& p1, const Point2<T>& p2) {
+    return (p1 - p2).lengthSquared();
+}
+template <typename T>
+inline Real distanceSquared(const Point3<T>& p1, const Point3<T>& p2) {
+    return (p1 - p2).lengthSquared();
+}
+
+template <typename T>
+inline Real distance(const Point2<T>& p1, const Point2<T>& p2) {
+    return (p1 - p2).length();
+}
+template <typename T>
+inline Real distance(const Point3<T>& p1, const Point3<T>& p2) {
+    return (p1 - p2).length();
+}
+
+template <typename T>
+Point2<T> lerp(Real f, const Point2<T>& p1, const Point2<T>& p2) {
+    return (1 - f) * p1 + f * p2;
+}
+template <typename T>
+Point3<T> lerp(Real f, const Point3<T>& p1, const Point3<T>& p2) {
+    return (1 - f) * p1 + f * p2;
+}
+
+template <typename T>
+Point2<T> floor(const Point2<T>& p) {
+    return Point2<T>(std::floor(p.x), std::floor(p.y));
+}
+template <typename T>
+Point3<T> floor(const Point3<T>& p) {
+    return Point3<T>(std::floor(p.x), std::floor(p.y), std::floor(p.z));
+}
+
+template <typename T>
+Point2<T> ceil(const Point2<T>& p) {
+    return Point2<T>(std::ceil(p.x), std::ceil(p.y));
+}
+template <typename T>
+Point3<T> ceil(const Point3<T>& p) {
+    return Point3<T>(std::ceil(p.x), std::ceil(p.y), std::ceil(p.z));
+}
+
+// Min, Max
+template <typename T>
+Vector3<T> min(const Vector3<T>& v1, const Vector3<T>& v2) {
+    return Vector3<T>(std::min(v1.x, v2.x), std::min(v1.y, v2.y),
+                      std::min(v1.z, v2.z));
+}
+template <typename T>
+Point2<T> min(const Point2<T>& p1, const Point2<T>& p2) {
+    return Point2<T>(std::min(p1.x, p2.x), std::min(p1.y, p2.y));
+}
+template <typename T>
+Point3<T> min(const Point3<T>& p1, const Point3<T>& p2) {
+    return Point3<T>(std::min(p1.x, p2.x), std::min(p1.y, p2.y),
+                     std::min(p1.z, p2.z));
+}
+template <typename T>
+Vector3<T> max(const Vector3<T>& v1, const Vector3<T>& v2) {
+    return Vector3<T>(std::max(v1.x, v2.x), std::max(v1.y, v2.y),
+                      std::max(v1.z, v2.z));
+}
+template <typename T>
+Point2<T> max(const Point2<T>& p1, const Point2<T>& p2) {
+    return Point2<T>(std::max(p1.x, p2.x), std::max(p1.y, p2.y));
+}
+template <typename T>
+Point3<T> max(const Point3<T>& p1, const Point3<T>& p2) {
+    return Point3<T>(std::max(p1.x, p2.x), std::max(p1.y, p2.y),
+                     std::max(p1.z, p2.z));
+}
+
+
+// Bounds operations
+template <typename T>
+Bounds2<T> unionBounds(const Bounds2<T>& b, const Point2<T>& p) {
+    return Bounds2<T>(
+                Point2<T>(std::min(b.pMin.x, p.x), std::min(b.pMin.y, p.y)),
+                Point2<T>(std::max(b.pMax.x, p.x), std::max(b.pMax.y, p.y)));
+}
+template <typename T>
+Bounds2<T> unionBounds(const Bounds2<T>& b1, const Bounds2<T>& b2) {
+    return Bounds2<T>(
+                Point2<T>(std::min(b1.pMin.x, b2.pMin.x), std::min(b1.pMin.y, b2.pMin.y)),
+                Point2<T>(std::max(b1.pMax.x, b2.pMax.x), std::max(b1.pMax.y, b2.pMax.y)));
+}
+template <typename T>
+Bounds3<T> unionBounds(const Bounds3<T>& b, const Point3<T>& p) {
+    return Bounds3<T>(
+                Point3<T>(std::min(b.pMin.x, p.x), std::min(b.pMin.y, p.y),
+                          std::min(b.pMin.z, p.z)),
+                Point3<T>(std::max(b.pMax.x, p.x), std::max(b.pMax.y, p.y),
+                          std::max(b.pMax.z, p.z)));
+}
+template <typename T>
+Bounds3<T> unionBounds(const Bounds3<T>& b1, const Bounds3<T>& b2) {
+    return Bounds3<T>(
+                Point3<T>(std::min(b1.pMin.x, b2.pMin.x), std::min(b1.pMin.y, b2.pMin.y),
+                          std::min(b1.pMin.z, b2.pMin.z)),
+                Point3<T>(std::max(b1.pMax.x, b2.pMax.x), std::max(b1.pMax.y, b2.pMax.y),
+                          std::max(b1.pMax.z, b2.pMax.z)));
+}
+
+/**
+ * Minimum squared distance from a point to a bounding box.
+ * Returns 0 if the point lies inside the box
+ */
+template <typename T, typename U>
+inline Real distanceSquared(const Point3<T>& p, const Bounds3<U>& b) {
+    Real dx = std::max({ Real(0), b.pMin.x - p.x, p.x - b.pMax.x });
+    Real dy = std::max({ Real(0), b.pMin.y - p.y, p.y - b.pMax.y });
+    Real dz = std::max({ Real(0), b.pMin.z - p.z, p.z - b.pMax.z });
+    return dx * dx + dy * dy + dz * dz;
+}
+
+template <typename T, typename U>
+inline Real distance(const Point3<T>& p, const Bounds3<U>& b) {
+    return std::sqrt(distanceSquared(p, b));
+}
 
 
 } // namespace phyr
+
+#endif

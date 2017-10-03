@@ -47,6 +47,9 @@ inline bool isNaN(const int x) { return false; }
 template <typename T>
 inline bool isZero(const T x) { return x == 0; }
 
+template <typename T>
+inline Real lerp(Real f, Real v0, Real v1) { return (1 - f) * v0 + f * v1; }
+
 }
 
 #endif
