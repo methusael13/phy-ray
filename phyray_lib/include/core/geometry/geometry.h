@@ -595,6 +595,12 @@ class Bounds2 {
         return off;
     }
 
+    void boundingSphere(Point2<T>* center, Real* rad) const {
+        *center = (pMin + pMax) / 2;
+        *rad = inside(*center, *this) ? distance(*center, pMax) : 0;
+    }
+
+    bool isValid() const { return pMin.x <= pMax.x && pMin.y <= pMax.y; }
     bool operator==(const Bounds2<T>& b) const { return b.pMin == pMin && b.pMax == pMax; }
     bool operator!=(const Bounds2<T>& b) const { return b.pMin != pMin || b.pMax != pMax; }
 
@@ -680,6 +686,12 @@ class Bounds3 {
         return off;
     }
 
+    void boundingSphere(Point3<T>* center, Real* rad) const {
+        *center = (pMin + pMax) / 2;
+        *rad = inside(*center, *this) ? distance(*center, pMax) : 0;
+    }
+
+    bool isValid() const { return pMin.x <= pMax.x && pMin.y <= pMax.y && pMin.z <= pMax.z; }
     bool operator==(const Bounds3<T>& b) const { return b.pMin == pMin && b.pMax == pMax; }
     bool operator!=(const Bounds3<T>& b) const { return b.pMin != pMin || b.pMax != pMax; }
 
@@ -867,6 +879,25 @@ Point3<T> permute(const Point3<T>& v, int i, int j, int k) {
     return Point3<T>(v[i], v[j], v[k]);
 }
 
+/**
+ * To create a coordinate system, we need to calculate two other
+ * orthogonal vectors from v1.
+ * The second vector can be created by zeroing one of the components
+ * of v1, swapping the remaining two, and then negating one of them.
+ * The third vector then is simply the cross product of the previous two vectors.
+ *
+ * The input vector v1 is assumed to be already normalized.
+ */
+template <typename T>
+inline void coordinateSystem(const Vector3<T>& v1, Vector3<T>* v2, Vector3<T>* v3) {
+    ASSERT(v2 != nullptr && v3 != nullptr);
+    if (std::abs(v1.x) > std::abs(v1.y))
+        *v2 = Vector3<T>(-v1.z, 0, v1.x) / std::sqrt(v1.x * v1.x + v1.z * v1.z);
+    else
+        *v2 = Vector3<T>(0, v1.z, -v1.y) / std::sqrt(v1.y * v1.y + v1.z * v1.z);
+    *v3 = cross(v1, *v2);
+}
+
 template <typename T>
 inline Real distanceSquared(const Point2<T>& p1, const Point2<T>& p2) {
     return (p1 - p2).lengthSquared();
@@ -910,6 +941,23 @@ Point2<T> ceil(const Point2<T>& p) {
 template <typename T>
 Point3<T> ceil(const Point3<T>& p) {
     return Point3<T>(std::ceil(p.x), std::ceil(p.y), std::ceil(p.z));
+}
+
+template <typename T>
+inline Vector3<T> faceForward(const Vector3<T>& v1, const Vector3<T>& v2) {
+    return (dot(v1, v2) < 0.0f) ? -v1 : v1;
+}
+template <typename T>
+inline Vector3<T> faceForward(const Vector3<T>& v, const Normal3<T>& n) {
+    return (dot(v, n) < 0.0f) ? -v : v;
+}
+template <typename T>
+inline Normal3<T> faceForward(const Normal3<T>& n, const Vector3<T>& v) {
+    return (dot(n, v) < 0.0f) ? -n : n;
+}
+template <typename T>
+inline Normal3<T> faceForward(const Normal3<T>& n1, const Normal3<T>& n2) {
+    return (dot(n1, n2) < 0.0f) ? -n1 : n1;
 }
 
 // Min, Max
@@ -971,6 +1019,75 @@ Bounds3<T> unionBounds(const Bounds3<T>& b1, const Bounds3<T>& b2) {
                           std::min(b1.pMin.z, b2.pMin.z)),
                 Point3<T>(std::max(b1.pMax.x, b2.pMax.x), std::max(b1.pMax.y, b2.pMax.y),
                           std::max(b1.pMax.z, b2.pMax.z)));
+}
+
+template <typename T>
+inline Bounds2<T> intersect(const Bounds2<T>& b1, const Bounds2<T>& b2) {
+    // Assign the values directly to pMin and pMax.
+    // Using the Bounds2 constructor will recalculate
+    // the min/max of the supplied points, thus nullifying
+    // the result we want to achieve.
+    Bounds2<T> res;
+    res.pMin = max(b1.pMin, b2.pMin);
+    res.pMax = min(b1.pMax, b2.pMax);
+    return res;
+}
+template <typename T>
+inline Bounds3<T> intersect(const Bounds3<T>& b1, const Bounds3<T>& b2) {
+    // Assign the values directly to pMin and pMax.
+    // Using the Bounds3 constructor will recalculate
+    // the min/max of the supplied points, thus nullifying
+    // the result we want to achieve.
+    Bounds3<T> res;
+    res.pMin = max(b1.pMin, b2.pMin);
+    res.pMax = min(b1.pMax, b2.pMax);
+    return res;
+}
+
+template <typename T>
+inline bool overlaps(const Bounds2<T>& b1, const Bounds2<T>& b2) {
+    bool x = (b1.pMax.x >= b2.pMin.x) && (b1.pMin.x <= b2.pMax.x);
+    bool y = (b1.pMax.y >= b2.pMin.y) && (b1.pMin.y <= b2.pMax.y);
+    return (x && y);
+}
+template <typename T>
+inline bool overlaps(const Bounds3<T>& b1, const Bounds3<T>& b2) {
+    bool x = (b1.pMax.x >= b2.pMin.x) && (b1.pMin.x <= b2.pMax.x);
+    bool y = (b1.pMax.y >= b2.pMin.y) && (b1.pMin.y <= b2.pMax.y);
+    bool z = (b1.pMax.z >= b2.pMin.z) && (b1.pMin.z <= b2.pMax.z);
+    return (x && y && z);
+}
+
+template <typename T>
+inline bool inside(const Point2<T>& p, const Bounds2<T>& b) {
+    return (p.x >= b.pMin.x && p.x <= b.pMax.x && p.y >= b.pMin.y &&
+            p.y <= b.pMax.y);
+}
+template <typename T>
+inline bool inside(const Point3<T>& p, const Bounds3<T>& b) {
+    return (p.x >= b.pMin.x && p.x <= b.pMax.x && p.y >= b.pMin.y &&
+            p.y <= b.pMax.y && p.z >= b.pMin.z && p.z <= b.pMax.z);
+}
+
+template <typename T>
+bool insideExclusive(const Point2<T>& p, const Bounds2<T>& b) {
+    return (p.x >= b.pMin.x && p.x < b.pMax.x && p.y >= b.pMin.y && p.y < b.pMax.y);
+}
+template <typename T>
+bool insideExclusive(const Point3<T>& p, const Bounds3<T>& b) {
+    return (p.x >= b.pMin.x && p.x < b.pMax.x && p.y >= b.pMin.y &&
+            p.y < b.pMax.y && p.z >= b.pMin.z && p.z < b.pMax.z);
+}
+
+template <typename T, typename U>
+inline Bounds2<T> expand(const Bounds2<T>& b, U delta) {
+    return Bounds2<T>(b.pMin - Vector2<T>(delta, delta),
+                      b.pMax + Vector2<T>(delta, delta));
+}
+template <typename T, typename U>
+inline Bounds3<T> expand(const Bounds3<T>& b, U delta) {
+    return Bounds3<T>(b.pMin - Vector3<T>(delta, delta, delta),
+                      b.pMax + Vector3<T>(delta, delta, delta));
 }
 
 /**
