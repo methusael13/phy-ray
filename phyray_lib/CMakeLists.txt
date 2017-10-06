@@ -14,11 +14,14 @@ target_include_directories(lib PUBLIC
     PRIVATE src
 )
 
-target_link_libraries(lib m pthread)
+set(COMMON_LIBS lib m pthread)
+target_link_libraries(${COMMON_LIBS})
 
-add_executable(phyr_test
-    test/testlib.cpp
+set(TEST_EXE
+    test_vec test_fpe
 )
-
-target_link_libraries(phyr_test lib)
-add_test(phyr_test phyr_test)
+foreach(test_exe ${TEST_EXE})
+    add_executable(${test_exe} test/${test_exe}.cpp)
+    target_link_libraries(${test_exe} ${COMMON_LIBS})
+    add_test(${test_exe} ${test_exe})
+endforeach(test_exe)

@@ -9,11 +9,9 @@ namespace phyr {
 // Core geometry primitive class declarations
 class NaNCandidate {
   public:
-    virtual bool hasNaNs() const = 0;
+    virtual bool hasNaNs() const;
     virtual ~NaNCandidate();
 };
-
-NaNCandidate::~NaNCandidate() {}
 
 // Vector declarations
 template <typename T>
@@ -25,7 +23,7 @@ class Vector2 : public NaNCandidate {
 
     explicit Vector2(const Point2<T>& p);
     explicit Vector2(const Point3<T>& p);
-    bool hasNaNs() const { return isNaN(x) || isNaN(y); }
+    bool hasNaNs() const override { return isNaN(x) || isNaN(y); }
 
 #ifndef PHYRAY_OPTIMIZE
     Vector2(const Vector2<T>& ref) {
@@ -111,7 +109,7 @@ class Vector3 : public NaNCandidate {
 
     explicit Vector3(const Point3<T>& p);
     explicit Vector3(const Normal3<T>& n);
-    bool hasNaNs() const { return isNaN(x) || isNaN(y) || isNaN(z); }
+    bool hasNaNs() const override { return isNaN(x) || isNaN(y) || isNaN(z); }
 
 #ifndef PHYRAY_OPTIMIZE
     Vector3(const Vector3<T>& ref) {
@@ -218,7 +216,7 @@ class Point2 : public NaNCandidate {
     Point2(T _x, T _y) : x(_x), y(_y) { ASSERT(!hasNaNs()); }
 
     explicit Point2(const Point3<T>& p);
-    bool hasNaNs() const { return isNaN(x) || isNaN(y); }
+    bool hasNaNs() const override { return isNaN(x) || isNaN(y); }
 
     // Construction from other types
     template <typename U>
@@ -329,7 +327,7 @@ class Point3 : public NaNCandidate {
     Point3() : x(0), y(0), z(0) {}
     Point3(T _x, T _y, T _z) : x(_x), y(_y), z(_z) { ASSERT(!hasNaNs()); }
 
-    bool hasNaNs() const { return isNaN(x) || isNaN(y); }
+    bool hasNaNs() const override { return isNaN(x) || isNaN(y); }
 
     // Construction from other types
     template <typename U>
@@ -467,7 +465,7 @@ class Normal3 : public NaNCandidate {
         ASSERT(!ref.hasNaNs());
         x = ref.x; y = ref.y; z = ref.z;
     }
-    bool hasNaNs() const { return isNaN(x) || isNaN(y) || isNaN(z); }
+    bool hasNaNs() const override { return isNaN(x) || isNaN(y) || isNaN(z); }
 
 #ifndef PHYRAY_OPTIMIZE
     Normal3(const Normal3<T>& ref) {
@@ -557,6 +555,24 @@ inline std::ostream& operator<<(std::ostream& os, const Normal3<T>& n) {
     return (os << "[" << n.x << ", " << n.y << ", " << n.z << "]");
 }
 
+
+// Ray declarations
+class Ray : public NaNCandidate {
+  public:
+    Ray() : tMax(Infinity), time(0.), medium(nullptr) {}
+    Ray(const Point3f& origin, const Vector3f& direction,
+        Real tMax = Infinity, Real time = 0., const Medium* medium = nullptr) :
+        o(origin), d(direction), tMax(tMax), time(time), medium(medium) {}
+
+    Point3f operator()(Real t) { return o + d * t; }
+    bool hasNaNs() const override { return o.hasNaNs() || d.hasNaNs() || isNaN(tMax); }
+
+    Point3f o;   // Origin
+    Vector3f d;  // Direction
+    mutable Real tMax;
+    Real time;
+    const Medium* medium;
+};
 
 // Bounds declarations
 template <typename T>
@@ -691,6 +707,9 @@ class Bounds3 {
         *rad = inside(*center, *this) ? distance(*center, pMax) : 0;
     }
 
+    inline bool intersectRay(const Ray& ray, Real* tnear = nullptr, Real* tfar = nullptr) const;
+    inline bool intersectRay(const Ray& ray, const Vector3<T>& invDir, const int isDirNeg[3]) const;
+
     bool isValid() const { return pMin.x <= pMax.x && pMin.y <= pMax.y && pMin.z <= pMax.z; }
     bool operator==(const Bounds3<T>& b) const { return b.pMin == pMin && b.pMax == pMax; }
     bool operator!=(const Bounds3<T>& b) const { return b.pMin != pMin || b.pMax != pMax; }
@@ -824,28 +843,28 @@ Normal3<T> abs(const Normal3<T>& n) {
 // Cross products
 template <typename T>
 inline Vector3<T> cross(const Vector3<T>& v1, const Vector3<T>& v2) {
-    ASSERT(!v1.hasNaNs() && v2.hasNaNs());
+    ASSERT(!v1.hasNaNs() && !v2.hasNaNs());
     double x1 = v1.x, y1 = v1.y, z1 = v1.z;
     double x2 = v2.x, y2 = v2.y, z2 = v2.z;
     return Vector3<T>((y1 * z2 - z1 * y2), (z1 * x2 - x1 * z2), (x1 * y2 - y1 * x2));
 }
 template <typename T>
 inline Vector3<T> cross(const Vector3<T>& v, const Normal3<T>& n) {
-    ASSERT(!v.hasNaNs() && n.hasNaNs());
+    ASSERT(!v.hasNaNs() && !n.hasNaNs());
     double x1 = v.x, y1 = v.y, z1 = v.z;
     double x2 = n.x, y2 = n.y, z2 = n.z;
     return Vector3<T>((y1 * z2 - z1 * y2), (z1 * x2 - x1 * z2), (x1 * y2 - y1 * x2));
 }
 template <typename T>
 inline Vector3<T> cross(const Normal3<T>& n, const Vector3<T>& v) {
-    ASSERT(!n.hasNaNs() && v.hasNaNs());
+    ASSERT(!n.hasNaNs() && !v.hasNaNs());
     double x1 = n.x, y1 = n.y, z1 = n.z;
     double x2 = v.x, y2 = v.y, z2 = v.z;
     return Vector3<T>((y1 * z2 - z1 * y2), (z1 * x2 - x1 * z2), (x1 * y2 - y1 * x2));
 }
 template <typename T>
 inline Normal3<T> cross(const Normal3<T>& n1, const Normal3<T>& n2) {
-    ASSERT(!n1.hasNaNs() && n2.hasNaNs());
+    ASSERT(!n1.hasNaNs() && !n2.hasNaNs());
     double x1 = n1.x, y1 = n1.y, z1 = n1.z;
     double x2 = n2.x, y2 = n2.y, z2 = n2.z;
     return Normal3<T>((y1 * z2 - z1 * y2), (z1 * x2 - x1 * z2), (x1 * y2 - y1 * x2));
@@ -1096,15 +1115,80 @@ inline Bounds3<T> expand(const Bounds3<T>& b, U delta) {
  */
 template <typename T, typename U>
 inline Real distanceSquared(const Point3<T>& p, const Bounds3<U>& b) {
+#if __cplusplus >= 201402L
     Real dx = std::max({ Real(0), b.pMin.x - p.x, p.x - b.pMax.x });
     Real dy = std::max({ Real(0), b.pMin.y - p.y, p.y - b.pMax.y });
     Real dz = std::max({ Real(0), b.pMin.z - p.z, p.z - b.pMax.z });
+#else
+    Real dx = std::max(Real(0), std::max(b.pMin.x - p.x, p.x - b.pMax.x));
+    Real dy = std::max(Real(0), std::max(b.pMin.y - p.y, p.y - b.pMax.y));
+    Real dz = std::max(Real(0), std::max(b.pMin.z - p.z, p.z - b.pMax.z));
+#endif
     return dx * dx + dy * dy + dz * dz;
 }
 
 template <typename T, typename U>
 inline Real distance(const Point3<T>& p, const Bounds3<U>& b) {
     return std::sqrt(distanceSquared(p, b));
+}
+
+template <typename T>
+inline bool Bounds3<T>::intersectRay(const Ray& ray, Real* tnear, Real* tfar) const {
+    Real tn = 0., tf = ray.tMax;
+    // Test for intersection against each
+    // axis-aligned slab of the bounding box
+    for (int i = 0; i < 3; i++) {
+        Real dInv = 1.0 / ray.d[i];
+        Real _tn = (pMin[i] - ray.o[i]) * dInv;
+        Real _tf = (pMax[i] - ray.o[i]) * dInv;
+
+        // Make sure _tn <= _tf
+        if (_tn > _tf) std::swap(_tn, _tf);
+        // Increase _tf's error bounds to conservatively return true
+        // in case of comparisons when there's an overlap in their error bounds
+        _tf *= 1 + 2 * gamma(3);
+        // Make sure the comparisons don't result in retention of NaN.
+        // Using the fact that comparison of any sorts with NaN is always false
+        tn = _tn > tn ? _tn : tn;
+        tf = _tf < tf ? _tf : tf;
+        if (tn > tf) return false;
+    }
+
+    if (tnear) *tnear = tn; if (tfar) *tfar = tf;
+    return true;
+}
+
+/**
+ * Slightly optimized version of the function above.
+ * Requires inverse and sign of direction vectors to be precomputed
+ */
+template <typename T>
+inline bool Bounds3<T>::intersectRay(const Ray& ray, const Vector3<T>& invDir,
+                                     const int isDirNeg[3]) const {
+    const Bounds3<T>& b = *this;
+    // Test against x and y slabs
+    Real tmin =  (b[  isDirNeg[0]].x - ray.o.x) * invDir.x;
+    Real tmax =  (b[1-isDirNeg[0]].x - ray.o.x) * invDir.x;
+    Real tymin = (b[  isDirNeg[1]].y - ray.o.y) * invDir.y;
+    Real tymax = (b[1-isDirNeg[1]].y - ray.o.y) * invDir.y;
+
+    // Adjust for cases of overlapping error bounds
+    tmax *= 1 + 2 * gamma(3); tymax *= 1 + 2 * gamma(3);
+    if (tymin > tmax || tymax < tmin) return false;
+    if (tymin > tmin) tmin = tymin;
+    if (tymax < tmax) tmax = tymax;
+
+    // Test against z slab
+    Real tzmin = (b[  isDirNeg[2]].z - ray.o.z) * invDir.z;
+    Real tzmax = (b[1-isDirNeg[2]].z - ray.o.z) * invDir.z;
+
+    // Adjust for cases of overlapping error bounds
+    tzmax *= 1 + 2 * gamma(3);
+    if (tzmin > tmax || tzmax < tmin) return false;
+    if (tzmin > tmin) tmin = tzmin;
+    if (tzmax < tmax) tmax = tzmax;
+
+    return (tmax < ray.tMax) && (tmin > 0);
 }
 
 
