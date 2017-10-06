@@ -26,7 +26,13 @@ int main(int argc, const char* argv[]) {
     bool valid = (valid1 && valid2 && valid3);
 
     std::cout << "Result: " << valid << std::endl;
-    return valid ? 0 : 1;
+
+    phyr::Point3f p1(1, 2, 3);
+    phyr::Point3f p2(1, 2, 3);
+    phyr::Vector3f v = p1 - p2;
+    bool pass = v.x == 0 && v.y == 0 && v.z == 0;
+
+    return pass ? 0 : 1;
 }
 
 #pragma GCC diagnostic pop
