@@ -88,7 +88,7 @@ class Vector2 : public NaNCandidate {
     Vector2<T> operator-() const { return Vector2<T>(-x, -y); }
 
     bool operator==(const Vector2<T>& rhs) const { return x == rhs.x && y == rhs.y; }
-    bool operator!=(const Vector2<T>& rhs) const { return x != rhs.x || y == rhs.y; }
+    bool operator!=(const Vector2<T>& rhs) const { return x != rhs.x || y != rhs.y; }
 
     inline T operator[](int i) const { ASSERT(i == 0 || i == 1); return i ? y : x; }
     inline T& operator[](int i) { ASSERT(i == 0 || i == 1); return i ? y : x; }
@@ -174,7 +174,7 @@ class Vector3 : public NaNCandidate {
     Vector3<T> operator-() const { return Vector3<T>(-x, -y, -z); }
 
     bool operator==(const Vector3<T>& rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z; }
-    bool operator!=(const Vector3<T>& rhs) const { return x != rhs.x || y == rhs.y || z == rhs.z; }
+    bool operator!=(const Vector3<T>& rhs) const { return x != rhs.x || y != rhs.y || z != rhs.z; }
 
     inline T operator[](int i) const {
         ASSERT(i >= 0 && i <= 2);
@@ -530,7 +530,7 @@ class Normal3 : public NaNCandidate {
     Normal3<T> operator-() const { return Normal3<T>(-x, -y, -z); }
 
     bool operator==(const Normal3<T>& rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z; }
-    bool operator!=(const Normal3<T>& rhs) const { return x != rhs.x || y == rhs.y || z == rhs.z; }
+    bool operator!=(const Normal3<T>& rhs) const { return x != rhs.x || y != rhs.y || z != rhs.z; }
 
     inline T operator[](int i) const {
         ASSERT(i >= 0 && i <= 2);
