@@ -13,7 +13,7 @@ int main(int argc, const char* argv[]) {
         fp = phyr::nextFloatDown(fp);
     }
 
-    return phyr::epsEqual(fp, 0.5) ? 1 : 0;
+    return phyr::epsEqual(fp, 0.5f) ? 1 : 0;
 }
 
 #pragma GCC diagnostic pop

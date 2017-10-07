@@ -8,23 +8,20 @@
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
 int main(int argc, const char* argv[]) {
-    phyr::Mat4x4 m = phyr::Mat4x4::zeroes();
-    for (int i = 0; i < 4; i++)
-        for (int j = 0; j < 4; j++)
-            m(i, j) = 4 * i + (j + 1);
-
+    phyr::Mat4x4 m(11, 10, 4, 6, 9, 8, 7, 12,
+                   13, 14, 15, 16, 17, 3, 5, 18);
     std::cout << "M:\n";
     std::cout << m << std::endl;
 
-    phyr::Mat4x4 tm = phyr::Mat4x4::transpose(m);
-    std::cout << "\nTransposed M:\n";
+    phyr::Mat4x4 tm = phyr::Mat4x4::inverse(m);
+    std::cout << "\nInverse M:\n";
     std::cout << tm << std::endl;
 
     phyr::Mat4x4 prod = m * tm;
     std::cout << "\nProduct:\n";
-    std::cout << prod << std::endl;
+    std::cout << std::fixed << prod << std::endl;
 
-    return 0;
+    return m == phyr::Mat4x4() ? 0 : 1;
 }
 
 #pragma GCC diagnostic pop
