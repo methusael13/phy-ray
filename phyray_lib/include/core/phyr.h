@@ -74,14 +74,15 @@ inline bool isZero(const T x) { return x == 0; }
 template <typename T>
 inline Real lerp(Real f, Real v0, Real v1) { return (1 - f) * v0 + f * v1; }
 
-template <typename T>
-inline bool epsEqual(T v1, T v2) {
+template <typename T, typename U>
+inline bool epsEqual(T _v1, U _v2) {
 #if __cplusplus >= 201402L
-    Real maxv = std::max({ Real(1), v1, v2 });
+    Real maxv = std::max({ Real(1), _v1, _v2 });
 #else
-    Real maxv = std::max(1.0, std::max(std::abs(v1), std::abs(v2)));
+    Real v1 = Real(_v1), v2 = Real(_v2);
+    Real maxv = std::max(Real(1), std::max(std::abs(v1), std::abs(v2)));
 #endif
-    return std::abs(v1 - v2) <= MachineEpsilon * maxv;
+    return std::abs(_v1 - _v2) <= MachineEpsilon * maxv;
 }
 
 /**
@@ -165,6 +166,6 @@ inline double nextFloatDown(double f, int delta = 1) {
     return bitsToFloat(i);
 }
 
-}
+} // namespace phyr
 
 #endif
