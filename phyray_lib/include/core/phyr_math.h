@@ -86,6 +86,12 @@ inline std::ostream& operator<<(std::ostream& os, const Mat4x4& mat) {
 
 // Global math functions
 
+/**
+ * Solves a linear system of two equations.
+ * Returns true if solution is valid, false otherwise.
+ */
+inline bool solveLinearSystem(const Real A[2][2], const Real B[2], Real* x, Real* y);
+
 } // namespace phyr
 
 #endif

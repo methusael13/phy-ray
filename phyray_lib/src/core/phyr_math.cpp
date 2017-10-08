@@ -39,4 +39,20 @@ Mat4x4 Mat4x4::inverse(const Mat4x4& mat) {
     return inv;
 }
 
+/**
+ * Solves a linear system of two equations.
+ * Returns true if solution is valid, false otherwise.
+ */
+inline bool solveLinearSystem(const Real A[2][2], const Real B[2], Real* x, Real* y) {
+    Real det = A[0][0] * A[1][1] - A[0][1] * A[1][0];
+    if (epsEqual(std::abs(det), 0, 100)) return false;
+
+    // Calculate solutions
+    *x = (A[1][1] * B[0] - A[0][1] * B[1]) / det;
+    *y = (A[0][0] * B[1] - A[1][0] * B[0]) / det;
+    // Don't allow illegal solutions
+    if (isNaN(*x) || isNaN(*y)) return false;
+    return true;
+}
+
 } // namespace phyr
