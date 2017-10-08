@@ -96,8 +96,19 @@ class Transform {
      */
     static Transform rotate(const Vector3f& axis, Real theta);
 
-    // Camera lookAt
-    static Transform lookAt(const Point3f& pos, const Point3f& lookPos, const Vector3f& up);
+    /**
+     * Calculates a transformation from LHS world space to camera space.
+     * The calculated camera space is such that the camera position is at the origin,
+     * and it's looking forward in the +Z direction, and the +Y axis is along
+     * the up direction.
+     *
+     * @param pos       The camera origin in world space
+     * @param lookPos   The world space position being looked at from the camera
+     * @param up        The world space up direction of the camera
+     * @returns         The Transform object that maps LHS world space coordinates to
+     *                  camera space coordinates
+     */
+    static Transform lookAt(const Point3f& loc, const Point3f& targetLoc, const Vector3f& up);
 
   private:
     Mat4x4 mat, invMat;
