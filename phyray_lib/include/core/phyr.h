@@ -88,7 +88,7 @@ Int ulpsDistance(const Real v1, const Real v2);
 inline bool epsEqual(Real v1, Real v2, Int ulpsEpsilon) {
     // Near zero case
     const Real diff = std::abs(v1 - v2);
-    if (diff <= MachineEpsilon) return true;
+    if (diff <= std::max(v1, v2) * MachineEpsilon) return true;
 
     return ulpsDistance(v1, v2) <= ulpsEpsilon;
 }
