@@ -48,7 +48,7 @@ class Transform {
                    mat.d[0][2] * (mat.d[1][0] * mat.d[2][1] - mat.d[1][1] * mat.d[2][0]);
         return det < 0;
     }
-    Transform operator*(const Transform& t);
+    inline Transform operator*(const Transform& t) const;
 
     // Transforms are applied on geometric primitives through
     // the overloaded function operator for each primitive type
@@ -75,11 +75,26 @@ class Transform {
     static Transform scale(Real sx, Real sy, Real sz);
 
     // Axis aligned rotation
+    /**
+     * Rotate by {theta} degrees around the x-axis
+     */
     static Transform rotateX(Real theta);
+
+    /**
+     * Rotate by {theta} degrees around the y-axis
+     */
     static Transform rotateY(Real theta);
+
+    /**
+     * Rotate by {theta} degrees around the z-axis
+     */
     static Transform rotateZ(Real theta);
-    // Arbitrary axis rotation
-    static Transform rotate(Real theta, const Vector3f& axis);
+
+    /**
+     * Rotation by theta angles around the axis given by {axis}.
+     * {axis} is assumed to be normalized
+     */
+    static Transform rotate(const Vector3f& axis, Real theta);
 
     // Camera lookAt
     static Transform lookAt(const Point3f& pos, const Point3f& lookPos, const Vector3f& up);
