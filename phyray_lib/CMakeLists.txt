@@ -4,6 +4,8 @@
 project(lib VERSION 0.1 LANGUAGES CXX)
 
 add_library(lib
+    src/core/phyr.cpp
+    src/core/phyr_math.cpp
     src/core/geometry/geometry.cpp
     src/core/geometry/transform.cpp
 )
