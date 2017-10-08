@@ -65,6 +65,9 @@ static constexpr Real PiOver2 = 1.57079632679489661923;
 static constexpr Real PiOver4 = 0.78539816339744830961;
 static constexpr Real Sqrt2 = 1.41421356237309504880;
 
+static constexpr Real UnitDegree = Pi / 180;
+static constexpr Real UnitRadian = 180 / Pi;
+
 // Global utility functions
 template <typename T>
 inline bool isNaN(const T x) { return std::isnan(x); }
@@ -76,6 +79,9 @@ inline bool isZero(const T x) { return x == 0; }
 
 template <typename T>
 inline Real lerp(Real f, Real v0, Real v1) { return (1 - f) * v0 + f * v1; }
+
+inline Real radians(Real degrees) { return degrees * UnitDegree; }
+inline Real degrees(Real radians) { return radians * UnitRadian; }
 
 Int ulpsDistance(const Real v1, const Real v2);
 
