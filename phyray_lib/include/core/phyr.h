@@ -19,8 +19,10 @@ namespace phyr {
 #define PHYRAY_USE_LONG_P
 #ifdef PHYRAY_USE_LONG_P
 #define Real double
+#define Int int64_t
 #else
 #define Real float
+#define Int int32_t
 #endif
 
 #pragma GCC diagnostic ignored "-Wconversion"
@@ -47,6 +49,7 @@ class RayDifferential;
 class Medium;
 
 // Global constants
+static constexpr Int MaxInt = std::numeric_limits<Int>::max();
 static constexpr Real MaxReal = std::numeric_limits<Real>::max();
 static constexpr Real Infinity = std::numeric_limits<Real>::infinity();
 
@@ -74,15 +77,14 @@ inline bool isZero(const T x) { return x == 0; }
 template <typename T>
 inline Real lerp(Real f, Real v0, Real v1) { return (1 - f) * v0 + f * v1; }
 
-template <typename T, typename U>
-inline bool epsEqual(T _v1, U _v2) {
-#if __cplusplus >= 201402L
-    Real maxv = std::max({ Real(1), _v1, _v2 });
-#else
-    Real v1 = Real(_v1), v2 = Real(_v2);
-    Real maxv = std::max(Real(1), std::max(std::abs(v1), std::abs(v2)));
-#endif
-    return std::abs(_v1 - _v2) <= MachineEpsilon * maxv;
+Int ulpsDistance(const Real v1, const Real v2);
+
+inline bool epsEqual(Real v1, Real v2, Int ulpsEpsilon) {
+    // Near zero case
+    const Real diff = std::abs(v1 - v2);
+    if (diff <= MachineEpsilon) return true;
+
+    return ulpsDistance(v1, v2) <= ulpsEpsilon;
 }
 
 /**
