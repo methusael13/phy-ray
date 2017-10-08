@@ -41,7 +41,7 @@ Mat4x4 Mat4x4::inverse(const Mat4x4& mat) {
 
 /**
  * Solves a linear system of two equations.
- * Returns true if solution is valid, false otherwise.
+ * Returns true if solutions are valid, false otherwise.
  */
 inline bool solveLinearSystem(const Real A[2][2], const Real B[2], Real* x, Real* y) {
     Real det = A[0][0] * A[1][1] - A[0][1] * A[1][0];

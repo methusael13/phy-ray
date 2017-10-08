@@ -88,7 +88,7 @@ inline std::ostream& operator<<(std::ostream& os, const Mat4x4& mat) {
 
 /**
  * Solves a linear system of two equations.
- * Returns true if solution is valid, false otherwise.
+ * Returns true if solutions are is valid, false otherwise.
  */
 inline bool solveLinearSystem(const Real A[2][2], const Real B[2], Real* x, Real* y);
 
