@@ -209,4 +209,36 @@ inline Bounds3f Transform::operator()(const Bounds3f& b) const {
     return Bounds3f(p1, p2);
 }
 
+/**
+ * @todo Reimplement with proper error bounds checks
+ */
+inline SurfaceInteraction Transform::operator()(const SurfaceInteraction& si) const {
+    SurfaceInteraction nsi;
+    const Transform& tr = *this;
+
+    // Interaction members
+    nsi.p = tr(si.p); nsi.n = normalize(tr(si.n));
+    nsi.wo = normalize(tr(si.wo));
+
+    // SurfaceInteraction members
+    nsi.uv = si.uv; nsi.shape = si.shape;
+    nsi.dpdu = tr(si.dpdu); nsi.dpdv = tr(si.dpdv);
+    nsi.dndu = tr(si.dndu); nsi.dndv = tr(si.dndv);
+    // SurfaceInteractio::shadingGeometry members
+    nsi.shadingGeom.n = normalize(tr(si.shadingGeom.n));
+    nsi.shadingGeom.dpdu = tr(si.shadingGeom.dpdu);
+    nsi.shadingGeom.dpdv = tr(si.shadingGeom.dpdv);
+    nsi.shadingGeom.dndu = tr(si.shadingGeom.dndu);
+    nsi.shadingGeom.dndv = tr(si.shadingGeom.dndv);
+
+    // Check if normals should be readjusted
+    nsi.shadingGeom.overridesOrientation = si.shadingGeom.overridesOrientation;
+    if (nsi.shadingGeom.overridesOrientation)
+        nsi.n = faceForward(nsi.n, nsi.shadingGeom.n);
+    else
+        nsi.shadingGeom.n = faceForward(nsi.shadingGeom.n, nsi.n);
+
+    return nsi;
+}
+
 } // namespace phyr

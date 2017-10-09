@@ -8,6 +8,7 @@ add_library(lib
     src/core/phyr_math.cpp
     src/core/geometry/geometry.cpp
     src/core/geometry/transform.cpp
+    src/core/geometry/interaction.cpp
 )
 
 target_include_directories(lib PUBLIC

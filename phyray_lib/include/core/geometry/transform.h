@@ -4,6 +4,7 @@
 #include <core/phyr.h>
 #include <core/phyr_math.h>
 #include <core/geometry/geometry.h>
+#include <core/geometry/interaction.h>
 
 namespace phyr {
 
@@ -61,6 +62,7 @@ class Transform {
 
     inline Ray operator()(const Ray& r) const;
     inline Bounds3f operator()(const Bounds3f& b) const;
+    inline SurfaceInteraction operator()(const SurfaceInteraction& si) const;
 
     // Static functions
     static Transform inverse(const Transform& t) {

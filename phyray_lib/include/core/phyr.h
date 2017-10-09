@@ -45,6 +45,13 @@ class Ray;
 // Transformations
 class Transform;
 
+// Interactions
+class Interaction;
+class SurfaceInteraction;
+
+// Shapes
+class Shape;
+
 // Global constants
 static constexpr Int MaxInt = std::numeric_limits<Int>::max();
 static constexpr Real MaxReal = std::numeric_limits<Real>::max();
