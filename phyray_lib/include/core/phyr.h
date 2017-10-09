@@ -41,12 +41,9 @@ template <typename T> class Normal3;
 template <typename T> class Bounds2;
 template <typename T> class Bounds3;
 class Ray;
-class RayDifferential;
 
 // Transformations
-
-// Medium
-class Medium;
+class Transform;
 
 // Global constants
 static constexpr Int MaxInt = std::numeric_limits<Int>::max();
