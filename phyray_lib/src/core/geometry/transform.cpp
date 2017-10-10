@@ -144,7 +144,7 @@ Transform Transform::lookAt(const Point3f& loc, const Point3f& targetLoc, const 
 // Transform application functions
 
 /**
- * @todo Reimplement with proper error bounds checks
+ * @todo Reimplement with proper error bound checks
  */
 template <typename T>
 inline Point3<T> Transform::operator()(const Point3<T>& p) const {
@@ -158,7 +158,7 @@ inline Point3<T> Transform::operator()(const Point3<T>& p) const {
 }
 
 /**
- * @todo Reimplement with proper error bounds checks
+ * @todo Reimplement with proper error bound checks
  */
 template <typename T>
 inline Vector3<T> Transform::operator()(const Vector3<T>& v) const {
@@ -194,7 +194,7 @@ inline Normal3<T> Transform::operator()(const Normal3<T>& n) const {
 }
 
 /**
- * @todo Reimplement with proper error bounds checks
+ * @todo Reimplement with proper error bound checks
  */
 inline Ray Transform::operator()(const Ray& r) const {
     Point3f o = (*this)(r.o);  // Transform origin
@@ -210,7 +210,7 @@ inline Bounds3f Transform::operator()(const Bounds3f& b) const {
 }
 
 /**
- * @todo Reimplement with proper error bounds checks
+ * @todo Reimplement with proper error bound checks
  */
 inline SurfaceInteraction Transform::operator()(const SurfaceInteraction& si) const {
     SurfaceInteraction nsi;
