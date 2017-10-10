@@ -4,7 +4,6 @@
 #include <core/phyr.h>
 #include <core/phyr_math.h>
 #include <core/geometry/geometry.h>
-#include <core/geometry/interaction.h>
 
 namespace phyr {
 

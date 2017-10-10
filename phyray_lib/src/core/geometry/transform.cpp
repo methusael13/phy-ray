@@ -1,6 +1,7 @@
 
 #include <core/phyr.h>
 #include <core/geometry/transform.h>
+#include <core/geometry/interaction.h>
 
 namespace phyr {
 
