@@ -9,6 +9,7 @@ add_library(lib
     src/core/geometry/geometry.cpp
     src/core/geometry/transform.cpp
     src/core/geometry/interaction.cpp
+    src/core/geometry/shape.cpp
 )
 
 target_include_directories(lib PUBLIC
