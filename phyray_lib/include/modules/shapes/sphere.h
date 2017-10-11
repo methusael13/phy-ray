@@ -35,6 +35,10 @@ class Sphere : public Shape {
      * @todo: Reimplement with proper error bound checks
      */
     bool intersectRay(const Ray& ray, Real* t0, SurfaceInteraction* si) const override;
+    /**
+     * @todo: Reimplement with proper error bound checks
+     */
+    bool intersectRay(const Ray& ray) const override;
 
   private:
     Real radius;

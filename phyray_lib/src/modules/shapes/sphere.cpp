@@ -85,7 +85,48 @@ bool Sphere::intersectRay(const Ray& ray, Real* t0, SurfaceInteraction* si) cons
     // Initiate the SurfaceInteraction object
     *si = (*worldToLocal)(SurfaceInteraction(hpt, -ray.d, Point2f(u, v), dpdu, dpdv, dndu, dndv, this));
 
-    return false;
+    return true;
+}
+
+/**
+ * @todo: Reimplmenet with proper error bound checks
+ */
+bool Sphere::intersectRay(const Ray& ray) const {
+    // Transform ray to local space
+    Ray lr = (*worldToLocal)(ray);
+
+    // Compute quadratic sphere coefficients
+    Real dx = lr.d.x, dy = lr.d.y, dz = lr.d.z;
+    Real ox = lr.o.x, oy = lr.o.y, oz = lr.o.z;
+    Real a = dx * dx + dy * dy + dz * dz;
+    Real b = 2 * (ox * dx + oy * dy + oz * dz);
+    Real c = ox * ox + oy * oy + oz * oz - radius * radius;
+
+    // Solve quadratic equation for t
+    Real t0, t1, t2;
+    // No intersections
+    if (!solveQuadraticSystem(a, b, c, &t1, &t2)) return false;
+
+    // Check for trivial range exclusion
+    if (t1 > ray.tMax || t2 <= 0) return false;
+    t0 = t1;
+    if (t1 <= 0) { t0 = t2; if (t2 > ray.tMax) return false; }
+
+    Point3f hpt = ray(t0);
+    if ((zMin > -radius && hpt.z < zMin) || (zMax < radius && hpt.z > zMax)) {
+        // If ray origin is inside the sphere and t2 intersects a clipped region
+        if (t0 == t2) return false;
+        // We're looking at a hole in the sphere on the near side.
+        // Test intersection with the farther side
+        if (t2 > ray.tMax) return false;
+
+        // Test with t1 failed, try t2
+        t0 = t2; hpt = ray(t2);
+        if ((zMin > -radius && hpt.z < zMin) || (zMax < radius && hpt.z > zMax))
+            return false;
+    }
+
+    return true;
 }
 
 } // namespace phyr
