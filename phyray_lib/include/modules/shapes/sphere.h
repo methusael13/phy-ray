@@ -30,6 +30,7 @@ class Sphere : public Shape {
         return Bounds3f(Point3f(-radius, -radius, zMin),
                         Point3f( radius,  radius, zMax));
     }
+    Real surfaceArea() const override { return 2 * Pi * radius * (zMax - zMin); }
 
     /**
      * @todo: Reimplement with proper error bound checks

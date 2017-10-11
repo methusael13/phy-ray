@@ -70,20 +70,13 @@ bool Sphere::intersectRay(const Ray& ray, Real* t0, SurfaceInteraction* si) cons
     Vector3f d2pduu = -twoPi * twoPi * Vector3f(hpt.x, hpt.y, 0);
     Vector3f d2pduv = delTheta * hpt.z * twoPi * Vector3f(-sinPhi, cosPhi, 0);
     Vector3f d2pdvv = -delTheta * delTheta * Vector3f(hpt.x, hpt.y, hpt.z);
-    // Compute coefficients for fundamental forms
-    Real E = dot(dpdu, dpdu), F = dot(dpdu, dpdv), G = dot(dpdv, dpdv);
-    Vector3f n = normalize(cross(dpdu, dpdv));
-    Real e = dot(n, d2pduu), f = dot(n, d2pduv), g = dot(n, d2pdvv);
 
-    // Compute dndu, dndv
-    Real invFac = 1 / (E * G - F * F);
-    Normal3f dndu = Normal3f((f * F - e * G) * invFac * dpdu +
-                             (e * F - f * E) * invFac * dpdv);
-    Normal3f dndv = Normal3f((g * f - f * G) * invFac * dpdu +
-                             (f * F - g * E) * invFac * dpdv);
-
+    // Compute surface normals
+    Normal3f dndu, dndv;
+    solveSurfaceNormal(dpdu, dpdv, d2pduu,d2pduv, d2pdvv, &dndu, &dndv);
     // Initiate the SurfaceInteraction object
-    *si = (*worldToLocal)(SurfaceInteraction(hpt, -ray.d, Point2f(u, v), dpdu, dpdv, dndu, dndv, this));
+    *si = (*worldToLocal)
+          (SurfaceInteraction(hpt, -ray.d, Point2f(u, v), dpdu, dpdv, dndu, dndv, this));
 
     return true;
 }
