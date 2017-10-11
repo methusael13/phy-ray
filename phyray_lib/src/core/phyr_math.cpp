@@ -80,4 +80,24 @@ inline bool solveQuadraticSystem(Real a, Real b, Real c, Real* t1, Real* t2) {
     return true;
 }
 
+/**
+ * Calculates the surface normal derivatives of a parametric shape
+ * defined by f(u, v) using Weingarten equations
+ */
+inline void solveSurfaceNormal(const Vector3f& dpdu, const Vector3f& dpdv,
+                               const Vector3f& d2pduu, const Vector3f& d2pduv,
+                               const Vector3f& d2pdvv, Normal3f* dndu, Normal3f* dndv) {
+    // Compute coefficients for fundamental forms
+    Real E = dot(dpdu, dpdu), F = dot(dpdu, dpdv), G = dot(dpdv, dpdv);
+    Vector3f n = normalize(cross(dpdu, dpdv));
+    Real e = dot(n, d2pduu), f = dot(n, d2pduv), g = dot(n, d2pdvv);
+
+    // Compute dndu, dndv
+    Real invFac = 1 / (E * G - F * F);
+    *dndu = Normal3f((f * F - e * G) * invFac * dpdu +
+                     (e * F - f * E) * invFac * dpdv);
+    *dndv = Normal3f((g * f - f * G) * invFac * dpdu +
+                     (f * F - g * E) * invFac * dpdv);
+}
+
 } // namespace phyr

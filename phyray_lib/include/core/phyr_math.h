@@ -5,6 +5,7 @@
 #include <algorithm>
 
 #include <core/phyr.h>
+#include <core/geometry/geometry.h>
 
 namespace phyr {
 
@@ -98,6 +99,14 @@ inline bool solveLinearSystem(const Real A[2][2], const Real B[2], Real* x, Real
  * or false depending on the existence of any solution.
  */
 inline bool solveQuadraticSystem(Real a, Real b, Real c, Real* t1, Real* t2);
+
+/**
+ * Calculates the surface normal derivatives of a parametric shape
+ * defined by f(u, v) using Weingarten equations
+ */
+inline void solveSurfaceNormal(const Vector3f& dpdu, const Vector3f& dpdv,
+                               const Vector3f& d2pduu, const Vector3f& d2pdudv,
+                               const Vector3f& d2pdvv, Normal3f* dndu, Normal3f* dndv);
 
 } // namespace phyr
 
