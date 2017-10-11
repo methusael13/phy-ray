@@ -4,7 +4,6 @@
 
 #include <modules/shapes/sphere.h>
 
-
 namespace phyr {
 
 /**
