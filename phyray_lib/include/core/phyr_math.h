@@ -92,6 +92,13 @@ inline std::ostream& operator<<(std::ostream& os, const Mat4x4& mat) {
  */
 inline bool solveLinearSystem(const Real A[2][2], const Real B[2], Real* x, Real* y);
 
+/**
+ * Solves a given quadratic equation with the given parameters.
+ * Stores the solutions in {t1} and {t2}. The function returns true
+ * or false depending on the existence of any solution.
+ */
+inline bool solveQuadraticSystem(Real a, Real b, Real c, Real* t1, Real* t2);
+
 } // namespace phyr
 
 #endif

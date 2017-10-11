@@ -55,4 +55,29 @@ inline bool solveLinearSystem(const Real A[2][2], const Real B[2], Real* x, Real
     return true;
 }
 
+/**
+ * Solves a given quadratic equation with the given parameters.
+ * Stores the solutions in {t1} and {t2}. The function returns true
+ * or false depending on the existence of any solution.
+ *
+ * @todo Reimplement with proper error bound checks
+ */
+inline bool solveQuadraticSystem(Real a, Real b, Real c, Real* t1, Real* t2) {
+    // Default improbable solutions
+    *t1 = MinReal; *t2 = MaxReal;
+
+    Real det = b*b - 4*a*c, den = 2 * a;
+    // No real solutions exist
+    if (det < 0) return false;
+    // Single solution
+    else if (det == 0) { *t1 = -b / den; }
+    // Two solutions
+    else {
+        det = std::sqrt(det);
+        *t1 = (-b - det) / den; *t2 = (-b + det) / den;
+    }
+
+    return true;
+}
+
 } // namespace phyr

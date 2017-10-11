@@ -564,7 +564,7 @@ class Ray : public NaNCandidate {
         Real tMax = Infinity, Real time = 0) :
         o(origin), d(direction), tMax(tMax), time(time) {}
 
-    Point3f operator()(Real t) { return o + d * t; }
+    Point3f operator()(Real t) const { return o + d * t; }
     bool hasNaNs() const override { return o.hasNaNs() || d.hasNaNs() || isNaN(tMax); }
 
     Point3f o;   // Origin

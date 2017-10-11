@@ -51,10 +51,12 @@ class SurfaceInteraction;
 
 // Shapes
 class Shape;
+class Sphere;
 
 // Global constants
 static constexpr Int MaxInt = std::numeric_limits<Int>::max();
 static constexpr Real MaxReal = std::numeric_limits<Real>::max();
+static constexpr Real MinReal = std::numeric_limits<Real>::min();
 static constexpr Real Infinity = std::numeric_limits<Real>::infinity();
 
 // Machine epsilon defined by the C/C++ standard is twice
@@ -104,6 +106,10 @@ inline bool epsEqual(Real v1, Real v2, Int ulpsEpsilon) {
  */
 inline constexpr Real gamma(int n) {
     return (n * MachineEpsilon) / (1 - n * MachineEpsilon);
+}
+
+inline Real clamp(Real v, Real minv, Real maxv) {
+    return std::min(std::max(v, minv), maxv);
 }
 
 inline uint32_t floatToBits(float f) {
