@@ -21,8 +21,8 @@ class Vector2 : public NaNCandidate {
     Vector2() : x(0), y(0) {}
     Vector2(T _x, T _y) : x(_x), y(_y) { ASSERT(!hasNaNs()); }
 
-    explicit Vector2(const Point2<T>& p);
-    explicit Vector2(const Point3<T>& p);
+    explicit Vector2(const Point2<T>& p) { ASSERT(!p.hasNaNs()); x = p.x; y = p.y; }
+    explicit Vector2(const Point3<T>& p) { ASSERT(!p.hasNaNs()); x = p.x; y = p.y; }
     bool hasNaNs() const override { return isNaN(x) || isNaN(y); }
 
 #ifndef PHYRAY_OPTIMIZE
@@ -107,8 +107,12 @@ class Vector3 : public NaNCandidate {
     Vector3() : x(0), y(0), z(0) {}
     Vector3(T _x, T _y, T _z) : x(_x), y(_y), z(_z) { ASSERT(!hasNaNs()); }
 
-    explicit Vector3(const Point3<T>& p);
-    explicit Vector3(const Normal3<T>& n);
+    explicit Vector3(const Point3<T>& p) {
+        ASSERT(!p.hasNaNs()); x = p.x; y = p.y; z = p.z;
+    }
+    explicit Vector3(const Normal3<T>& n) {
+        ASSERT(!n.hasNaNs()); x = n.x; y = n.y; z = n.z;
+    }
     bool hasNaNs() const override { return isNaN(x) || isNaN(y) || isNaN(z); }
 
 #ifndef PHYRAY_OPTIMIZE
@@ -215,7 +219,7 @@ class Point2 : public NaNCandidate {
     Point2() : x(0), y(0) {}
     Point2(T _x, T _y) : x(_x), y(_y) { ASSERT(!hasNaNs()); }
 
-    explicit Point2(const Point3<T>& p);
+    explicit Point2(const Point3<T>& p) { ASSERT(!p.hasNaNs()); x = p.x; y = p.y; }
     bool hasNaNs() const override { return isNaN(x) || isNaN(y); }
 
     // Construction from other types
@@ -1120,6 +1124,25 @@ inline bool Bounds3<T>::intersectRay(const Ray& ray, const Vector3<T>& invDir,
     return (tmax < ray.tMax) && (tmin > 0);
 }
 
+inline Point3f offsetRayOrigin(const Point3f& p, const Normal3f& n,
+                               const Vector3f& w, const Vector3f& fpError) {
+    Real d = dot(abs(n), fpError);
+#ifdef PHYRAY_USE_LONG_P
+    d *= 512;  // Use higher ulps factor for double
+#endif
+
+    Vector3f offset = Vector3f(n) * d;
+    if (dot(w, n) < 0) offset = -offset;
+    Point3f op = p + offset;
+
+    // Round indiviual components up or down depending on the sign
+    for (int i = 0; i < 3; i++) {
+        if (offset[i] > 0) op[i] = nextFloatUp(op[i]);
+        else if (offset[i] < 0) op[i] = nextFloatDown(op[i]);
+    }
+
+    return op;
+}
 
 } // namespace phyr
 

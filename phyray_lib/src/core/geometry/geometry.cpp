@@ -5,20 +5,6 @@ namespace phyr {
 NaNCandidate::~NaNCandidate() {}
 bool NaNCandidate::hasNaNs() const { return false; }
 
-// Left over constructors
-template <typename T>
-Vector2<T>::Vector2(const Point2<T>& p) { ASSERT(!p.hasNaNs()); x = p.x; y = p.y; }
-template <typename T>
-Vector2<T>::Vector2(const Point3<T>& p) { ASSERT(!p.hasNaNs()); x = p.x; y = p.y; }
-
-template <typename T>
-Vector3<T>::Vector3(const Point3<T>& p) { ASSERT(!p.hasNaNs()); x = p.x; y = p.y; z = p.z; }
-template <typename T>
-Vector3<T>::Vector3(const Normal3<T>& n) { ASSERT(!n.hasNaNs()); x = n.x; y = n.y; z = n.z; }
-
-template <typename T>
-Point2<T>::Point2(const Point3<T>& p) { ASSERT(!p.hasNaNs()); x = p.x; y = p.y; }
-
 
 // Miscellaneous operations
 template <typename T>
