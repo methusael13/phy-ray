@@ -89,24 +89,64 @@ inline std::ostream& operator<<(std::ostream& os, const Mat4x4& mat) {
 
 /**
  * Solves a linear system of two equations.
- * Returns true if solutions are is valid, false otherwise.
+ * Returns true if solutions are valid, false otherwise.
  */
-inline bool solveLinearSystem(const Real A[2][2], const Real B[2], Real* x, Real* y);
+inline bool solveLinearSystem(const Real A[2][2], const Real B[2], Real* x, Real* y) {
+    Real det = A[0][0] * A[1][1] - A[0][1] * A[1][0];
+    if (epsEqual(std::abs(det), 0, 100)) return false;
+
+    // Calculate solutions
+    *x = (A[1][1] * B[0] - A[0][1] * B[1]) / det;
+    *y = (A[0][0] * B[1] - A[1][0] * B[0]) / det;
+    // Don't allow illegal solutions
+    if (isNaN(*x) || isNaN(*y)) return false;
+    return true;
+}
 
 /**
  * Solves a given quadratic equation with the given parameters.
  * Stores the solutions in {t1} and {t2}. The function returns true
  * or false depending on the existence of any solution.
+ *
+ * @todo Reimplement with proper error bound checks
  */
-inline bool solveQuadraticSystem(Real a, Real b, Real c, Real* t1, Real* t2);
+inline bool solveQuadraticSystem(Real a, Real b, Real c, Real* t1, Real* t2) {
+    // Default improbable solutions
+    *t1 = MinReal; *t2 = MaxReal;
+
+    Real det = b*b - 4*a*c, den = 2 * a;
+    // No real solutions exist
+    if (det < 0) return false;
+    // Single solution
+    else if (det == 0) { *t1 = -b / den; }
+    // Two solutions
+    else {
+        det = std::sqrt(det);
+        *t1 = (-b - det) / den; *t2 = (-b + det) / den;
+    }
+
+    return true;
+}
 
 /**
  * Calculates the surface normal derivatives of a parametric shape
  * defined by f(u, v) using Weingarten equations
  */
 inline void solveSurfaceNormal(const Vector3f& dpdu, const Vector3f& dpdv,
-                               const Vector3f& d2pduu, const Vector3f& d2pdudv,
-                               const Vector3f& d2pdvv, Normal3f* dndu, Normal3f* dndv);
+                               const Vector3f& d2pduu, const Vector3f& d2pduv,
+                               const Vector3f& d2pdvv, Normal3f* dndu, Normal3f* dndv) {
+    // Compute coefficients for fundamental forms
+    Real E = dot(dpdu, dpdu), F = dot(dpdu, dpdv), G = dot(dpdv, dpdv);
+    Vector3f n = normalize(cross(dpdu, dpdv));
+    Real e = dot(n, d2pduu), f = dot(n, d2pduv), g = dot(n, d2pdvv);
+
+    // Compute dndu, dndv
+    Real invFac = 1 / (E * G - F * F);
+    *dndu = Normal3f((f * F - e * G) * invFac * dpdu +
+                     (e * F - f * E) * invFac * dpdv);
+    *dndv = Normal3f((g * f - f * G) * invFac * dpdu +
+                     (f * F - g * E) * invFac * dpdv);
+}
 
 } // namespace phyr
 
