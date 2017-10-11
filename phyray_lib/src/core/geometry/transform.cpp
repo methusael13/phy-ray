@@ -5,11 +5,6 @@
 
 namespace phyr {
 
-inline Transform Transform::operator*(const Transform& t) const {
-    // inverse(AB) = inverse(B)inverse(A)
-    return Transform(mat * t.mat, t.invMat * invMat);
-}
-
 // Transform creation functions
 Transform Transform::translate(const Vector3f& v) {
     Mat4x4 m =  Mat4x4(1, 0, 0,  v.x,

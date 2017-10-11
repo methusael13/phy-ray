@@ -48,7 +48,10 @@ class Transform {
                    mat.d[0][2] * (mat.d[1][0] * mat.d[2][1] - mat.d[1][1] * mat.d[2][0]);
         return det < 0;
     }
-    inline Transform operator*(const Transform& t) const;
+    inline Transform operator*(const Transform& t) const {
+        // inverse(AB) = inverse(B)inverse(A)
+        return Transform(mat * t.mat, t.invMat * invMat);
+    }
 
     // Transforms are applied on geometric primitives through
     // the overloaded function operator for each primitive type
