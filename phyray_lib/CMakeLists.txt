@@ -27,6 +27,7 @@ target_link_libraries(${COMMON_LIBS})
 
 set(TEST_EXE
     test_vec test_fpe test_math
+    test_isec
 )
 foreach(test_exe ${TEST_EXE})
     add_executable(${test_exe} test/${test_exe}.cpp)
