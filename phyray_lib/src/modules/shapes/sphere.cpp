@@ -92,9 +92,6 @@ bool Sphere::intersectRay(const Ray& ray, Real* t0, SurfaceInteraction* si) cons
     return true;
 }
 
-/**
- * @todo: Reimplmenet with proper error bound checks
- */
 bool Sphere::intersectRay(const Ray& ray) const {
     Vector3f roErr, rdErr;
     // Transform ray to local space
