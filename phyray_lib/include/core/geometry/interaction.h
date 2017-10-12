@@ -16,6 +16,21 @@ class Interaction {
 
     bool isSurfaceInteraction() const { return n != Normal3f(); }
 
+    // Ray emissions
+    Ray emitRay(const Vector3f& d) const {
+        Point3f o = offsetRayOrigin(p, n, d, pfError);
+        return Ray(o, d, Infinity);
+    }
+    Ray emitRay(const Point3f& target) const {
+        Point3f o = offsetRayOrigin(p, n, target - p, pfError);
+        return Ray(o, target - o, 1 - ShadowEpsilon);
+    }
+    Ray emitRay(const Interaction& it) const {
+        Point3f origin = offsetRayOrigin(p, n, it.p - p, pfError);
+        Point3f target = offsetRayOrigin(it.p, it.n, origin - it.p, it.pfError);
+        return Ray(origin, target - origin, 1 - ShadowEpsilon);
+    }
+
     // The ray-shape interaction point on the surface
     Point3f p;
     // The surface normal at point p
