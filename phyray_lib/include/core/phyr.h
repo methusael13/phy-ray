@@ -62,6 +62,9 @@ static constexpr Real Infinity = std::numeric_limits<Real>::infinity();
 // Machine epsilon defined by the C/C++ standard is twice
 // as large as the value of the term used in numerical analysis
 static constexpr Real MachineEpsilon = std::numeric_limits<Real>::epsilon() * 0.5;
+// The distance factor from an area light surface before which a
+// shadow ray must stop before reporting an intersection with it
+static constexpr Real ShadowEpsilon = 1e-5f;
 
 static constexpr Real Pi = 3.14159265358979323846;
 static constexpr Real InvPi = 0.31830988618379067154;
