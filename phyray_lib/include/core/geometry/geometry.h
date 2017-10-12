@@ -575,6 +575,10 @@ class Ray : public NaNCandidate {
     mutable Real tMax;
 };
 
+inline std::ostream& operator<<(std::ostream& os, const Ray& ray) {
+    return (os << "o: " << ray.o << "; d: " << ray.d);
+}
+
 // Bounds declarations
 template <typename T>
 class Bounds2 {
