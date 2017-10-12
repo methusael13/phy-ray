@@ -1,3 +1,4 @@
+#include <core/fperror.h>
 #include <core/phyr_math.h>
 #include <core/geometry/geometry.h>
 #include <core/geometry/interaction.h>
@@ -6,29 +7,29 @@
 
 namespace phyr {
 
-/**
- * @todo: Reimplement with proper error bound checks
- */
 bool Sphere::intersectRay(const Ray& ray, Real* t0, SurfaceInteraction* si) const {
+    Vector3f roErr, rdErr;
     // Transform ray to local space
-    Ray lr = (*worldToLocal)(ray);
+    Ray lr = (*worldToLocal)(ray, &roErr, &rdErr);
 
     // Compute quadratic sphere coefficients
-    Real dx = lr.d.x, dy = lr.d.y, dz = lr.d.z;
-    Real ox = lr.o.x, oy = lr.o.y, oz = lr.o.z;
-    Real a = dx * dx + dy * dy + dz * dz;
-    Real b = 2 * (ox * dx + oy * dy + oz * dz);
-    Real c = ox * ox + oy * oy + oz * oz - radius * radius;
+    FPError ox(lr.o.x, roErr.x), oy(lr.o.y, roErr.y), oz(lr.o.z, roErr.z);
+    FPError dx(lr.d.x, rdErr.x), dy(lr.d.y, rdErr.y), dz(lr.d.z, rdErr.z);
+    FPError a = dx * dx + dy * dy + dz * dz;
+    FPError b = 2 * (ox * dx + oy * dy + oz * dz);
+    FPError c = ox * ox + oy * oy + oz * oz - radius * radius;
 
     // Solve quadratic equation for t
-    Real t1, t2;
+    FPError t1, t2;
     // No intersections
     if (!solveQuadraticSystem(a, b, c, &t1, &t2)) return false;
 
     // Check for trivial range exclusion
-    if (t1 > ray.tMax || t2 <= 0) return false;
-    *t0 = t1;
-    if (t1 <= 0) { *t0 = t2; if (t2 > ray.tMax) return false; }
+    if (t1.upperBound() > ray.tMax || t2.lowerBound() <= 0) return false;
+    *t0 = Real(t1);
+    if (t1.lowerBound() <= 0) {
+        *t0 = Real(t2); if (t2.upperBound() > ray.tMax) return false;
+    }
 
     Point3f hpt = ray(*t0);
     // Reproject the point onto the surface to refine it
@@ -36,13 +37,13 @@ bool Sphere::intersectRay(const Ray& ray, Real* t0, SurfaceInteraction* si) cons
 
     if ((zMin > -radius && hpt.z < zMin) || (zMax < radius && hpt.z > zMax)) {
         // If ray origin is inside the sphere and t2 intersects a clipped region
-        if (*t0 == t2) return false;
+        if (*t0 == Real(t2)) return false;
         // We're looking at a hole in the sphere on the near side.
         // Test intersection with the farther side
-        if (t2 > ray.tMax) return false;
+        if (t2.upperBound() > ray.tMax) return false;
 
         // Test with t1 failed, try t2
-        *t0 = t2; hpt = ray(t2);
+        *t0 = Real(t2); hpt = ray(Real(t2));
         // Reproject the point onto the surface to refine it
         hpt *= radius / distance(hpt, Point3f(0, 0, 0));
 
@@ -94,27 +95,30 @@ bool Sphere::intersectRay(const Ray& ray, Real* t0, SurfaceInteraction* si) cons
  * @todo: Reimplmenet with proper error bound checks
  */
 bool Sphere::intersectRay(const Ray& ray) const {
+    Vector3f roErr, rdErr;
     // Transform ray to local space
-    Ray lr = (*worldToLocal)(ray);
+    Ray lr = (*worldToLocal)(ray, &roErr, &rdErr);
 
     // Compute quadratic sphere coefficients
-    Real dx = lr.d.x, dy = lr.d.y, dz = lr.d.z;
-    Real ox = lr.o.x, oy = lr.o.y, oz = lr.o.z;
-    Real a = dx * dx + dy * dy + dz * dz;
-    Real b = 2 * (ox * dx + oy * dy + oz * dz);
-    Real c = ox * ox + oy * oy + oz * oz - radius * radius;
+    FPError ox(lr.o.x, roErr.x), oy(lr.o.y, roErr.y), oz(lr.o.z, roErr.z);
+    FPError dx(lr.d.x, rdErr.x), dy(lr.d.y, rdErr.y), dz(lr.d.z, rdErr.z);
+    FPError a = dx * dx + dy * dy + dz * dz;
+    FPError b = 2 * (ox * dx + oy * dy + oz * dz);
+    FPError c = ox * ox + oy * oy + oz * oz - radius * radius;
 
     // Solve quadratic equation for t
-    Real t0, t1, t2;
+    FPError t1, t2;
     // No intersections
     if (!solveQuadraticSystem(a, b, c, &t1, &t2)) return false;
 
     // Check for trivial range exclusion
-    if (t1 > ray.tMax || t2 <= 0) return false;
-    t0 = t1;
-    if (t1 <= 0) { t0 = t2; if (t2 > ray.tMax) return false; }
+    if (t1.upperBound() > ray.tMax || t2.lowerBound() <= 0) return false;
+    FPError t0 = t1;
+    if (t1.lowerBound() <= 0) {
+        t0 = t2; if (t2.upperBound() > ray.tMax) return false;
+    }
 
-    Point3f hpt = ray(t0);
+    Point3f hpt = ray(Real(t0));
     // Reproject the point onto the surface to refine it
     hpt *= radius / distance(hpt, Point3f(0, 0, 0));
 
@@ -123,10 +127,10 @@ bool Sphere::intersectRay(const Ray& ray) const {
         if (t0 == t2) return false;
         // We're looking at a hole in the sphere on the near side.
         // Test intersection with the farther side
-        if (t2 > ray.tMax) return false;
+        if (t2.upperBound() > ray.tMax) return false;
 
         // Test with t1 failed, try t2
-        t0 = t2; hpt = ray(t2);
+        t0 = t2; hpt = ray(Real(t2));
         // Reproject the point onto the surface to refine it
         hpt *= radius / distance(hpt, Point3f(0, 0, 0));
 

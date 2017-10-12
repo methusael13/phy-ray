@@ -147,8 +147,8 @@ SurfaceInteraction Transform::operator()(const SurfaceInteraction& si) const {
     const Transform& tr = *this;
 
     // Interaction members
-    nsi.p = tr(si.p); nsi.n = normalize(tr(si.n));
-    nsi.wo = normalize(tr(si.wo));
+    nsi.p = tr(si.p, si.pfError, &nsi.pfError);
+    nsi.n = normalize(tr(si.n)); nsi.wo = normalize(tr(si.wo));
 
     // SurfaceInteraction members
     nsi.uv = si.uv; nsi.shape = si.shape;

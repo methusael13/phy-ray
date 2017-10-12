@@ -82,6 +82,32 @@ inline FPError operator-(Real f, const FPError& fp) { return FPError(f) - fp; }
 inline FPError operator*(Real f, const FPError& fp) { return FPError(f) * fp; }
 inline FPError operator/(Real f, const FPError& fp) { return FPError(f) / fp; }
 
+/**
+ * Solves a given quadratic equation with the given parameters.
+ * Stores the solutions in {t1} and {t2}. The function returns true
+ * or false depending on the existence of any solution.
+ *
+ * Error bound checks are automatically done by the FPError class
+ */
+inline bool solveQuadraticSystem(FPError a, FPError b, FPError c, FPError* t1, FPError* t2) {
+    // Default improbable solutions
+    *t1 = MinReal; *t2 = MaxReal;
+
+    FPError det = b*b - 4*a*c, den = 2 * a;
+    // No real solutions exist
+    if (Real(det) < 0) return false;
+    // Single solution
+    else if (Real(det) == 0) { *t1 = -b / den; }
+    // Two solutions
+    else {
+        det = std::sqrt(Real(det));
+        *t1 = (-b - det) / den; *t2 = (-b + det) / den;
+    }
+
+    if (Real(*t1) > Real(*t2)) std::swap(*t1, *t2);
+    return true;
+}
+
 } // namespace phyr
 
 #endif

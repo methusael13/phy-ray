@@ -56,31 +56,26 @@ class Transform {
     // Transforms are applied on geometric primitives through
     // the overloaded function operator for each primitive type
 
-    /**
-     * @todo Reimplement with proper error bound checks
-     */
     template <typename T>
-    inline Point3<T> operator()(const Point3<T>& p) const {
-        Real npx = mat.d[0][0] * p.x + mat.d[0][1] * p.y + mat.d[0][2] * p.z + mat.d[0][3];
-        Real npy = mat.d[1][0] * p.x + mat.d[1][1] * p.y + mat.d[1][2] * p.z + mat.d[1][3];
-        Real npz = mat.d[2][0] * p.x + mat.d[2][1] * p.y + mat.d[2][2] * p.z + mat.d[2][3];
-        Real npw = mat.d[3][0] * p.x + mat.d[3][1] * p.y + mat.d[3][2] * p.z + mat.d[3][3];
-
-        if (npw == 1) return Point3<T>(npx, npy, npz);
-        else return Point3<T>(npx, npy, npz) / npw;
-    }
-
-    /**
-     * @todo Reimplement with proper error bound checks
-     */
+    inline Point3<T> operator()(const Point3<T>& p) const;
     template <typename T>
-    inline Vector3<T> operator()(const Vector3<T>& v) const {
-        return Vector3<T>(
-            mat.d[0][0] * v.x + mat.d[0][1] * v.y + mat.d[0][2] * v.z,
-            mat.d[1][0] * v.x + mat.d[1][1] * v.y + mat.d[1][2] * v.z,
-            mat.d[2][0] * v.x + mat.d[2][1] * v.y + mat.d[2][2] * v.z
-        );
-    }
+    inline Point3<T> operator()(const Point3<T>& p, Vector3<T>* pAbsError) const;
+    template <typename T>
+    inline Point3<T> operator()(const Point3<T>& p, const Vector3<T>& pAbsError,
+                                Vector3<T>* pTransError) const;
+
+    template <typename T>
+    inline Vector3<T> operator()(const Vector3<T>& v) const;
+    template <typename T>
+    inline Vector3<T> operator()(const Vector3<T>& v, Vector3<T>* vAbsError) const;
+    template <typename T>
+    inline Vector3<T> operator()(const Vector3<T>& v, const Vector3<T>& vAbsError,
+                                 Vector3<T>* vTransError) const;
+
+    inline Ray operator()(const Ray& r) const;
+    inline Ray operator()(const Ray& r, Vector3f* roAbsError, Vector3f* rdAbsError) const;
+    inline Ray operator()(const Ray& r, const Vector3f& roAbsError, const Vector3f& rdAbsError,
+                          Vector3f* roTransError, Vector3f* rdTransError) const;
 
     /**
      * Applying transforms on normals require special treatment.
@@ -104,15 +99,6 @@ class Transform {
         return Normal3<T>(invMat.d[0][0] * n.x + invMat.d[1][0] * n.y + invMat.d[2][0] * n.z,
                           invMat.d[0][1] * n.x + invMat.d[1][1] * n.y + invMat.d[2][1] * n.z,
                           invMat.d[0][2] * n.x + invMat.d[1][2] * n.y + invMat.d[2][2] * n.z);
-    }
-
-    /**
-     * @todo Reimplement with proper error bound checks
-     */
-    inline Ray operator()(const Ray& r) const {
-        Point3f o = (*this)(r.o);  // Transform origin
-        Vector3f d = (*this)(r.d); // Transform direction
-        return Ray(o, d, r.tMax, r.time);
     }
 
     inline Bounds3f operator()(const Bounds3f& b) const {
@@ -175,6 +161,159 @@ class Transform {
   private:
     Mat4x4 mat, invMat;
 };
+
+#define COMP_ABS_ERROR(ex, ey, ez, m, p) \
+    T ex = (std::abs(m[0][0] * p.x) + std::abs(m[0][1] * p.y) + \
+            std::abs(m[0][2] * p.z) + std::abs(m[0][3])); \
+    T ey = (std::abs(m[1][0] * p.x) + std::abs(m[1][1] * p.y) + \
+            std::abs(m[1][2] * p.z) + std::abs(m[1][3])); \
+    T ez = (std::abs(m[2][0] * p.x) + std::abs(m[2][1] * p.y) + \
+            std::abs(m[2][2] * p.z) + std::abs(m[2][3]));
+
+#define COMP_ABS_IN_ERROR(ex, ey, ez, absErr, m, p) \
+    T gamma3 = gamma(3); \
+    T ex = (std::abs(m[0][0]) * absErr.x + std::abs(m[0][1]) * absErr.y + \
+            std::abs(m[0][2]) * absErr.z) * (gamma3 + 1) + \
+           (std::abs(m[0][0] * p.x) + std::abs(m[0][1] * p.y) + \
+            std::abs(m[0][2] * p.z) + std::abs(m[0][3])) * gamma3; \
+    T ey = (std::abs(m[1][0]) * absErr.x + std::abs(m[1][1]) * absErr.y + \
+            std::abs(m[1][2]) * absErr.z) * (gamma3 + 1) + \
+           (std::abs(m[1][0] * p.x) + std::abs(m[1][1] * p.y) + \
+            std::abs(m[1][2] * p.z) + std::abs(m[1][3])) * gamma3; \
+    T ez = (std::abs(m[2][0]) * absErr.x + std::abs(m[2][1]) * absErr.y + \
+            std::abs(m[2][2]) * absErr.z) * (gamma3 + 1) + \
+           (std::abs(m[2][0] * p.x) + std::abs(m[2][1] * p.y) + \
+            std::abs(m[2][2] * p.z) + std::abs(m[2][3])) * gamma3;
+
+#define POINT_COMP_MUL(px, py, pz, pw, m, p) \
+    T px = m[0][0] * p.x + m[0][1] * p.y + m[0][2] * p.z + m[0][3]; \
+    T py = m[1][0] * p.x + m[1][1] * p.y + m[1][2] * p.z + m[1][3]; \
+    T pz = m[2][0] * p.x + m[2][1] * p.y + m[2][2] * p.z + m[2][3]; \
+    T pw = m[3][0] * p.x + m[3][1] * p.y + m[3][2] * p.z + m[3][3];
+
+template <typename T>
+inline Point3<T> Transform::operator()(const Point3<T>& p) const {
+    // Compute point components
+    POINT_COMP_MUL(npx, npy, npz, npw, mat.d, p);
+
+    if (npw == 1) return Point3<T>(npx, npy, npz);
+    else return Point3<T>(npx, npy, npz) / npw;
+}
+
+template <typename T>
+inline Point3<T> Transform::operator()(const Point3<T>& p, Vector3<T>* pAbsError) const {
+    // Compute point components
+    POINT_COMP_MUL(npx, npy, npz, npw, mat.d, p);
+
+    // Compute absolute error
+    COMP_ABS_ERROR(xErr, yErr, zErr, mat.d, p);
+    *pAbsError = Vector3<T>(xErr, yErr, zErr) * gamma(3);
+
+    if (npw == 1) return Point3<T>(npx, npy, npz);
+    else return Point3<T>(npx, npy, npz) / npw;
+}
+
+template <typename T>
+inline Point3<T> Transform::operator()(const Point3<T>& p, const Vector3<T>& pAbsError,
+                                       Vector3<T>* pTransError) const {
+    // Compute point components
+    POINT_COMP_MUL(npx, npy, npz, npw, mat.d, p);
+
+    // Compute transform error taking into account point absolute error
+    COMP_ABS_IN_ERROR(xErr, yErr, zErr, pAbsError, mat.d, p);
+    *pTransError = Vector3<T>(xErr, yErr, zErr);
+
+    if (npw == 1) return Point3<T>(npx, npy, npz);
+    else return Point3<T>(npx, npy, npz) / npw;
+}
+
+#undef POINT_COMP_MUL
+
+#define VECTOR_COMP_MUL(vx, vy, vz, m, v) \
+    T vx = m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z + m[0][3]; \
+    T vy = m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z + m[1][3]; \
+    T vz = m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z + m[2][3];
+
+template <typename T>
+inline Vector3<T> Transform::operator()(const Vector3<T>& v) const {
+    // Compute vector components
+    VECTOR_COMP_MUL(vx, vy, vz, mat.d, v);
+    return Vector3<T>(vx, vy, vz);
+}
+
+template <typename T>
+inline Vector3<T> Transform::operator()(const Vector3<T>& v, Vector3<T>* vAbsError) const {
+    // Compute vector components
+    VECTOR_COMP_MUL(vx, vy, vz, mat.d, v);
+
+    // Compute absolute error
+    COMP_ABS_ERROR(xErr, yErr, zErr, mat.d, v);
+    *vAbsError = Vector3<T>(xErr, yErr, zErr) * gamma(3);
+
+    return Vector3<T>(vx, vy, vz);
+}
+
+template <typename T>
+inline Vector3<T> Transform::operator()(const Vector3<T>& v, const Vector3<T>& vAbsError,
+                                        Vector3<T>* vTransError) const {
+    // Compute vector components
+    VECTOR_COMP_MUL(vx, vy, vz, mat.d, v);
+
+    // Compute transform error taking into account point absolute error
+    COMP_ABS_IN_ERROR(xErr, yErr, zErr, vAbsError, mat.d, v);
+    *vTransError = Vector3<T>(xErr, yErr, zErr);
+
+    return Vector3<T>(vx, vy, vz);
+}
+
+#undef VECTOR_COMP_MUL
+#undef COMP_ABS_ERROR
+#undef COMP_ABS_IN_ERROR
+
+inline Ray Transform::operator()(const Ray& r) const {
+    Vector3f roError;
+
+    // Transform ray origin and direction
+    Point3f o = (*this)(r.o, &roError);
+    Vector3f d = (*this)(r.d);
+
+    Real tMax = r.tMax, lengthSq = d.lengthSquared();
+    if (lengthSq > 0) {
+        Real factor = dot(abs(d), roError) / lengthSq;
+        o += d * factor; tMax -= factor;
+    }
+
+    return Ray(o, d, tMax, r.time);
+}
+
+inline Ray Transform::operator()(const Ray& r, Vector3f* roAbsError, Vector3f* rdAbsError) const {
+    // Transform ray origin and direction
+    Point3f o = (*this)(r.o, roAbsError);
+    Vector3f d = (*this)(r.d, rdAbsError);
+
+    Real tMax = r.tMax, lengthSq = d.lengthSquared();
+    if (lengthSq > 0) {
+        Real factor = dot(abs(d), *roAbsError) / lengthSq;
+        o += d * factor; tMax -= factor;
+    }
+
+    return Ray(o, d, tMax, r.time);
+}
+
+inline Ray Transform::operator()(const Ray& r, const Vector3f& roAbsError, const Vector3f& rdAbsError,
+                                 Vector3f* roTransError, Vector3f* rdTransError) const {
+    // Transform ray origin and direction
+    Point3f o = (*this)(r.o, roAbsError, roTransError);
+    Vector3f d = (*this)(r.d, rdAbsError, rdTransError);
+
+    Real tMax = r.tMax, lengthSq = d.lengthSquared();
+    if (lengthSq > 0) {
+        Real factor = dot(abs(d), *roTransError) / lengthSq;
+        o += d * factor; tMax -= factor;
+    }
+
+    return Ray(o, d, tMax, r.time);
+}
 
 } // namespace phyr
 

@@ -107,8 +107,6 @@ inline bool solveLinearSystem(const Real A[2][2], const Real B[2], Real* x, Real
  * Solves a given quadratic equation with the given parameters.
  * Stores the solutions in {t1} and {t2}. The function returns true
  * or false depending on the existence of any solution.
- *
- * @todo Reimplement with proper error bound checks
  */
 inline bool solveQuadraticSystem(Real a, Real b, Real c, Real* t1, Real* t2) {
     // Default improbable solutions
