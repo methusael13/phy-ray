@@ -44,4 +44,3 @@ int main(int argc, const char* argv[]) {
 }
 
 #pragma GCC diagnostic pop
-

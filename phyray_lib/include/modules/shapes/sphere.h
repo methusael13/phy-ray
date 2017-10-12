@@ -23,22 +23,13 @@ class Sphere : public Shape {
         thetaMax = std::acos(clamp(zMax / radius, -1, 1));
     }
 
-    /**
-     * @todo: Implement tighter bounds for phiMax < 3*Pi/2
-     */
     Bounds3f objectBounds() const override {
         return Bounds3f(Point3f(-radius, -radius, zMin),
                         Point3f( radius,  radius, zMax));
     }
     Real surfaceArea() const override { return 2 * Pi * radius * (zMax - zMin); }
 
-    /**
-     * @todo: Reimplement with proper error bound checks
-     */
     bool intersectRay(const Ray& ray, Real* t0, SurfaceInteraction* si) const override;
-    /**
-     * @todo: Reimplement with proper error bound checks
-     */
     bool intersectRay(const Ray& ray) const override;
 
   private:
