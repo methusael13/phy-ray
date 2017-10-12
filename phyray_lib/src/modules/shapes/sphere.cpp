@@ -26,24 +26,24 @@ bool Sphere::intersectRay(const Ray& ray, Real* t0, SurfaceInteraction* si) cons
 
     // Check for trivial range exclusion
     if (t1.upperBound() > ray.tMax || t2.lowerBound() <= 0) return false;
-    *t0 = Real(t1);
+    FPError tt0 = t1;
     if (t1.lowerBound() <= 0) {
-        *t0 = Real(t2); if (t2.upperBound() > ray.tMax) return false;
+        tt0 = t2; if (t2.upperBound() > ray.tMax) return false;
     }
 
-    Point3f hpt = ray(*t0);
+    Point3f hpt = ray(Real(tt0));
     // Reproject the point onto the surface to refine it
     hpt *= radius / distance(hpt, Point3f(0, 0, 0));
 
     if ((zMin > -radius && hpt.z < zMin) || (zMax < radius && hpt.z > zMax)) {
         // If ray origin is inside the sphere and t2 intersects a clipped region
-        if (*t0 == Real(t2)) return false;
+        if (tt0 == t2) return false;
         // We're looking at a hole in the sphere on the near side.
         // Test intersection with the farther side
         if (t2.upperBound() > ray.tMax) return false;
 
         // Test with t1 failed, try t2
-        *t0 = Real(t2); hpt = ray(Real(t2));
+        tt0 = t2; hpt = ray(Real(t2));
         // Reproject the point onto the surface to refine it
         hpt *= radius / distance(hpt, Point3f(0, 0, 0));
 
@@ -51,6 +51,7 @@ bool Sphere::intersectRay(const Ray& ray, Real* t0, SurfaceInteraction* si) cons
             return false;
     }
 
+    *t0 = Real(tt0);
     Real twoPi = 2 * Pi, delTheta = thetaMax - thetaMin;
 
     // Make sure phi = atan(y / x) doesn't result in NaN
