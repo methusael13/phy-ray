@@ -49,9 +49,16 @@ class Transform;
 class Interaction;
 class SurfaceInteraction;
 
-// Shapes
+// Objects
 class Shape;
+class Object;
 class Sphere;
+class AreaLight;
+
+class Material;
+class MemoryPool;
+class TransportMode;
+class BSDF;
 
 // Global constants
 static constexpr Int MaxInt = std::numeric_limits<Int>::max();

@@ -11,6 +11,7 @@ add_library(lib
     src/core/geometry/transform.cpp
     src/core/geometry/interaction.cpp
     src/core/geometry/shape.cpp
+    src/core/object/object.cpp
 
     # Shapes
     src/modules/shapes/sphere.cpp

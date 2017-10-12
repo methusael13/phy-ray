@@ -59,7 +59,10 @@ class SurfaceInteraction : public Interaction {
     // Partial derivatives of the surface normal
     Normal3f dndu, dndv;
 
+    // Bidirectional scattering distribution function
+    BSDF* bsdf = nullptr;
     const Shape* shape = nullptr;
+    const Object* object = nullptr;
 
     // Separate geometry data for shading
     // required for bump-mapping, etc.
