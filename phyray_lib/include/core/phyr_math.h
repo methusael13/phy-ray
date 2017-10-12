@@ -125,6 +125,7 @@ inline bool solveQuadraticSystem(Real a, Real b, Real c, Real* t1, Real* t2) {
         *t1 = (-b - det) / den; *t2 = (-b + det) / den;
     }
 
+    if (*t1 > *t2) std::swap(*t1, *t2);
     return true;
 }
 
