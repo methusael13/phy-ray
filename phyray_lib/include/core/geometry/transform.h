@@ -162,7 +162,7 @@ class Transform {
     Mat4x4 mat, invMat;
 };
 
-#define COMP_ABS_ERROR(ex, ey, ez, m, p) \
+#define PT_COMP_ABS_ERROR(ex, ey, ez, m, p) \
     T ex = (std::abs(m[0][0] * p.x) + std::abs(m[0][1] * p.y) + \
             std::abs(m[0][2] * p.z) + std::abs(m[0][3])); \
     T ey = (std::abs(m[1][0] * p.x) + std::abs(m[1][1] * p.y) + \
@@ -170,7 +170,7 @@ class Transform {
     T ez = (std::abs(m[2][0] * p.x) + std::abs(m[2][1] * p.y) + \
             std::abs(m[2][2] * p.z) + std::abs(m[2][3]));
 
-#define COMP_ABS_IN_ERROR(ex, ey, ez, absErr, m, p) \
+#define PT_COMP_ABS_IN_ERROR(ex, ey, ez, absErr, m, p) \
     T gamma3 = gamma(3); \
     T ex = (std::abs(m[0][0]) * absErr.x + std::abs(m[0][1]) * absErr.y + \
             std::abs(m[0][2]) * absErr.z) * (gamma3 + 1) + \
@@ -185,7 +185,7 @@ class Transform {
            (std::abs(m[2][0] * p.x) + std::abs(m[2][1] * p.y) + \
             std::abs(m[2][2] * p.z) + std::abs(m[2][3])) * gamma3;
 
-#define POINT_COMP_MUL(px, py, pz, pw, m, p) \
+#define PT_COMP_MUL(px, py, pz, pw, m, p) \
     T px = m[0][0] * p.x + m[0][1] * p.y + m[0][2] * p.z + m[0][3]; \
     T py = m[1][0] * p.x + m[1][1] * p.y + m[1][2] * p.z + m[1][3]; \
     T pz = m[2][0] * p.x + m[2][1] * p.y + m[2][2] * p.z + m[2][3]; \
@@ -194,7 +194,7 @@ class Transform {
 template <typename T>
 inline Point3<T> Transform::operator()(const Point3<T>& p) const {
     // Compute point components
-    POINT_COMP_MUL(npx, npy, npz, npw, mat.d, p);
+    PT_COMP_MUL(npx, npy, npz, npw, mat.d, p);
 
     if (npw == 1) return Point3<T>(npx, npy, npz);
     else return Point3<T>(npx, npy, npz) / npw;
@@ -203,10 +203,10 @@ inline Point3<T> Transform::operator()(const Point3<T>& p) const {
 template <typename T>
 inline Point3<T> Transform::operator()(const Point3<T>& p, Vector3<T>* pAbsError) const {
     // Compute point components
-    POINT_COMP_MUL(npx, npy, npz, npw, mat.d, p);
+    PT_COMP_MUL(npx, npy, npz, npw, mat.d, p);
 
     // Compute absolute error
-    COMP_ABS_ERROR(xErr, yErr, zErr, mat.d, p);
+    PT_COMP_ABS_ERROR(xErr, yErr, zErr, mat.d, p);
     *pAbsError = Vector3<T>(xErr, yErr, zErr) * gamma(3);
 
     if (npw == 1) return Point3<T>(npx, npy, npz);
@@ -217,37 +217,62 @@ template <typename T>
 inline Point3<T> Transform::operator()(const Point3<T>& p, const Vector3<T>& pAbsError,
                                        Vector3<T>* pTransError) const {
     // Compute point components
-    POINT_COMP_MUL(npx, npy, npz, npw, mat.d, p);
+    PT_COMP_MUL(npx, npy, npz, npw, mat.d, p);
 
     // Compute transform error taking into account point absolute error
-    COMP_ABS_IN_ERROR(xErr, yErr, zErr, pAbsError, mat.d, p);
+    PT_COMP_ABS_IN_ERROR(xErr, yErr, zErr, pAbsError, mat.d, p);
     *pTransError = Vector3<T>(xErr, yErr, zErr);
 
     if (npw == 1) return Point3<T>(npx, npy, npz);
     else return Point3<T>(npx, npy, npz) / npw;
 }
 
-#undef POINT_COMP_MUL
+#undef PT_COMP_MUL
+#undef PT_COMP_ABS_ERROR
+#undef PT_COMP_ABS_IN_ERROR
 
-#define VECTOR_COMP_MUL(vx, vy, vz, m, v) \
-    T vx = m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z + m[0][3]; \
-    T vy = m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z + m[1][3]; \
-    T vz = m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z + m[2][3];
+#define VCT_COMP_MUL(vx, vy, vz, m, v) \
+    T vx = m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z; \
+    T vy = m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z; \
+    T vz = m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z;
+
+#define VCT_COMP_ABS_ERROR(ex, ey, ez, m, p) \
+    T ex = (std::abs(m[0][0] * p.x) + std::abs(m[0][1] * p.y) + \
+            std::abs(m[0][2] * p.z)); \
+    T ey = (std::abs(m[1][0] * p.x) + std::abs(m[1][1] * p.y) + \
+            std::abs(m[1][2] * p.z)); \
+    T ez = (std::abs(m[2][0] * p.x) + std::abs(m[2][1] * p.y) + \
+            std::abs(m[2][2] * p.z));
+
+#define VCT_COMP_ABS_IN_ERROR(ex, ey, ez, absErr, m, p) \
+    T gamma3 = gamma(3); \
+    T ex = (std::abs(m[0][0]) * absErr.x + std::abs(m[0][1]) * absErr.y + \
+            std::abs(m[0][2]) * absErr.z) * (gamma3 + 1) + \
+           (std::abs(m[0][0] * p.x) + std::abs(m[0][1] * p.y) + \
+            std::abs(m[0][2] * p.z)) * gamma3; \
+    T ey = (std::abs(m[1][0]) * absErr.x + std::abs(m[1][1]) * absErr.y + \
+            std::abs(m[1][2]) * absErr.z) * (gamma3 + 1) + \
+           (std::abs(m[1][0] * p.x) + std::abs(m[1][1] * p.y) + \
+            std::abs(m[1][2] * p.z)) * gamma3; \
+    T ez = (std::abs(m[2][0]) * absErr.x + std::abs(m[2][1]) * absErr.y + \
+            std::abs(m[2][2]) * absErr.z) * (gamma3 + 1) + \
+           (std::abs(m[2][0] * p.x) + std::abs(m[2][1] * p.y) + \
+            std::abs(m[2][2] * p.z)) * gamma3;
 
 template <typename T>
 inline Vector3<T> Transform::operator()(const Vector3<T>& v) const {
     // Compute vector components
-    VECTOR_COMP_MUL(vx, vy, vz, mat.d, v);
+    VCT_COMP_MUL(vx, vy, vz, mat.d, v);
     return Vector3<T>(vx, vy, vz);
 }
 
 template <typename T>
 inline Vector3<T> Transform::operator()(const Vector3<T>& v, Vector3<T>* vAbsError) const {
     // Compute vector components
-    VECTOR_COMP_MUL(vx, vy, vz, mat.d, v);
+    VCT_COMP_MUL(vx, vy, vz, mat.d, v);
 
     // Compute absolute error
-    COMP_ABS_ERROR(xErr, yErr, zErr, mat.d, v);
+    VCT_COMP_ABS_ERROR(xErr, yErr, zErr, mat.d, v);
     *vAbsError = Vector3<T>(xErr, yErr, zErr) * gamma(3);
 
     return Vector3<T>(vx, vy, vz);
@@ -257,18 +282,18 @@ template <typename T>
 inline Vector3<T> Transform::operator()(const Vector3<T>& v, const Vector3<T>& vAbsError,
                                         Vector3<T>* vTransError) const {
     // Compute vector components
-    VECTOR_COMP_MUL(vx, vy, vz, mat.d, v);
+    VCT_COMP_MUL(vx, vy, vz, mat.d, v);
 
     // Compute transform error taking into account point absolute error
-    COMP_ABS_IN_ERROR(xErr, yErr, zErr, vAbsError, mat.d, v);
+    VCT_COMP_ABS_IN_ERROR(xErr, yErr, zErr, vAbsError, mat.d, v);
     *vTransError = Vector3<T>(xErr, yErr, zErr);
 
     return Vector3<T>(vx, vy, vz);
 }
 
-#undef VECTOR_COMP_MUL
-#undef COMP_ABS_ERROR
-#undef COMP_ABS_IN_ERROR
+#undef VCT_COMP_MUL
+#undef VCT_COMP_ABS_ERROR
+#undef VCT_COMP_ABS_IN_ERROR
 
 inline Ray Transform::operator()(const Ray& r) const {
     Vector3f roError;

@@ -139,9 +139,6 @@ Transform Transform::lookAt(const Point3f& loc, const Point3f& targetLoc, const 
 
 // Transform application functions
 
-/**
- * @todo Reimplement with proper error bound checks
- */
 SurfaceInteraction Transform::operator()(const SurfaceInteraction& si) const {
     SurfaceInteraction nsi;
     const Transform& tr = *this;

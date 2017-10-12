@@ -8,9 +8,9 @@ namespace phyr {
 
 class Sphere : public Shape {
   public:
-    Sphere(const Transform* localToWorld,
-           const Transform* worldToLocal, const bool reverseNormals,
-           Real radius, Real zMin, Real zMax) :
+    Sphere(const Transform* localToWorld, const Transform* worldToLocal,
+           Real radius, const bool reverseNormals = false,
+           Real zMin = -Infinity, Real zMax = Infinity) :
            Shape(localToWorld, worldToLocal, reverseNormals) {
         this->radius = radius;
         // Clip z visibility
