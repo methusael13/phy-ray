@@ -283,7 +283,7 @@ inline Ray Transform::operator()(const Ray& r) const {
         o += d * factor; tMax -= factor;
     }
 
-    return Ray(o, d, tMax, r.time);
+    return Ray(o, d, tMax);
 }
 
 inline Ray Transform::operator()(const Ray& r, Vector3f* roAbsError, Vector3f* rdAbsError) const {
@@ -297,7 +297,7 @@ inline Ray Transform::operator()(const Ray& r, Vector3f* roAbsError, Vector3f* r
         o += d * factor; tMax -= factor;
     }
 
-    return Ray(o, d, tMax, r.time);
+    return Ray(o, d, tMax);
 }
 
 inline Ray Transform::operator()(const Ray& r, const Vector3f& roAbsError, const Vector3f& rdAbsError,
@@ -312,7 +312,7 @@ inline Ray Transform::operator()(const Ray& r, const Vector3f& roAbsError, const
         o += d * factor; tMax -= factor;
     }
 
-    return Ray(o, d, tMax, r.time);
+    return Ray(o, d, tMax);
 }
 
 } // namespace phyr

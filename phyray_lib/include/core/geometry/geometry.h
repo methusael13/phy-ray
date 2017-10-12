@@ -563,10 +563,9 @@ inline std::ostream& operator<<(std::ostream& os, const Normal3<T>& n) {
 // Ray declarations
 class Ray : public NaNCandidate {
   public:
-    Ray() : tMax(Infinity), time(0.) {}
-    Ray(const Point3f& origin, const Vector3f& direction,
-        Real tMax = Infinity, Real time = 0) :
-        o(origin), d(direction), tMax(tMax), time(time) {}
+    Ray() : tMax(Infinity) {}
+    Ray(const Point3f& origin, const Vector3f& direction, Real tMax = Infinity) :
+        o(origin), d(direction), tMax(tMax) {}
 
     Point3f operator()(Real t) const { return o + d * t; }
     bool hasNaNs() const override { return o.hasNaNs() || d.hasNaNs() || isNaN(tMax); }
@@ -574,7 +573,6 @@ class Ray : public NaNCandidate {
     Point3f o;   // Origin
     Vector3f d;  // Direction
     mutable Real tMax;
-    Real time;
 };
 
 // Bounds declarations
