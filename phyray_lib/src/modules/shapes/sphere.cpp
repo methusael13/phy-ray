@@ -31,6 +31,9 @@ bool Sphere::intersectRay(const Ray& ray, Real* t0, SurfaceInteraction* si) cons
     if (t1 <= 0) { *t0 = t2; if (t2 > ray.tMax) return false; }
 
     Point3f hpt = ray(*t0);
+    // Reproject the point onto the surface to refine it
+    hpt *= radius / distance(hpt, Point3f(0, 0, 0));
+
     if ((zMin > -radius && hpt.z < zMin) || (zMax < radius && hpt.z > zMax)) {
         // If ray origin is inside the sphere and t2 intersects a clipped region
         if (*t0 == t2) return false;
@@ -40,6 +43,9 @@ bool Sphere::intersectRay(const Ray& ray, Real* t0, SurfaceInteraction* si) cons
 
         // Test with t1 failed, try t2
         *t0 = t2; hpt = ray(t2);
+        // Reproject the point onto the surface to refine it
+        hpt *= radius / distance(hpt, Point3f(0, 0, 0));
+
         if ((zMin > -radius && hpt.z < zMin) || (zMax < radius && hpt.z > zMax))
             return false;
     }
@@ -74,9 +80,12 @@ bool Sphere::intersectRay(const Ray& ray, Real* t0, SurfaceInteraction* si) cons
     // Compute surface normals
     Normal3f dndu, dndv;
     solveSurfaceNormal(dpdu, dpdv, d2pduu,d2pduv, d2pdvv, &dndu, &dndv);
+
+    // Compute error bounds for ray-sphere intersection
+    Vector3f pfError = abs(Vector3f(hpt)) * gamma(5);
     // Initiate the SurfaceInteraction object
-    *si = (*worldToLocal)
-          (SurfaceInteraction(hpt, -ray.d, Point2f(u, v), dpdu, dpdv, dndu, dndv, this));
+    *si = (*worldToLocal)(SurfaceInteraction(hpt, -ray.d, pfError,
+                                             Point2f(u, v), dpdu, dpdv, dndu, dndv, this));
 
     return true;
 }
@@ -106,6 +115,9 @@ bool Sphere::intersectRay(const Ray& ray) const {
     if (t1 <= 0) { t0 = t2; if (t2 > ray.tMax) return false; }
 
     Point3f hpt = ray(t0);
+    // Reproject the point onto the surface to refine it
+    hpt *= radius / distance(hpt, Point3f(0, 0, 0));
+
     if ((zMin > -radius && hpt.z < zMin) || (zMax < radius && hpt.z > zMax)) {
         // If ray origin is inside the sphere and t2 intersects a clipped region
         if (t0 == t2) return false;
@@ -115,6 +127,9 @@ bool Sphere::intersectRay(const Ray& ray) const {
 
         // Test with t1 failed, try t2
         t0 = t2; hpt = ray(t2);
+        // Reproject the point onto the surface to refine it
+        hpt *= radius / distance(hpt, Point3f(0, 0, 0));
+
         if ((zMin > -radius && hpt.z < zMin) || (zMax < radius && hpt.z > zMax))
             return false;
     }

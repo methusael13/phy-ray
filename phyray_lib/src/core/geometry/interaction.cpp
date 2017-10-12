@@ -3,10 +3,11 @@
 
 namespace phyr {
 
-SurfaceInteraction::SurfaceInteraction(const Point3f& p, const Vector3f& wo,
+SurfaceInteraction::SurfaceInteraction(const Point3f& p,
+                   const Vector3f& wo, const Vector3f& pfError,
                    const Point2f& uv, const Vector3f& dpdu, const Vector3f& dpdv,
                    const Normal3f& dndu, const Normal3f& dndv, const Shape* shape) :
-    Interaction(p, normalize(Normal3f(cross(dpdu, dpdv))), wo), uv(uv), dpdu(dpdu),
+    Interaction(p, normalize(Normal3f(cross(dpdu, dpdv))), wo, pfError), uv(uv), dpdu(dpdu),
     dpdv(dpdv), dndu(dndu), dndv(dndv), shape(shape) {
     // Initialize shading geometry from true geometry
     shadingGeom.n = n;

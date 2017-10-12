@@ -10,9 +10,9 @@ class Interaction {
   public:
     Interaction() {}
     Interaction(const Point3f& p) : p(p) {}
-    Interaction(const Point3f& p, const Vector3f& wo) : p(p), wo(wo) {}
-    Interaction(const Point3f& p, const Normal3f& n, const Vector3f& wo) :
-        p(p), n(n), wo(wo) {}
+    Interaction(const Point3f& p, const Normal3f& n,
+                const Vector3f& wo, const Vector3f& pfError) :
+        p(p), n(n), wo(wo), pfError(pfError) {}
 
     bool isSurfaceInteraction() const { return n != Normal3f(); }
 
@@ -22,12 +22,14 @@ class Interaction {
     Normal3f n;
     // The outgoing ray direction (negative ray direction)
     Vector3f wo;
+    // Floating point error introduced in p
+    Vector3f pfError;
 };
 
 class SurfaceInteraction : public Interaction {
  public:
     SurfaceInteraction() {}
-    SurfaceInteraction(const Point3f& p, const Vector3f& wo,
+    SurfaceInteraction(const Point3f& p, const Vector3f& wo, const Vector3f& fpError,
                        const Point2f& uv, const Vector3f& dpdu, const Vector3f& dpdv,
                        const Normal3f& dndu, const Normal3f& dndv, const Shape* shape);
 
