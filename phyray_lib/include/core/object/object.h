@@ -3,6 +3,8 @@
 
 #include <core/phyr.h>
 #include <core/geometry/geometry.h>
+#include <core/geometry/transform.h>
+#include <core/material/material.h>
 
 #include <memory>
 
@@ -63,9 +65,11 @@ class GeometricObject : public Object {
 
 class InstancedObject : public Object {
   public:
-    InstancedObject(const std::shared_ptr<Object>& object) : object(object) {}
+    InstancedObject(const std::shared_ptr<Object>& object,
+                    const Transform& objectToInstanceWorld) :
+        object(object), objectToInstanceWorld(objectToInstanceWorld) {}
 
-    Bounds3f worldBounds() const { return object->worldBounds(); }
+    Bounds3f worldBounds() const;
     bool intersectRay(const Ray& ray) const;
     bool intersectRay(const Ray& ray, SurfaceInteraction* si) const;
 
@@ -74,6 +78,7 @@ class InstancedObject : public Object {
 
   private:
     std::shared_ptr<Object> object;
+    const Transform objectToInstanceWorld;
 
     // Function has no purpose in this context
     void computeScatteringFunctions(SurfaceInteraction* si,
@@ -82,13 +87,14 @@ class InstancedObject : public Object {
 };
 
 class ObjectGroup : public Object {
-  public:
-    const AreaLight* getAreaLight() const;
-    const Material* getMaterial() const;
+  private:
+    // Functions have no purpose in this context
+    const AreaLight* getAreaLight() const { return nullptr; }
+    const Material* getMaterial() const { return nullptr; }
 
     void computeScatteringFunctions(SurfaceInteraction* si,
                                     MemoryPool& mem, TransportMode mode,
-                                    bool allowMultiLobes) const;
+                                    bool allowMultiLobes) const {}
 };
 
 }  // namespace phyr
