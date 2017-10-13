@@ -6,12 +6,17 @@ project(lib VERSION 0.1 LANGUAGES CXX)
 add_library(lib
     # Core library
     src/core/phyr.cpp
+    src/core/phyr_mem.cpp
     src/core/phyr_math.cpp
     src/core/geometry/geometry.cpp
     src/core/geometry/transform.cpp
     src/core/geometry/interaction.cpp
     src/core/geometry/shape.cpp
     src/core/object/object.cpp
+    src/core/material/material.cpp
+    
+    # Accelerators
+    src/core/accel/bvh.cpp
 
     # Shapes
     src/modules/shapes/sphere.cpp
