@@ -1,5 +1,5 @@
 # PhyRay
-A ray tracer based on physically based rendering
+A ray tracer based on physically based rendering. Originally based on the pbrt-v3 rendering engine.
 
 #### Status
 Project is under active development. No release candidates yet.
