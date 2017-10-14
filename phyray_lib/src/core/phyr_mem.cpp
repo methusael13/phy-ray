@@ -11,8 +11,8 @@ size_t getL1CacheLineSize() {
     fs.exceptions(fs.exceptions() | std::ios::failbit);
 
     // Data path for L1 cache (Unix systems)
-    const char* cacheDataPath =
-            "/sys/devices/system/cpu/cpu0/cache/index1/coherency_line_size";
+    const char* cacheDataPath = "/sys/devices/system/cpu/cpu0"
+                                "/cache/index1/coherency_line_size";
 
     size_t l1sz = DEF_PHYR_L1_CACHE_LINESZ;
     try {
