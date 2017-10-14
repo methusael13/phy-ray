@@ -4,7 +4,6 @@
 #include <core/phyr.h>
 
 #include <list>
-#include <cstddef>
 #include <alloca.h>
 
 namespace phyr {
@@ -55,18 +54,9 @@ class alignas(DEF_PHYR_L1_CACHE_LINESZ) MemoryPool {
     size_t size() const { return totalAllocSize; }
 
     void* alloc(size_t byteCount) {
-        // Get minimum machine alignment.
-        // The constant max_align_t wasn't available in the std
-        // namespace for GCC versions < 4.9
-#if __GNUC__ == 4 && __GNUC_MINOR__ < 9
-        const int align = alignof(max_align_t);
-#else
-        const int align = alignof(std::max_align_t);
-#endif
-
         // Align {size} with cache line size
         // Optimized alignment calculation, as {align} is a power of 2
-        byteCount = (byteCount + align - 1) & ~(align - 1);
+        byteCount = (byteCount + MachineAlignment - 1) & ~(MachineAlignment - 1);
 
         // Check if size requirement is more than what is curently available
         if (curBlockOffset + byteCount > curAllocSize) {

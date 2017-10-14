@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 
+#include <cstddef>
 #include <stdint.h>
 #include <string.h>
 
@@ -72,6 +73,13 @@ static constexpr Real MachineEpsilon = std::numeric_limits<Real>::epsilon() * 0.
 // The distance factor from an area light surface before which a
 // shadow ray must stop before reporting an intersection with it
 static constexpr Real ShadowEpsilon = 1e-5f;
+
+// Minimum machine alignment
+#if __GNUC__ == 4 && __GNUC_MINOR__ < 9
+static const int MachineAlignment = alignof(max_align_t);
+#else
+static const int MachineAlignment = alignof(std::max_align_t);
+#endif
 
 static constexpr Real Pi = 3.14159265358979323846;
 static constexpr Real InvPi = 0.31830988618379067154;
