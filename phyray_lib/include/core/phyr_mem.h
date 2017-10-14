@@ -53,43 +53,7 @@ class alignas(DEF_PHYR_L1_CACHE_LINESZ) MemoryPool {
      */
     size_t size() const { return totalAllocSize; }
 
-    void* alloc(size_t byteCount) {
-        // Align {size} with cache line size
-        // Optimized alignment calculation, as {align} is a power of 2
-        byteCount = (byteCount + MachineAlignment - 1) & ~(MachineAlignment - 1);
-
-        // Check if size requirement is more than what is curently available
-        if (curBlockOffset + byteCount > curAllocSize) {
-            // Store current block usage data
-            stash();
-
-            // Check free blocks for memory
-            for (auto it = freeBlocks.begin(); it != freeBlocks.end(); it++) {
-                if (it->second >= byteCount) {
-                    blockPtr = it->first; curAllocSize = it->second;
-                    // Remove this block from the free set
-                    freeBlocks.erase(it);
-                    break;
-                }
-            }
-
-            // If a block has not yet been found, allocate new
-            if (!blockPtr) {
-                // Ensure minimum of {blockSize} bytes per block
-                curAllocSize = std::max(byteCount, blockSize);
-                blockPtr = allocAligned<uint8_t>(curAllocSize);
-                // Increment pool size stat
-                totalAllocSize += curAllocSize;
-            }
-
-            // New memory block allocated, reset block offset
-            curBlockOffset = 0;
-        }
-
-        void* ptr = blockPtr + curBlockOffset;
-        curBlockOffset += byteCount;
-        return ptr;
-    }
+    void* alloc(size_t byteCount);
 
     // Templated alloc version for array allocations
     template <typename T>
