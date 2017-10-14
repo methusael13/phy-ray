@@ -31,9 +31,10 @@ target_include_directories(lib PUBLIC
 set(COMMON_LIBS lib m pthread)
 target_link_libraries(${COMMON_LIBS})
 
+# Define test targets
 set(TEST_EXE
     test_vec test_fpe test_math
-    test_isec
+    test_isec test_mem
 )
 foreach(test_exe ${TEST_EXE})
     add_executable(${test_exe} test/${test_exe}.cpp)

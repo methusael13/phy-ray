@@ -43,7 +43,7 @@ void freeAligned(void* ptr) { free(ptr); }
 // MemoryPool declarations
 void* MemoryPool::alloc(size_t byteCount) {
     // Align {size} with cache line size
-    // Optimized alignment calculation, as {align} is a power of 2
+    // Optimized alignment calculation, as {MachineAlignment} is a power of 2
     byteCount = (byteCount + MachineAlignment - 1) & ~(MachineAlignment - 1);
 
     // Check if size requirement is more than what is curently available

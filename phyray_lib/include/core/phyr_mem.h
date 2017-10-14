@@ -70,7 +70,7 @@ class alignas(DEF_PHYR_L1_CACHE_LINESZ) MemoryPool {
 
     void reset() {
         // Don't stash, current block can be reused
-        curBlockOffset = 0; totalAllocSize = 0;
+        curBlockOffset = 0;
         // Move all used block data to free blocks set
         freeBlocks.splice(freeBlocks.begin(), usedBlocks);
     }
