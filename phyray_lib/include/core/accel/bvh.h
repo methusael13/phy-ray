@@ -4,6 +4,7 @@
 #include <core/phyr.h>
 #include <core/geometry/geometry.h>
 #include <core/object/object.h>
+#include <core/phyr_mem.h>
 
 #include <memory>
 
@@ -11,6 +12,7 @@ namespace phyr {
 
 typedef struct _BVHTreeNode BVHTreeNode;
 typedef struct _BVHObjectInfo BVHObjectInfo;
+typedef struct _LinearBVHNode LinearBVHNode;
 
 struct _BVHObjectInfo {
     _BVHObjectInfo(size_t objectIdx, const Bounds3f& bounds) :
@@ -44,6 +46,20 @@ struct _BVHTreeNode {
     int splitAxis, startIdx, nObjects;
 };
 
+struct _LinearBVHNode {
+    Bounds3f bounds;
+    union {
+        int objectStartIdx;  // To be used for leaf nodes
+        int secondChildIdx;  // To be used for internal nodes
+    };
+
+    // Number of objects in the node (0 for internal nodes)
+    uint16_t nObjects;
+    uint8_t splitAxis;
+    // Alignment padding
+    uint8_t _padding[1];
+};
+
 class AccelBVH {
   public:
     // Support Surface Area Heuristic for tree splitting
@@ -56,6 +72,8 @@ class AccelBVH {
         maxObjectsPerNode(std::min(DEF_MAX_OBJ_PER_NODE, maxObjectsPerNode)),
         tspMethod(tspMethod), objectList(objList) { constructBVH(); }
 
+    ~AccelBVH() { if (bvhNodes) freeAligned(bvhNodes); }
+
   private:
     void constructBVH();
     /**
@@ -66,9 +84,16 @@ class AccelBVH {
                                        int startIdx, int end, int* nodeCount,
                                        std::vector<std::shared_ptr<Object>>& orderedObjectList) const;
 
+    /**
+     * Transforms the BVH binary tree structure into a linear array
+     */
+    int flattenBVH(BVHTreeNode* treeNode, int* linearIdx) const;
+
     const int maxObjectsPerNode;
     const TreeSplitMethod tspMethod;
     std::vector<std::shared_ptr<Object>> objectList;
+
+    LinearBVHNode* bvhNodes = nullptr;
 };
 
 }  // namespace phyr

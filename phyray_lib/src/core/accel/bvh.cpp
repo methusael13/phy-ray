@@ -1,5 +1,4 @@
 #include <core/phyr.h>
-#include <core/phyr_mem.h>
 #include <core/accel/bvh.h>
 
 #pragma GCC diagnostic push
@@ -22,13 +21,20 @@ void AccelBVH::constructBVH() {
     int nodeCount = 0;
     // Memory pool with a block size of 1MB
     MemoryPool pool(1024 * 1024);
-    // Stores the ordered permutation of objectList as defined by the recursive BVH algorithm
+    // Stores the ordered permutation of objectList as defined
+    // by the recursive BVH algorithm
     std::vector<std::shared_ptr<Object>> orderedObjectList;
 
     // Recursively build the BVH Tree
     BVHTreeNode* root = constructBVHRecursive(pool, objectInfoList, 0, sz,
                                               &nodeCount, orderedObjectList);
     objectList.swap(orderedObjectList);
+
+    // Compute linear BVH by DFS on {root}
+    int linearIdx = 0;
+    bvhNodes = allocAligned<LinearBVHNode>(nodeCount);
+    // Transform BVH tree to a BVH linear array
+    flattenBVH(root, &linearIdx);
 }
 
 constexpr int nBins = 12;
@@ -144,6 +150,28 @@ AccelBVH::constructBVHRecursive(MemoryPool& pool, std::vector<BVHObjectInfo>& ob
 #undef CREATE_LEAF_NODE
 
     return node;
+}
+
+int AccelBVH::flattenBVH(BVHTreeNode* treeNode, int* linearIdx) const {
+    // Copy data from tree node
+    LinearBVHNode* linearNode = &bvhNodes[*linearIdx];
+    linearNode->bounds = treeNode->bounds;
+    int currentIdx = (*linearIdx)++;
+
+    // If tree node is a leaf
+    if (treeNode->nObjects > 0) {
+        linearNode->objectStartIdx = treeNode->startIdx;
+        linearNode->nObjects = treeNode->nObjects;
+    } else {
+        linearNode->nObjects = 0;
+        linearNode->splitAxis = treeNode->splitAxis;
+        // Recursive traverse left child
+        flattenBVH(treeNode->child[0], linearIdx);
+        // Store index of right child with a recursive call
+        linearNode->secondChildIdx = flattenBVH(treeNode->child[1], linearIdx);
+    }
+
+    return currentIdx;
 }
 
 }  // namespace phyr
