@@ -22,6 +22,17 @@ struct _BVHObjectInfo {
 };
 
 struct _BVHTreeNode {
+    void createLeafNode(int sIdx, int n, const Bounds3f& b) {
+        startIdx = sIdx; nObjects = n; bounds = b;
+        child[0] = child[1] = nullptr;
+    }
+
+    void createInteriorNode(int spAxis, BVHTreeNode* lc, BVHTreeNode* rc) {
+        child[0] = lc; child[1] = rc;
+        splitAxis = spAxis; nObjects = 0;
+        bounds = unionBounds(lc->bounds, rc->bounds);
+    }
+
     Bounds3f bounds;
     BVHTreeNode* child[2];
 
@@ -47,9 +58,13 @@ class AccelBVH {
 
   private:
     void constructBVH();
+    /**
+     * Recursively builds the BVH tree with object range [{startIdx}, {end}).
+     * @returns The root of the built tree as a pointer to {BVHTreeNode}
+     */
     BVHTreeNode* constructBVHRecursive(MemoryPool& pool, std::vector<BVHObjectInfo>& objectInfoList,
-                                   int startIdx, int endIdx, int* nodeCount,
-                                   std::vector<std::shared_ptr<Object>>& orderedObjectList);
+                                       int startIdx, int end, int* nodeCount,
+                                       std::vector<std::shared_ptr<Object>>& orderedObjectList) const;
 
     const int maxObjectsPerNode;
     const TreeSplitMethod tspMethod;
