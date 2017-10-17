@@ -2,8 +2,9 @@
 #define PHYRAY_ACCEL_BVH_H
 
 #include <core/phyr.h>
-#include <core/geometry/geometry.h>
 #include <core/object/object.h>
+#include <core/geometry/geometry.h>
+#include <core/geometry/interaction.h>
 #include <core/phyr_mem.h>
 
 #include <memory>
@@ -73,6 +74,11 @@ class AccelBVH {
         tspMethod(tspMethod), objectList(objList) { constructBVH(); }
 
     ~AccelBVH() { if (bvhNodes) freeAligned(bvhNodes); }
+
+    /**
+     * Test ray intersections with the scene BVH
+     */
+    bool intersectRay(const Ray& ray, SurfaceInteraction* si) const;
 
   private:
     void constructBVH();

@@ -174,6 +174,48 @@ int AccelBVH::flattenBVH(BVHTreeNode* treeNode, int* linearIdx) const {
     return currentIdx;
 }
 
+bool AccelBVH::intersectRay(const Ray& ray, SurfaceInteraction* si) const {
+    bool intersected = false;
+    // Initialize ray intersection parameters
+    Vector3f invDir(1 / ray.d.x, 1 / ray.d.y, 1 / ray.d.z);
+    int isDirNeg[3] = { invDir.x < 0, invDir.y < 0, invDir.z < 0 };
+
+    // Test against each BVH node
+    int nodeStack[64];
+    int stackSize = 0, itrIdx = 0, i;
+
+    while (true) {
+        const LinearBVHNode* node = &bvhNodes[itrIdx];
+        // Inspect current node
+        if (node->bounds.intersectRay(ray, invDir, isDirNeg)) {
+            if (node->nObjects > 0) {
+                // Node is leaf. Test against all objects in leaf
+                for (i = 0; i < node->nObjects; i++)
+                    if (objectList[node->objectStartIdx + i]->intersectRay(ray, si))
+                        intersected = true;
+                if (stackSize == 0) break;
+                itrIdx = nodeStack[--stackSize];
+            } else {
+                // Internal node. Test near nodes first. Put far nodes in the stack
+                if (isDirNeg[node->splitAxis]) {
+                    // Stash first child and inspect second child first
+                    nodeStack[stackSize++] = itrIdx + 1;
+                    itrIdx = node->secondChildIdx;
+                } else {
+                    // Stash second child and inspect first child first
+                    nodeStack[stackSize++] = node->secondChildIdx;
+                    itrIdx++;
+                }
+            }
+        } else {
+            if (stackSize == 0) break;
+            itrIdx = nodeStack[--stackSize];
+        }
+    }
+
+    return intersected;
+}
+
 }  // namespace phyr
 
 #pragma GCC diagnostic pop
