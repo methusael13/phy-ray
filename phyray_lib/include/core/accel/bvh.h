@@ -5,9 +5,6 @@
 #include <core/object/object.h>
 #include <core/geometry/geometry.h>
 #include <core/geometry/interaction.h>
-#include <core/phyr_mem.h>
-
-#include <memory>
 
 namespace phyr {
 
@@ -74,7 +71,7 @@ class AccelBVH {
         maxObjectsPerNode(std::min(DEF_MAX_OBJ_PER_NODE, maxObjectsPerNode)),
         tspMethod(tspMethod), objectList(objList) { constructBVH(); }
 
-    ~AccelBVH() { if (bvhNodes) freeAligned(bvhNodes); }
+    ~AccelBVH();
 
     /**
      * Test ray intersections with the scene BVH

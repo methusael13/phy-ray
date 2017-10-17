@@ -1,11 +1,10 @@
 #include <core/phyr.h>
+#include <core/phyr_mem.h>
 #include <core/accel/bvh.h>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-variable"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-
 namespace phyr {
+
+AccelBVH::~AccelBVH() { if (bvhNodes) freeAligned(bvhNodes); }
 
 void AccelBVH::constructBVH() {
     if (objectList.size() == 0) return;
@@ -217,5 +216,3 @@ bool AccelBVH::intersectRay(const Ray& ray, SurfaceInteraction* si) const {
 }
 
 }  // namespace phyr
-
-#pragma GCC diagnostic pop
