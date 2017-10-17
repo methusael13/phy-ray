@@ -16,6 +16,7 @@ typedef struct _BVHObjectInfo BVHObjectInfo;
 typedef struct _LinearBVHNode LinearBVHNode;
 
 struct _BVHObjectInfo {
+    _BVHObjectInfo() {}
     _BVHObjectInfo(size_t objectIdx, const Bounds3f& bounds) :
         objectIdx(objectIdx), bounds(bounds),
         centroid(0.5 * bounds.pMin + 0.5 * bounds.pMax) {}
