@@ -2,10 +2,6 @@
 
 namespace phyr {
 
-NaNCandidate::~NaNCandidate() {}
-bool NaNCandidate::hasNaNs() const { return false; }
-
-
 // Miscellaneous operations
 template <typename T>
 T minComponent(const Vector3<T>& v) { return std::min(v.x, std::min(v.y, v.z)); }

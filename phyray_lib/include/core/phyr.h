@@ -61,6 +61,16 @@ class MemoryPool;
 class TransportMode;
 class BSDF;
 
+template <int sampleSize>
+class CoefficientSpectrum;
+class RGBSpectrum;
+
+class NaNCandidate {
+  public:
+    virtual bool hasNaNs() const;
+    virtual ~NaNCandidate();
+};
+
 // Global constants
 static constexpr Int MaxInt = std::numeric_limits<Int>::max();
 static constexpr Real MaxReal = std::numeric_limits<Real>::max();
@@ -101,7 +111,6 @@ inline bool isNaN(const int x) { return false; }
 template <typename T>
 inline bool isZero(const T x) { return x == 0; }
 
-template <typename T>
 inline Real lerp(Real f, Real v0, Real v1) { return (1 - f) * v0 + f * v1; }
 
 inline Real radians(Real degrees) { return degrees * UnitDegree; }

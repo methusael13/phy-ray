@@ -6,13 +6,6 @@
 
 namespace phyr {
 
-// Core geometry primitive class declarations
-class NaNCandidate {
-  public:
-    virtual bool hasNaNs() const;
-    virtual ~NaNCandidate();
-};
-
 // Vector declarations
 template <typename T>
 class Vector2 : public NaNCandidate {
