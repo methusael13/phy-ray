@@ -14,6 +14,7 @@ add_library(lib
     src/core/geometry/shape.cpp
     src/core/object/object.cpp
     src/core/material/material.cpp
+    src/core/color/spectrum.cpp
     
     # Accelerators
     src/core/accel/bvh.cpp
