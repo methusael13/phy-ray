@@ -1139,6 +1139,39 @@ inline Point3f offsetRayOrigin(const Point3f& p, const Normal3f& n,
     return op;
 }
 
+/**
+ * Converts spherical solid angle params to spherical direction vectors
+ */
+inline Vector3f spehricalDirection(Real sinTheta, Real cosTheta, Real phi) {
+    return Vector3f(std::cos(phi) * sinTheta, std::sin(phi) * sinTheta, cosTheta);
+}
+
+/**
+ * Converts spherical solid angle params to spherical direction vectors
+ * while maintaining conformity with the original basis vectors
+ */
+inline Vector3f spehricalDirection(Real sinTheta, Real cosTheta, Real phi,
+                                   const Vector3f& x, const Vector3f& y, const Vector3f& z) {
+    return std::cos(phi) * sinTheta * x + std::sin(phi) * sinTheta * y + cosTheta * z;
+}
+
+/**
+ * Calculates the solid angle 'theta' param from the given spherical direction vector.
+ * Vector {v} is assumed to have been normalized
+ */
+inline Real sphericalTheta(const Vector3f& v) {
+    return std::acos(clamp(v.z, -1, 1));
+}
+
+/**
+ * Calculates the solid angle 'phi' param from the given spherical direction vector.
+ * Vector {v} is assumed to have been normalized
+ */
+inline Real sphericalPhi(const Vector3f& v) {
+    Real ang = std::atan2(v.y, v.x);
+    return (ang < 0) ? (ang + 2 * Pi) : ang;
+}
+
 } // namespace phyr
 
 #endif
