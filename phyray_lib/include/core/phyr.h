@@ -61,9 +61,16 @@ class MemoryPool;
 class TransportMode;
 class BSDF;
 
+// Spectrum
 template <int sampleSize>
 class CoefficientSpectrum;
 class RGBSpectrum;
+
+// Camera
+class Camera;
+
+// Film
+class Film;
 
 class NaNCandidate {
   public:
