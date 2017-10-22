@@ -16,6 +16,9 @@ add_library(lib
     src/core/material/material.cpp
     src/core/color/spectrum.cpp
     
+    # Cameras
+    src/core/camera/camera.cpp
+    
     # Accelerators
     src/core/accel/bvh.cpp
 
