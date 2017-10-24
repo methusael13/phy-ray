@@ -2,6 +2,7 @@
 #define PHYRAY_CORE_CAMERA_H
 
 #include <core/phyr.h>
+#include <core/film.h>
 #include <core/geometry/transform.h>
 
 namespace phyr {
@@ -32,6 +33,35 @@ class Camera {
 
     Transform cameraToWorld;
     Film* film;
+};
+
+
+class ProjectiveCamera : public Camera {
+  public:
+    ProjectiveCamera(const Transform& cameraToWorld, const Transform& cameraToScreen,
+                     const Bounds2f& screenBounds, Real lensRadius, Real focalDistance,
+                     Film* film) :
+        Camera(cameraToWorld, film), cameraToScreen(cameraToScreen) {
+        // Init lens params
+        this->lensRadius = lensRadius; this->focalDistance = focalDistance;
+
+        // Compute projective camera screen transformations
+        screenToRaster = Transform::scale(film->resolution.x, film->resolution.y, 1) *
+                         Transform::scale(1 / (screenBounds.pMax.x - screenBounds.pMin.x),
+                                          1 / (screenBounds.pMin.y - screenBounds.pMax.y), 1) *
+                         Transform::translate(Vector3f(-screenBounds.pMin.x, -screenBounds.pMax.y, 0));
+        rasterToScreen = Transform::inverse(screenToRaster);
+
+        // Compute projective camera transformations
+        rasterToCamera = Transform::inverse(cameraToScreen) * rasterToScreen;
+    }
+
+  protected:
+    Transform cameraToScreen, rasterToCamera;
+    Transform screenToRaster, rasterToScreen;
+
+    // DOF data
+    Real lensRadius, focalDistance;
 };
 
 }  // namespace phyr
