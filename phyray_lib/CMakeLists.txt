@@ -15,15 +15,20 @@ add_library(lib
     src/core/object/object.cpp
     src/core/material/material.cpp
     src/core/color/spectrum.cpp
+    src/core/film.cpp
     
     # Cameras
     src/core/camera/camera.cpp
+    src/modules/cameras/perspective.cpp
     
     # Accelerators
     src/core/accel/bvh.cpp
 
     # Shapes
     src/modules/shapes/sphere.cpp
+    
+    # Integrator and samplers
+    src/core/integrator/sampling.cpp
 )
 
 target_include_directories(lib PUBLIC
