@@ -137,6 +137,18 @@ Transform Transform::lookAt(const Point3f& loc, const Point3f& targetLoc, const 
     return Transform(Mat4x4::inverse(camMatrix), camMatrix);
 }
 
+Transform Transform::perspective(Real fov, Real near, Real far) {
+    // Matrix for projective divide
+    Mat4x4 persMat(1, 0,                  0,                          0,
+                   0, 1,                  0,                          0,
+                   0, 0, far / (far - near), -far * near / (far - near),
+                   0, 0,                  1,                          0);
+
+    // Apply fov factor
+    Real invTan = 1 / std::tan(radians(fov) / 2);
+    return Transform::scale(invTan, invTan, 1) * Transform(persMat);
+}
+
 // Transform application functions
 
 SurfaceInteraction Transform::operator()(const SurfaceInteraction& si) const {

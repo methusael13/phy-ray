@@ -158,6 +158,12 @@ class Transform {
      */
     static Transform lookAt(const Point3f& loc, const Point3f& targetLoc, const Vector3f& up);
 
+    /**
+     * Create a perspective projection transform.
+     * Field of view {fov} is to be specified in degrees.
+     */
+    static Transform perspective(Real fov, Real near, Real far);
+
   private:
     Mat4x4 mat, invMat;
 };
