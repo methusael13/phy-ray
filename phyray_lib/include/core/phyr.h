@@ -91,6 +91,13 @@ static constexpr Real MachineEpsilon = std::numeric_limits<Real>::epsilon() * 0.
 // shadow ray must stop before reporting an intersection with it
 static constexpr Real ShadowEpsilon = 1e-5f;
 
+// Max values used for sampling purposes
+#ifdef PHYRAY_USE_LONG_P
+static const Real OneMinusEpsilon = 0.99999999999999989;
+#else
+static const Real OneMinusEpsilon = 0.99999994;
+#endif
+
 // Minimum machine alignment
 #if __GNUC__ == 4 && __GNUC_MINOR__ < 9
 static const int MachineAlignment = alignof(max_align_t);
