@@ -28,6 +28,7 @@ add_library(lib
     src/modules/shapes/sphere.cpp
     
     # Integrator and samplers
+    src/core/integrator/sampler.cpp
     src/core/integrator/sampling.cpp
 )
 
