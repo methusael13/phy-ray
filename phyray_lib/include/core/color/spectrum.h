@@ -189,7 +189,7 @@ class CoefficientSpectrum {
     CoefficientSpectrum clamp(Real low = 0, Real high = Infinity) const {
         CoefficientSpectrum cs;
         for (int i = 0; i < sampleSize; i++)
-            cs.samples[i] = clamp(samples[i], low, high);
+            cs.samples[i] = phyr::clamp(samples[i], low, high);
         return cs;
     }
 
