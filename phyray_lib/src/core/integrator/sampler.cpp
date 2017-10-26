@@ -54,6 +54,9 @@ CameraSample Sampler::getCameraSample(const Point2i& pRaster) {
     return cs;
 }
 
+#undef RESET_OFFSETS
+
+#define RESET_OFFSETS (current1DDimension = current2DDimension = 0)
 
 // PixelSampler definitions
 PixelSampler::PixelSampler(int64_t samplesPerPixel, int nSampledDimensions)
@@ -63,6 +66,30 @@ PixelSampler::PixelSampler(int64_t samplesPerPixel, int nSampledDimensions)
         samples1D.push_back(std::vector<Real>(samplesPerPixel));
         samples2D.push_back(std::vector<Point2f>(samplesPerPixel));
     }
+}
+
+bool PixelSampler::startNextSample() {
+    RESET_OFFSETS;
+    return Sampler::startNextSample();
+}
+
+bool PixelSampler::setSampleIndex(int64_t sampleIdx) {
+    RESET_OFFSETS;
+    return Sampler::setSampleIndex(sampleIdx);
+}
+
+Real PixelSampler::getNextSample1D() {
+    if (current1DDimension < samples1D.size())
+        return samples1D[current1DDimension++][currentPixelSampleIndex];
+    else
+        return rng.uniformReal();
+}
+
+Point2f PixelSampler::getNextSample2D() {
+    if (current2DDimension < samples2D.size())
+        return samples2D[current2DDimension++][currentPixelSampleIndex];
+    else
+        return Point2f(rng.uniformReal(), rng.uniformReal());
 }
 
 #undef RESET_OFFSETS

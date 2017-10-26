@@ -1,6 +1,7 @@
 #ifndef PHYRAY_CORE_SAMPLER_H
 #define PHYRAY_CORE_SAMPLER_H
 
+#include <core/rng.h>
 #include <core/phyr.h>
 #include <core/camera/camera.h>
 #include <core/geometry/geometry.h>
@@ -60,11 +61,19 @@ class PixelSampler : public Sampler {
   public:
     PixelSampler(int64_t samplesPerPixel, int nSampledDimensions);
 
+    // Interface
+    virtual bool startNextSample() override;
+    virtual bool setSampleIndex(int64_t sampleIdx) override;
+
+    virtual Real getNextSample1D() override;
+    virtual Point2f getNextSample2D() override;
+
   protected:
     std::vector<std::vector<Real>> samples1D;
     std::vector<std::vector<Point2f>> samples2D;
 
-    int current1DDimension, current2DDimension;
+    size_t current1DDimension, current2DDimension;
+    RNG rng;
 };
 
 }  // namespace phyr
