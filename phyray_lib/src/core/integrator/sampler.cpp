@@ -94,4 +94,63 @@ Point2f PixelSampler::getNextSample2D() {
 
 #undef RESET_OFFSETS
 
+// GlobalSampler definitions
+void GlobalSampler::startPixel(const Point2i& pt) {
+    Sampler::startPixel(pt);
+    // Reset data members
+    dimension = 0;
+    intervalSampleIndex = getIndexForSample(0);
+
+    // Compute arrayEndDim
+    arrayEndDim = arrayStartDim + sampleArray1D.size() + 2 * sampleArray2D.size();
+
+    // Compute 1D array samples
+    for (size_t i = 0; i < samples1DArraySizes.size(); i++) {
+        int nSamples = samples1DArraySizes[i] * samplesPerPixel;
+        for (int j = 0; j < nSamples; j++) {
+            int64_t idx = getIndexForSample(j);
+            sampleArray1D[i][j] = sampleDimension(idx, arrayStartDim + i);
+        }
+    }
+
+    // Compute 2D array samples
+    int dOffset = arrayStartDim + samples1DArraySizes.size();
+    for (size_t i = 0; i < samples2DArraySizes.size(); i++) {
+        int nSamples = samples2DArraySizes[i] * samplesPerPixel;
+        for (int j = 0; j < nSamples; j++) {
+            int64_t idx = getIndexForSample(j);
+            sampleArray2D[i][j].x = sampleDimension(idx, dOffset);
+            sampleArray2D[i][j].y = sampleDimension(idx, dOffset + 1);
+        }
+        dOffset += 2;
+    }
+}
+
+bool GlobalSampler::startNextSample() {
+    dimension = 0;
+    intervalSampleIndex = getIndexForSample(currentPixelSampleIndex + 1);
+    return Sampler::startNextSample();
+}
+
+bool GlobalSampler::setSampleIndex(int64_t sampleIdx) {
+    dimension = 0;
+    intervalSampleIndex = getIndexForSample(sampleIdx);
+    return Sampler::setSampleIndex(sampleIdx);
+}
+
+Real GlobalSampler::getNextSample1D() {
+    if (dimension >= arrayStartDim && dimension < arrayEndDim)
+        dimension = arrayEndDim;
+    return sampleDimension(intervalSampleIndex, dimension++);
+}
+
+Point2f GlobalSampler::getNextSample2D() {
+    if (dimension + 1 >= arrayStartDim && dimension < arrayEndDim)
+        dimension = arrayEndDim;
+    Point2f sample(sampleDimension(intervalSampleIndex, dimension),
+                   sampleDimension(intervalSampleIndex, dimension + 1));
+    dimension += 2;
+    return sample;
+}
+
 }  // namespace phyr

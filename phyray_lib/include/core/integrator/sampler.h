@@ -76,6 +76,35 @@ class PixelSampler : public Sampler {
     RNG rng;
 };
 
+
+// GlobalSampler declarations
+class GlobalSampler : public Sampler {
+  public:
+    GlobalSampler(int64_t samplesPerPixel) : Sampler(samplesPerPixel) {}
+
+    // Interface
+    virtual int64_t getIndexForSample(int64_t sampleIdx) const = 0;
+    /**
+     * Returns the sample offset within the current pixel
+     */
+    virtual Real sampleDimension(int64_t index, int dimension) const = 0;
+
+    void startPixel(const Point2i& pt) override;
+    bool startNextSample() override;
+    bool setSampleIndex(int64_t sampleIdx) override;
+
+    Real getNextSample1D() override;
+    Point2f getNextSample2D() override;
+
+  private:
+    int dimension;
+    int64_t intervalSampleIndex;
+
+    // Dimension intervals
+    static const int arrayStartDim = 5;
+    int arrayEndDim;
+};
+
 }  // namespace phyr
 
 #endif
