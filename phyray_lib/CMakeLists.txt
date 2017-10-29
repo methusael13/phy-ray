@@ -30,6 +30,7 @@ add_library(lib
     # Integrator and samplers
     src/core/integrator/sampler.cpp
     src/core/integrator/sampling.cpp
+    src/modules/samplers/stratified.cpp
 )
 
 target_include_directories(lib PUBLIC
