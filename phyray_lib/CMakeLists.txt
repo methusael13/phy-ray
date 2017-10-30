@@ -30,7 +30,15 @@ add_library(lib
     # Integrator and samplers
     src/core/integrator/sampler.cpp
     src/core/integrator/sampling.cpp
+    src/core/integrator/filter.cpp
     src/modules/samplers/stratified.cpp
+    
+    # Filters
+    src/modules/filters/box.cpp
+    src/modules/filters/triangle.cpp
+    src/modules/filters/gaussian.cpp
+    src/modules/filters/mitchell.cpp
+    src/modules/filters/lanczos.cpp
 )
 
 target_include_directories(lib PUBLIC
