@@ -615,6 +615,8 @@ class Bounds2 {
     }
 
     bool isValid() const { return pMin.x <= pMax.x && pMin.y <= pMax.y; }
+    bool isProper() const { return pMin.x < pMax.x && pMin.y < pMax.y; }
+
     bool operator==(const Bounds2<T>& b) const { return b.pMin == pMin && b.pMax == pMax; }
     bool operator!=(const Bounds2<T>& b) const { return b.pMin != pMin || b.pMax != pMax; }
 
@@ -737,6 +739,63 @@ inline std::ostream& operator<<(std::ostream& os, const Bounds2<T>& b) {
 template <typename T>
 inline std::ostream& operator<<(std::ostream& os, const Bounds3<T>& b) {
     return (os << "[ " << b.pMin << " - " << b.pMax << " ]");
+}
+
+// Iterator for Bounds2i
+class Bounds2iIterator : public std::forward_iterator_tag {
+  public:
+    /**
+     * Constructor for Bounds2iIterator
+     * @param bounds The 2D integer bounds to iterate through
+     * @param pt The starting point for the iterator
+     */
+    Bounds2iIterator(const Bounds2i& bounds, const Point2i& pt) :
+        bounds(&bounds), pt(pt) {}
+
+    // Prefix increment
+    Bounds2iIterator operator++() { incrementIterator(); return *this; }
+    // Postfix increment
+    Bounds2iIterator operator++(int) {
+        Bounds2iIterator prevItr = *this;
+        incrementIterator(); return prevItr;
+    }
+
+    // Compare tests
+    bool operator==(const Bounds2iIterator& itr) const {
+        return pt == itr.pt && bounds == itr.bounds;
+    }
+    bool operator!=(const Bounds2iIterator& itr) const {
+        return pt != itr.pt || bounds != itr.bounds;
+    }
+
+    // Dereference
+    Point2i operator*() const { return pt; }
+
+  private:
+    void incrementIterator() {
+        pt.x++;
+        if (pt.x == bounds->pMax.x) {
+            // Reset x point
+            pt.x = bounds->pMin.x;
+            pt.y++;
+        }
+    }
+
+    Point2i pt;
+    const Bounds2i* bounds;
+};
+
+// Bounds2iIterator begin and end functions
+inline Bounds2iIterator begin(const Bounds2i& bounds) {
+    return Bounds2iIterator(bounds, bounds.pMin);
+}
+
+inline Bounds2iIterator end(const Bounds2i& bounds) {
+    // Set iterator to last pixel
+    Point2i pEnd(bounds.pMin.x, bounds.pMax.y);
+    // Set {pEnd} to start point in case {bounds} is invalid
+    if (!bounds.isProper()) pEnd = bounds.pMin;
+    return Bounds2iIterator(bounds, pEnd);
 }
 
 
