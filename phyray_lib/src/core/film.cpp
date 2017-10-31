@@ -30,4 +30,38 @@ Film::Film(const Point2i& resolution, const Bounds2f& cropWindow,
     }
 }
 
+Bounds2i Film::getSampleBounds() const {
+    // Convert from discrete to continuous pixel coordinates
+    // accounting for half-pixel offsets, expanding by the filter radius
+    // and then rounding outward.
+    const Vector2f halfPixel(0.5, 0.5);
+    Bounds2f bounds(
+        floor(Point2f(croppedImageBounds.pMin) + halfPixel - filter->radius),
+        ceil(Point2f(croppedImageBounds.pMax) - halfPixel + filter->radius));
+    return Bounds2i(bounds);
+}
+
+Bounds2f Film::getPhysicalExtent() const {
+    // Physcial dimensions of the film is calculated in metres from
+    // given film diagonal size and aspect ratio of the final output image.
+    Real aspectRatio = Real(resolution.x) / Real(resolution.y);
+    Real y = std::sqrt((filmSize * filmSize) / (1 + aspectRatio * aspectRatio));
+    Real x = y * aspectRatio;
+    return Bounds2f(Point2f(-x * 0.5, -y * 0.5), Point2f(x * 0.5, y * 0.5));
+}
+
+std::unique_ptr<FilmTile> Film::getFilmTile(const Bounds2i& sampleBounds) {
+    // Bound image pixels that samples in sampleBounds contribute to
+    const Vector2f halfPixel(0.5, 0.5);
+    Bounds2f bounds = Bounds2f(sampleBounds);
+    Point2i p0 = Point2i(ceil(bounds.pMin - halfPixel - filter->radius));
+    Point2i p1 = Point2i(floor(bounds.pMax - halfPixel + filter->radius)) + Point2i(1, 1);
+
+    // Tile bounds
+    Bounds2i tilePixelBounds(intersect(Bounds2i(p0, p1), croppedImageBounds));
+    // Return pointer to generated FilmTile
+    return std::unique_ptr<FilmTile>(new FilmTile(tilePixelBounds, filter->radius,
+                                                  filterTable, filterTableSize));
+}
+
 }  // namespace phyr
