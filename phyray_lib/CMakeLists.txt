@@ -16,6 +16,7 @@ add_library(lib
     src/core/material/material.cpp
     src/core/color/spectrum.cpp
     src/core/film.cpp
+    src/core/concurrency.cpp
     
     # Cameras
     src/core/camera/camera.cpp
