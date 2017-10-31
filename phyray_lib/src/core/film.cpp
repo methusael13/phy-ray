@@ -110,6 +110,43 @@ std::unique_ptr<FilmTile> Film::getFilmTile(const Bounds2i& sampleBounds) {
 void Film::mergeFilmTile(std::unique_ptr<FilmTile> tile) {
     // Acquire lock
     std::lock_guard<std::mutex> lock(mutex);
+    // Iterate through all pixels within pixel bounds
+    for (Point2i pixel : tile->getPixelBounds()) {
+        // Merge pixel into {Film::pixels}
+        FilmTilePixel& tilePixel = tile->getPixel(pixel);
+        Pixel& filmPixel = getPixel(pixel);
+
+        // Get xyz spectrum data
+        Real xyz[3];
+        tilePixel.contributionSum.toXYZConstants(xyz);
+        // Add spectrum data to {filmPixel}
+        filmPixel.xyz[0] += xyz[0]; filmPixel.xyz[1] += xyz[1];
+        filmPixel.xyz[2] += xyz[2];
+        filmPixel.filterWeightSum += tilePixel.filterWeightSum;
+    }
+}
+
+void Film::setImage(const Spectrum* img) {
+    int nPixels = croppedImageBounds.area();
+    for (int i = 0; i < nPixels; i++) {
+        Pixel& pixel = pixels[i];
+        img[i].toXYZConstants(pixel.xyz);
+        pixel.filterWeightSum = 1;
+        pixel.splatXYZ[0] = pixel.splatXYZ[1] = pixel.splatXYZ[2] = 0;
+    }
+}
+
+void Film::addSplat(const Point2f& pt, const Spectrum& spec) {
+    Point2i p(pt);
+    if (!insideExclusive(p, croppedImageBounds)) return;
+
+    // Get xyz contributions
+    Real xyz[3];
+    spec.toXYZConstants(xyz);
+    // Add as splat to pixel
+    Pixel& pixel = getPixel(p);
+    pixel.splatXYZ[0].add(xyz[0]); pixel.splatXYZ[1].add(xyz[1]);
+    pixel.splatXYZ[2].add(xyz[2]);
 }
 
 }  // namespace phyr

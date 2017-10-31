@@ -31,6 +31,7 @@ class FilmTile {
 
     // Interface
     void addSample(const Point2f& pFilm, const Spectrum& spec, Real sampleWeight = 1);
+    Bounds2i getPixelBounds() const { return pixelBounds; }
 
     // Returns a reference to a pixel (FilmTilePixel) within this tile
     FilmTilePixel& getPixel(const Point2i& pt) {
@@ -71,6 +72,16 @@ class Film {
      */
     void mergeFilmTile(std::unique_ptr<FilmTile> tile);
 
+    /**
+     * Fill pixel data from given Spectrum array all at once
+     */
+    void setImage(const Spectrum* img);
+    /**
+     * Add contributions to random pixels. More the splats around
+     * a given pixel, the brighter the pixel is.
+     */
+    void addSplat(const Point2f& pt, const Spectrum& spec);
+
     // Returns a pointer to a FilmTile given the sample bounds
     std::unique_ptr<FilmTile> getFilmTile(const Bounds2i& sampleBounds);
 
@@ -97,6 +108,14 @@ class Film {
         // Extra padding for 32-bit structure
         Real pad;
     };
+
+    // Returns a reference to a pixel (Pixel) within this film
+    Pixel& getPixel(const Point2i& pt) {
+        int width = croppedImageBounds.pMax.x - croppedImageBounds.pMin.x;
+        int idx = (pt.y - croppedImageBounds.pMin.y) * width +
+                  (pt.x - croppedImageBounds.pMin.x);
+        return pixels[idx];
+    }
 
     const Real scale;
     std::unique_ptr<Pixel[]> pixels;
