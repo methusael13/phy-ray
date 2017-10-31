@@ -7,6 +7,7 @@
 #include <core/integrator/filter.h>
 #include <core/geometry/geometry.h>
 
+#include <mutex>
 #include <memory>
 
 namespace phyr {
@@ -26,6 +27,16 @@ class FilmTile {
         filterTable(filterTable), filterTableSize(filterTableSize) {
         // Allocate pixels
         pixels = std::vector<FilmTilePixel>(std::max(0, pixelBounds.area()));
+    }
+
+    // Interface
+    void addSample(const Point2f& pFilm, const Spectrum& spec, Real sampleWeight = 1);
+
+    // Returns a reference to a pixel (FilmTilePixel) within this tile
+    FilmTilePixel& getPixel(const Point2i& pt) {
+        int idx = (pt.y - pixelBounds.pMin.y) * (pixelBounds.pMax.x - pixelBounds.pMin.x) +
+                  (pt.x - pixelBounds.pMin.x);
+        return pixels[idx];
     }
 
   private:
@@ -49,6 +60,16 @@ class Film {
     Bounds2i getSampleBounds() const;
     // Returns the actual extent of the film in the scene
     Bounds2f getPhysicalExtent() const;
+
+    /**
+     * Merges the FilmTile data onto the current Film.
+     * Should be called after the calling thread is done
+     * adding contributions to the FilmTile. Ownership of the FilmTile
+     * is transferred on calling this method, thus, the calling
+     * thread should no longer attempt to add further contributions
+     * after this method has been called.
+     */
+    void mergeFilmTile(std::unique_ptr<FilmTile> tile);
 
     // Returns a pointer to a FilmTile given the sample bounds
     std::unique_ptr<FilmTile> getFilmTile(const Bounds2i& sampleBounds);
@@ -79,6 +100,9 @@ class Film {
 
     const Real scale;
     std::unique_ptr<Pixel[]> pixels;
+    // Mutex lock to be used for acquiring access to
+    // Film for merging FilmTiles
+    std::mutex mutex;
 
     // Filter table data
     static constexpr int filterTableSize = 16;

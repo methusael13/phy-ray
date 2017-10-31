@@ -1,7 +1,49 @@
 #include <core/film.h>
+#include <core/phyr_mem.h>
 
 namespace phyr {
 
+// FilmTile definitions
+void FilmTile::addSample(const Point2f& pFilm, const Spectrum& spec, Real sampleWeight) {
+    // Compute sample's raster bounds
+    // Convert continuous pixel coordinates to discrete
+    Point2f pFilmDiscrete = pFilm - Vector2f(0.5, 0.5);
+    // Calculate pixel bounds
+    Point2i p0 = Point2i(ceil(pFilmDiscrete - filterRadius));
+    Point2i p1 = Point2i(floor(pFilmDiscrete + filterRadius)) + Point2i(1, 1);
+    p0 = max(p0, pixelBounds.pMin);
+    p1 = min(p1, pixelBounds.pMax);
+
+    // Loop over filter support and add sample to pixel arrays
+    // Precompute x and y filter table offsets
+    int* ftx = STACK_ALLOC(int, p1.x - p0.x);
+    for (int x = p0.x; x < p1.x; x++) {
+        Real fx = std::abs((x - pFilmDiscrete.x) * invFilterRadius.x * filterTableSize);
+        ftx[x - p0.x] = std::min(int(std::floor(fx)), filterTableSize - 1);
+    }
+
+    int* fty = STACK_ALLOC(int, p1.y - p0.y);
+    for (int y = p0.y; y < p1.y; y++) {
+        Real fy = std::abs((y - pFilmDiscrete.y) * invFilterRadius.y * filterTableSize);
+        fty[y - p0.y] = std::min(int(std::floor(fy)), filterTableSize - 1);
+    }
+
+    for (int y = p0.y; y < p1.y; y++) {
+        for (int x = p0.x; x < p1.x; x++) {
+            // Evaluate filter value at (x, y) pixel
+            int idx = fty[y - p0.y] * filterTableSize + ftx[x - p0.x];
+            Real filterWeight = filterTable[idx];
+
+            // Update filter values with filtered sample contribution
+            FilmTilePixel& pixel = getPixel(Point2i(x, y));
+            pixel.contributionSum += spec * sampleWeight * filterWeight;
+            pixel.filterWeightSum += filterWeight;
+        }
+    }
+}
+
+
+// Film definitions
 Film::Film(const Point2i& resolution, const Bounds2f& cropWindow,
            std::unique_ptr<Filter> filter, Real filmSize,
            const std::string& filename, Real scale) :
@@ -54,6 +96,7 @@ std::unique_ptr<FilmTile> Film::getFilmTile(const Bounds2i& sampleBounds) {
     // Bound image pixels that samples in sampleBounds contribute to
     const Vector2f halfPixel(0.5, 0.5);
     Bounds2f bounds = Bounds2f(sampleBounds);
+    // Convert from continuous to discrete pixel coordinates
     Point2i p0 = Point2i(ceil(bounds.pMin - halfPixel - filter->radius));
     Point2i p1 = Point2i(floor(bounds.pMax - halfPixel + filter->radius)) + Point2i(1, 1);
 
@@ -62,6 +105,11 @@ std::unique_ptr<FilmTile> Film::getFilmTile(const Bounds2i& sampleBounds) {
     // Return pointer to generated FilmTile
     return std::unique_ptr<FilmTile>(new FilmTile(tilePixelBounds, filter->radius,
                                                   filterTable, filterTableSize));
+}
+
+void Film::mergeFilmTile(std::unique_ptr<FilmTile> tile) {
+    // Acquire lock
+    std::lock_guard<std::mutex> lock(mutex);
 }
 
 }  // namespace phyr
