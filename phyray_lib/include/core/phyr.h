@@ -64,7 +64,9 @@ class BSDF;
 // Spectrum
 template <int sampleSize>
 class CoefficientSpectrum;
-class RGBSpectrum;
+class SampledSpectrum;
+
+typedef SampledSpectrum Spectrum;
 
 // Camera
 class Camera;
