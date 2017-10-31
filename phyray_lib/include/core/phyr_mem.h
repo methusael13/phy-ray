@@ -19,7 +19,7 @@ static constexpr int PhyRayL1CacheLineSize = PHYR_L1_CACHE_LINESZ;
 static const int PhyRayL1CacheLineSize = getL1CacheLineSize();
 #endif
 
-#define STACK_ALLOC(T, CNT) ((T*) alloca(CNT * sizeof(T)))
+#define STACK_ALLOC(T, CNT) ((T*)(alloca(CNT * sizeof(T))))
 
 void* allocAligned(size_t size);
 
