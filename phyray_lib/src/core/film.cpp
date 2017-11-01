@@ -169,4 +169,43 @@ void Film::addSplat(const Point2f& pt, const Spectrum& spec) {
     pixel.splatXYZ[2].add(xyz[2]);
 }
 
+void Film::writeImage(Real splatScale) {
+    // Allocate space for RGB image data
+    std::unique_ptr<Real[]> rgb(new Real[3 * croppedImageBounds.area()]);
+    int idx = 0;
+
+    // Convert image to RGB and calculate final pixel values
+    for (Point2i p : croppedImageBounds) {
+        // Convert XYZ pixel data to RGB
+        Pixel& pixel = getPixel(p);
+        convertXYZToRGB(pixel.xyz, &rgb[3 * idx]);
+
+        // Normalize pixel with filter weight sum
+        Real filterWeightSum = pixel.filterWeightSum;
+        if (filterWeightSum != 0) {
+            Real invFilterWeightSum = Real(1) / filterWeightSum;
+            // Clamp minimum rgb value to 0
+            rgb[3 * idx    ] = std::max(Real(0), rgb[3 * idx    ] * invFilterWeightSum);
+            rgb[3 * idx + 1] = std::max(Real(0), rgb[3 * idx + 1] * invFilterWeightSum);
+            rgb[3 * idx + 2] = std::max(Real(0), rgb[3 * idx + 2] * invFilterWeightSum);
+        }
+
+        // Add splat value to pixel
+        Real splatRGB[3];
+        Real splatXYZ[3] = { pixel.splatXYZ[0], pixel.splatXYZ[1], pixel.splatXYZ[2] };
+        convertXYZToRGB(splatXYZ, splatRGB);
+
+        rgb[3 * idx    ] = scale * (rgb[3 * idx    ] + splatScale * splatRGB[0]);
+        rgb[3 * idx + 1] = scale * (rgb[3 * idx + 1] + splatScale * splatRGB[1]);
+        rgb[3 * idx + 2] = scale * (rgb[3 * idx + 2] + splatScale * splatRGB[2]);
+
+        // Increment to next pixel index
+        idx++;
+    }
+
+    // TODO:
+    // Write rgb image data to file. Apply gamma correction according
+    // to the sRGB standard if writing to an 8-bit integer format.
+}
+
 }  // namespace phyr

@@ -82,6 +82,11 @@ class Film {
      */
     void addSplat(const Point2f& pt, const Spectrum& spec);
 
+    /**
+     * Generate and write to file the actual RGB image data from the render samples
+     */
+    void writeImage(Real splatScale);
+
     // Returns a pointer to a FilmTile given the sample bounds
     std::unique_ptr<FilmTile> getFilmTile(const Bounds2i& sampleBounds);
 
