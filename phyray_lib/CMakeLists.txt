@@ -1,9 +1,9 @@
 # CMake for PhyRay Library
 # @author: Methusael Murmu
 
-project(lib VERSION 0.1 LANGUAGES CXX)
+project(phyrlib VERSION 0.1 LANGUAGES CXX)
 
-add_library(lib
+add_library(phyrlib
     # Core library
     src/core/phyr.cpp
     src/core/phyr_mem.cpp
@@ -43,14 +43,18 @@ add_library(lib
     src/modules/filters/lanczos.cpp
 )
 
-target_include_directories(lib PUBLIC
+target_include_directories(phyrlib PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
     PRIVATE src
 )
 
-set(COMMON_LIBS lib m pthread ${OPENEXR_LIBS})
-target_link_libraries(${COMMON_LIBS})
+# set(PHYRAY_DEP_LIBS pthread ${OPENEXR_LIBS})
+set(PHYRAY_DEP_LIBS pthread)
+target_link_libraries(phyrlib ${PHYRAY_DEP_LIBS})
+
+# set(PHYRAY_LIBS phyrlib m pthread ${OPENEXR_LIBS})
+set(PHYRAY_LIBS phyrlib m pthread)
 
 # Define test targets
 set(TEST_EXE
@@ -59,6 +63,6 @@ set(TEST_EXE
 )
 foreach(test_exe ${TEST_EXE})
     add_executable(${test_exe} test/${test_exe}.cpp)
-    target_link_libraries(${test_exe} ${COMMON_LIBS})
+    target_link_libraries(${test_exe} ${PHYRAY_LIBS})
     add_test(${test_exe} ${test_exe})
 endforeach(test_exe)
