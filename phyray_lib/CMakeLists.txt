@@ -17,6 +17,7 @@ add_library(lib
     src/core/color/spectrum.cpp
     src/core/film.cpp
     src/core/concurrency.cpp
+    src/core/debug.cpp
     
     # Cameras
     src/core/camera/camera.cpp
