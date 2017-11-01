@@ -1,3 +1,4 @@
 [submodule "external/openexr"]
-    path = external/openexr
-    url = https://github.com/methusael13/openexr
+	path = external/openexr
+	url = https://github.com/methusael13/openexr
+	branch = master
