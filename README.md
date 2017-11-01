@@ -7,7 +7,7 @@ Project is under active development. No release candidates yet.
 #### Building
 - Clone this repository
 ```
-git clone https://github.com/methusael13/phy-ray
+git clone --recursive https://github.com/methusael13/phy-ray
 ```
 - Create a build directory and compile
 ```
