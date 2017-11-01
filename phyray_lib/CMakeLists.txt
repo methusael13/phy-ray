@@ -49,7 +49,7 @@ target_include_directories(lib PUBLIC
     PRIVATE src
 )
 
-set(COMMON_LIBS lib m pthread)
+set(COMMON_LIBS lib m pthread ${OPENEXR_LIBS})
 target_link_libraries(${COMMON_LIBS})
 
 # Define test targets
