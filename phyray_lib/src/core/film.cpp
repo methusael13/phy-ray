@@ -1,6 +1,8 @@
 #include <core/film.h>
 #include <core/phyr_mem.h>
 
+#include <core/debug.h>
+
 namespace phyr {
 
 // FilmTile definitions
@@ -137,6 +139,24 @@ void Film::setImage(const Spectrum* img) {
 }
 
 void Film::addSplat(const Point2f& pt, const Spectrum& spec) {
+#ifndef PHYRAY_OPTIMIZE
+    // Ignore invalid spectrum data
+    if (spec.hasNaNs()) {
+        LOG_WARNING_FMT("Ignoring splat at (%f, %f) due to NaN value", pt.x, pt.y);
+        return;
+    }
+
+    if (spec.getYConstant() < 0) {
+        LOG_WARNING_FMT("Ignoring splat at (%f, %f) with negative luminance", pt.x, pt.y);
+        return;
+    }
+
+    if (std::isinf(spec.getYConstant())) {
+        LOG_WARNING_FMT("Ignoring splat at (%f, %f) with infinite luminance", pt.x, pt.y);
+        return;
+    }
+#endif
+
     Point2i p(pt);
     if (!insideExclusive(p, croppedImageBounds)) return;
 
