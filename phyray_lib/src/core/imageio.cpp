@@ -22,12 +22,12 @@ inline std::string sanitizeFilename(const std::string& filename, const std::stri
 // Image IO utilities for various formats
 void writeImageEXR(const std::string& imgFilename, const Real* rgb, int xRes, int yRes,
                    int xTotalRes, int yTotalRes, int xOffset, int yOffset) {
-    size_t nPixels = xRes * yRes;
+    int nPixels = xRes * yRes;
     // Construct internal Rgba struct from input rgb array
     std::unique_ptr<Imf::Rgba[]> pixels(new Imf::Rgba[nPixels]);
 
-    for (size_t i = 0; i < nPixels; i++)
-        pixels[i] = { rgb[3 * i], rgb[3 * i + 1], rgb[3 * i + 2] };
+    for (int i = 0; i < nPixels; i++)
+        pixels[i] = Imf::Rgba(rgb[3 * i], rgb[3 * i + 1], rgb[3 * i + 2]);
 
     // Create OpenEXR bounds
     Imath::Box2i displayWindow(Imath::V2i(0, 0), Imath::V2i(xTotalRes - 1, yTotalRes - 1));
