@@ -13,24 +13,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated")
 
 # Add OpenEXR
-# SET(ILMBASE_NAMESPACE_VERSIONING OFF CACHE BOOL " " FORCE)
-# SET(OPENEXR_NAMESPACE_VERSIONING OFF CACHE BOOL " " FORCE)
-# SET(OPENEXR_BUILD_SHARED_LIBS    OFF CACHE BOOL " " FORCE)
-# SET(ILMBASE_BUILD_SHARED_LIBS    OFF CACHE BOOL " " FORCE)
-# 
-# ADD_SUBDIRECTORY(external/openexr)
-# 
-# SET_PROPERTY(TARGET IexMath eLut toFloat b44ExpLogTable dwaLookups CopyIlmBaseLibs IlmThread Half Iex Imath IlmImf PROPERTY FOLDER "dependencies")
-# 
-# INCLUDE_DIRECTORIES(
-#   external/openexr/IlmBase/Imath
-#   external/openexr/IlmBase/Half
-#   external/openexr/IlmBase/Iex
-#   external/openexr/OpenEXR/IlmImf
-#   ${CMAKE_BINARY_DIR}/external/openexr/IlmBase/config
-#   ${CMAKE_BINARY_DIR}/external/openexr/OpenEXR/config
-# )
-# SET(OPENEXR_LIBS IlmImf Imath Half)
+find_package(PkgConfig REQUIRED)
+pkg_search_module(OPENEXR REQUIRED OpenEXR)
+pkg_search_module(ILMBASE REQUIRED IlmBase)
 
 # PhyRay
 enable_testing()

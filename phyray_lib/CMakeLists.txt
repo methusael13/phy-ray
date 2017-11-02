@@ -18,6 +18,7 @@ add_library(phyrlib
     src/core/film.cpp
     src/core/concurrency.cpp
     src/core/debug.cpp
+    src/core/imageio.cpp
     
     # Cameras
     src/core/camera/camera.cpp
@@ -46,15 +47,16 @@ add_library(phyrlib
 target_include_directories(phyrlib PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
+    ${ILMBASE_INCLUDE_DIRS}
+    ${OPENEXR_INCLUDE_DIRS}
     PRIVATE src
 )
 
-# set(PHYRAY_DEP_LIBS pthread ${OPENEXR_LIBS})
-set(PHYRAY_DEP_LIBS pthread)
+set(OPENEXR_DEP_LIBS ${ILMBASE_LIBRARIES} ${OPENEXR_LIBRARIES})
+set(PHYRAY_DEP_LIBS pthread ${OPENEXR_DEP_LIBS})
 target_link_libraries(phyrlib ${PHYRAY_DEP_LIBS})
 
-# set(PHYRAY_LIBS phyrlib m pthread ${OPENEXR_LIBS})
-set(PHYRAY_LIBS phyrlib m pthread)
+set(PHYRAY_LIBS phyrlib m pthread ${OPENEXR_DEP_LIBS})
 
 # Define test targets
 set(TEST_EXE
