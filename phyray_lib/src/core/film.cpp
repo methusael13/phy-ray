@@ -1,6 +1,6 @@
 #include <core/film.h>
 #include <core/phyr_mem.h>
-
+#include <core/imageio.h>
 #include <core/debug.h>
 
 namespace phyr {
@@ -203,9 +203,9 @@ void Film::writeImage(Real splatScale) {
         idx++;
     }
 
-    // TODO:
     // Write rgb image data to file. Apply gamma correction according
     // to the sRGB standard if writing to an 8-bit integer format.
+    ImageIO::writeImage(filename, rgb.get(), croppedImageBounds, resolution, ImageFormat::EXR);
 }
 
 }  // namespace phyr
