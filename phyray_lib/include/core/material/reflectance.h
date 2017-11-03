@@ -46,6 +46,26 @@ inline Real cosDeltaPhi(const Vector3f& wa, const Vector3f& wb) {
     return clamp(dotp / std::sqrt(waLen * wbLen), -1, 1);
 }
 
+inline Vector3f reflect(const Vector3f& wo, const Vector3f& n) {
+    return -wo + 2 * dot(wo, n) * n;
+}
+
+inline bool refract(const Vector3f& wi, const Normal3f& n, Real eta,
+                    Vector3f* wt) {
+    Real cosThetaI = dot(n, wi);
+    Real sinSqThetaI = std::max(Real(0), 1 - cosThetaI * cosThetaI);
+    Real sinSqThetaT = eta * eta * sinSqThetaI;
+
+    if (sinSqThetaT >= 1) return false;
+    Real cosThetaT = std::sqrt(std::max(Real(0), 1 - sinSqThetaT));
+    *wt = eta * -wi + (eta * cosThetaI - cosThetaT) * Vector3f(n);
+    return true;
+}
+
+// BxDF utility functions
+Real frDielectric(Real cosThetaI, Real etaI, Real etaT);
+Spectrum frConductor(Real cosThetaI, const Spectrum& etaI,
+                     const Spectrum& etaT, const Spectrum& k);
 
 // BxDF Types
 enum BxDFType {
@@ -94,7 +114,7 @@ class BxDF {
     virtual Spectrum rho(int nSamples, const Point2f* samples1, const Point2f* samples2) const;
 
     /**
-     * Computes the probability distribution function for a given pair of directions
+     * Computes the probability density function for a given pair of directions
      */
     virtual Real pdf(const Vector3f& wo, const Vector3f& wi) const;
 
@@ -139,6 +159,81 @@ class ScaledBxDF : public BxDF {
     Spectrum scale;
 };
 
+
+// Fresnel declarations
+class Fresnel {
+  public:
+    /**
+     * Returns the amount of light reflected by the surface given the cosine
+     * of the angle made by the incoming direction and the surface normal.
+     */
+    virtual Spectrum evaluate(Real cosThetaI) const = 0;
+    virtual ~Fresnel() {}
+};
+
+class FresnelConductor : public Fresnel {
+  public:
+    FresnelConductor(const Spectrum& etaI, const Spectrum etaT, const Spectrum& k) :
+        etaI(etaI), etaT(etaT), k(k) {}
+
+    // Interaface
+    Spectrum evaluate(Real cosThetaI) const override;
+
+  private:
+    Spectrum etaI, etaT, k;
+};
+
+class FresnelDielectric : public Fresnel {
+  public:
+    FresnelDielectric(Real etaI, Real etaT) :
+        etaI(etaI), etaT(etaT) {}
+
+    // Interface
+    Spectrum evaluate(Real cosThetaI) const override;
+
+  private:
+    Real etaI, etaT;
+};
+
+/**
+ * The FresnelPureReflect class returns 100% reflection for all incoming directions
+ */
+class FresnelPureReflect : public Fresnel {
+  public:
+    // Interface
+    Spectrum evaluate(Real) const { return Spectrum(1); }
+};
+
+
+// SpecularReflection declarations
+class SpecularReflection : public BxDF {
+  public:
+    SpecularReflection(const Spectrum& R, const Fresnel* fresnel) :
+        BxDF(BxDFType(BSDF_REFLECTION | BSDF_SPECULAR)),
+        R(R), fresnel(fresnel) {}
+
+    // Interface
+
+    /**
+     * No scaterring is returned, since for an arbitrary pair of directions the
+     * delta function returns no scattering. This certainly isn't true for the case
+     * when {wo} is a perfect mirror reflection direction of {wi}. It's alright however,
+     * since such reflectance functions involving singularities with delta distributions
+     * receive special handling by the light transport routines.
+     */
+    Spectrum f(const Vector3f& wo, const Vector3f& wi) const {
+        return Spectrum(Real(0));
+    }
+
+    Spectrum sample_f(const Vector3f& wo, Vector3f* wi, const Point2f& sample,
+                      Real* pdf, BxDFType* sampledType) const;
+
+  private:
+    // Used to scale the reflected color
+    const Spectrum R;
+    // Describes dielectric or conductor fresnel properties
+    const Fresnel* fresnel;
+};
 
 }  // namespace phyr
 
