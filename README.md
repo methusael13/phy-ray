@@ -9,7 +9,7 @@ Project is under active development. No release candidates yet.
 
 | Platform | Command |
 | -------- | ------- |
-| Fedora | `sudo dnf install OpenEXR OpenEXR-libs OpenEXR-devel |
+| Fedora | `sudo dnf install OpenEXR OpenEXR-libs OpenEXR-devel` |
 
 #### Building
 - Clone this repository
