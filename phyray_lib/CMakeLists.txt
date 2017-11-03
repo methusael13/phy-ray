@@ -13,12 +13,15 @@ add_library(phyrlib
     src/core/geometry/interaction.cpp
     src/core/geometry/shape.cpp
     src/core/object/object.cpp
-    src/core/material/material.cpp
     src/core/color/spectrum.cpp
     src/core/film.cpp
     src/core/concurrency.cpp
     src/core/debug.cpp
     src/core/imageio.cpp
+    
+    # Materials
+    src/core/material/material.cpp
+    src/core/material/reflectance.cpp
     
     # Cameras
     src/core/camera/camera.cpp
