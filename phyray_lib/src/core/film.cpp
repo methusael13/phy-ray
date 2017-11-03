@@ -112,6 +112,7 @@ std::unique_ptr<FilmTile> Film::getFilmTile(const Bounds2i& sampleBounds) {
 void Film::mergeFilmTile(std::unique_ptr<FilmTile> tile) {
     // Acquire lock
     std::lock_guard<std::mutex> lock(mutex);
+
     // Iterate through all pixels within pixel bounds
     for (Point2i pixel : tile->getPixelBounds()) {
         // Merge pixel into {Film::pixels}
