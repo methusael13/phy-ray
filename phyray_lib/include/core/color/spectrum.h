@@ -172,14 +172,15 @@ class CoefficientSpectrum {
         return true;
     }
 
-    CoefficientSpectrum sqrt(const CoefficientSpectrum& c1) const {
+    static CoefficientSpectrum sqrt(const CoefficientSpectrum& c1) {
         CoefficientSpectrum cs;
         for (int i = 0; i < sampleSize; i++)
             cs.samples[i] = std::sqrt(c1.samples[i]);
         ASSERT(!cs.hasNaNs());
         return cs;
     }
-    CoefficientSpectrum exp(const CoefficientSpectrum& c1) const {
+
+    static CoefficientSpectrum exp(const CoefficientSpectrum& c1) {
         CoefficientSpectrum cs;
         for (int i = 0; i < sampleSize; i++)
             cs.samples[i] = std::exp(c1.samples[i]);
