@@ -83,4 +83,25 @@ Spectrum SpecularReflection::sample_f(const Vector3f& wo, Vector3f* wi,
     return fresnel->evaluate(cosTheta(*wi)) * R / absCosTheta(*wi);
 }
 
+// SpecularTransmission definitions
+Spectrum SpecularTransmission::sample_f(const Vector3f& wo, Vector3f* wi,
+                                        const Point2f& sample, Real* pdf,
+                                        BxDFType* sampledType) const {
+    // Determine which direction is incident and which is transmitted
+    bool rayEntering = cosTheta(wo) > 0;
+    Real _etaI = rayEntering ? etaI : etaT;
+    Real _etaT = rayEntering ? etaT : etaI;
+
+    // Compute ray drection for specular transmission
+    if (!refract(wo, faceForward(Normal3f(0, 0, 1), wo), _etaI / _etaT, wi))
+        return 0;
+
+    *pdf = 1;
+    Spectrum ft = T * (Spectrum(Real(0)) - fresnel.evaluate(cosTheta(*wi)));
+    // Account for non-symmetry with transmission to different medium
+    if (mode == TransportMode::Radiance)
+        ft *= (_etaI * _etaI) / (_etaT * _etaT);
+    return ft / absCosTheta(*wi);
+}
+
 }  // namepspace phyr

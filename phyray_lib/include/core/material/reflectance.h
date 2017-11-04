@@ -3,6 +3,7 @@
 
 #include <core/phyr.h>
 #include <core/color/spectrum.h>
+#include <core/material/material.h>
 #include <core/geometry/geometry.h>
 
 namespace phyr {
@@ -201,7 +202,7 @@ class FresnelDielectric : public Fresnel {
 class FresnelPureReflect : public Fresnel {
   public:
     // Interface
-    Spectrum evaluate(Real) const { return Spectrum(1); }
+    Spectrum evaluate(Real) const override { return Spectrum(1); }
 };
 
 
@@ -221,12 +222,14 @@ class SpecularReflection : public BxDF {
      * since such reflectance functions involving singularities with delta distributions
      * receive special handling by the light transport routines.
      */
-    Spectrum f(const Vector3f& wo, const Vector3f& wi) const {
+    Spectrum f(const Vector3f& wo, const Vector3f& wi) const override {
         return Spectrum(Real(0));
     }
 
     Spectrum sample_f(const Vector3f& wo, Vector3f* wi, const Point2f& sample,
-                      Real* pdf, BxDFType* sampledType) const;
+                      Real* pdf, BxDFType* sampledType) const override;
+
+    Real pdf(const Vector3f& wo, const Vector3f& wi) const override { return 0; }
 
   private:
     // Used to scale the reflected color
@@ -234,6 +237,66 @@ class SpecularReflection : public BxDF {
     // Describes dielectric or conductor fresnel properties
     const Fresnel* fresnel;
 };
+
+// SpecularTransmission declarations
+class SpecularTransmission : public BxDF {
+  public:
+    SpecularTransmission(const Spectrum& T, Real etaI, Real etaT, TransportMode mode) :
+        BxDF(BxDFType(BSDF_TRANSMISSION | BSDF_SPECULAR)), T(T), etaI(etaI), etaT(etaT),
+        fresnel(etaI, etaT), mode(mode) {}
+
+    // Interface
+    Spectrum f(const Vector3f& wo, const Vector3f& wi) const override {
+        return Spectrum(Real(0));
+    }
+
+    Spectrum sample_f(const Vector3f& wo, Vector3f* wi, const Point2f& sample,
+                      Real* pdf, BxDFType* sampledType) const override;
+
+    Real pdf(const Vector3f& wo, const Vector3f& wi) const override { return 0; }
+
+  private:
+    // The transmission scale factor
+    const Spectrum T;
+    // The refractive index for the incident and transmitted medium
+    const Real etaI, etaT;
+    // The object that describes the fresnel properties of the dielectric
+    const FresnelDielectric fresnel;
+    // This indicates whether the incident ray originated from a
+    // light source or camera
+    const TransportMode mode;
+};
+
+// FresnelSpecular declarations
+class FresnelSpecular : public BxDF {
+  public:
+    FresnelSpecular(const Spectrum& R, const Spectrum& T,
+                    Real etaI, Real etaT, TransportMode mode) :
+        BxDF(BxDFType(BSDF_REFLECTION | BSDF_TRANSMISSION | BSDF_SPECULAR)),
+        R(R), T(T), etaI(etaI), etaT(etaT), fresnel(etaI, etaT), mode(mode) {}
+
+    // Interface
+    Spectrum f(const Vector3f& wo, const Vector3f& wi) const override {
+        return Spectrum(Real(0));
+    }
+
+    Spectrum sample_f(const Vector3f& wo, Vector3f* wi, const Point2f& sample,
+                      Real* pdf, BxDFType* sampledType) const override;
+
+    Real pdf(const Vector3f& wo, const Vector3f& wi) const override { return 0; }
+
+  private:
+    // The reflection and transmission scale factor
+    const Spectrum R, T;
+    // The refractive index for the incident and transmitted medium
+    const Real etaI, etaT;
+    // The object that describes the fresnel properties of the dielectric
+    const FresnelDielectric fresnel;
+    // This indicates whether the incident ray originated from a
+    // light source or camera
+    const TransportMode mode;
+};
+
 
 }  // namespace phyr
 
