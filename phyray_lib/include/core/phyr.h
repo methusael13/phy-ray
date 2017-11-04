@@ -58,7 +58,6 @@ class AreaLight;
 
 class Material;
 class MemoryPool;
-class TransportMode;
 class BSDF;
 
 // Spectrum
