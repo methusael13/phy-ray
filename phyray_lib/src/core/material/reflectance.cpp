@@ -1,3 +1,4 @@
+#include <core/integrator/sampling.h>
 #include <core/material/reflectance.h>
 
 namespace phyr {
@@ -102,6 +103,57 @@ Spectrum SpecularTransmission::sample_f(const Vector3f& wo, Vector3f* wi,
     if (mode == TransportMode::Radiance)
         ft *= (_etaI * _etaI) / (_etaT * _etaT);
     return ft / absCosTheta(*wi);
+}
+
+// FresnelSpecular definitions
+Spectrum FresnelSpecular::sample_f(const Vector3f& wo, Vector3f* wi, const Point2f& sample,
+                                   Real* pdf, BxDFType* sampledType) const {
+    Real f = frDielectric(cosTheta(wo), etaI, etaT);
+    if (sample[0] < f) {
+        // Compute specular reflection for {FresnelSpecular}
+
+        // Compute perfect specular reflection direction
+        *wi = Vector3f(-wo.x, -wo.y, wo.z);
+        if (sampledType)
+            *sampledType = BxDFType(BSDF_REFLECTION | BSDF_SPECULAR);
+        *pdf = f;
+        return f * R / absCosTheta(*wi);
+    } else {
+        // Compute specular transmission for {FresnelSpecular}
+
+        // Determine which direction is incident and which is transmitted
+        bool rayEntering = cosTheta(wo) > 0;
+        Real _etaI = rayEntering ? etaI : etaT;
+        Real _etaT = rayEntering ? etaT : etaI;
+
+        // Compute ray drection for specular transmission
+        if (!refract(wo, faceForward(Normal3f(0, 0, 1), wo), _etaI / _etaT, wi))
+            return 0;
+        Spectrum ft = T * (1 - f);
+
+        // Account for non-symmetry with transmission to different medium
+        if (mode == TransportMode::Radiance)
+            ft *= (_etaI * _etaI) / (_etaT * _etaT);
+        if (sampledType)
+            *sampledType = BxDFType(BSDF_TRANSMISSION | BSDF_SPECULAR);
+        *pdf = 1 - f;
+        return ft / absCosTheta(*wi);
+    }
+}
+
+// LambertianTransmission definitions
+Real LambertianTransmission::pdf(const Vector3f& wo, const Vector3f& wi) const {
+    return !sameHemisphere(wo, wi) ? absCosTheta(wi) * InvPi : 0;
+}
+
+Spectrum LambertianTransmission::sample_f(const Vector3f& wo, Vector3f* wi, const Point2f& sample,
+                                          Real* pdf, BxDFType* sampledType) const {
+    *wi = cosineSampleHemisphere(sample);
+    // Make sure {wi} and {wo} are on different sides of the surface
+    if (wo.z > 0) wi->z *= -1;
+
+    *pdf = LambertianTransmission::pdf(wo, *wi);
+    return f(wo, *wi);
 }
 
 }  // namepspace phyr

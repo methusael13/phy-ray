@@ -63,6 +63,14 @@ inline bool refract(const Vector3f& wi, const Normal3f& n, Real eta,
     return true;
 }
 
+inline bool sameHemisphere(const Vector3f& w0, const Vector3f& w1) {
+    return w0.z * w1.z > 0;
+}
+
+inline bool sameHemisphere(const Vector3f& w0, const Normal3f& w1) {
+    return w0.z * w1.z > 0;
+}
+
 // BxDF utility functions
 Real frDielectric(Real cosThetaI, Real etaI, Real etaT);
 Spectrum frConductor(Real cosThetaI, const Spectrum& etaI,
@@ -297,6 +305,45 @@ class FresnelSpecular : public BxDF {
     const TransportMode mode;
 };
 
+// LambertianReflection declarations
+class LambertianReflection : public BxDF {
+  public:
+    LambertianReflection(const Spectrum& R) :
+        BxDF(BxDFType(BSDF_REFLECTION | BSDF_DIFFUSE)), R(R) {}
+
+    // Interface
+    Spectrum f(const Vector3f& wo, const Vector3f& wi) const override {
+        return R * InvPi;
+    }
+
+    Spectrum rho(const Vector3f&, int, const Point2f*) const override { return R; }
+    Spectrum rho(int, const Point2f*, const Point2f*) const override { return R; }
+
+  private:
+    const Spectrum R;
+};
+
+// LambertianTransmission declarations
+class LambertianTransmission : public BxDF {
+  public:
+    LambertianTransmission(const Spectrum& T) :
+        BxDF(BxDFType(BSDF_TRANSMISSION | BSDF_DIFFUSE)), T(T) {}
+
+    // Interface
+    Spectrum f(const Vector3f& wo, const Vector3f& wi) const override {
+        return T * InvPi;
+    }
+    Spectrum sample_f(const Vector3f& wo, Vector3f* wi, const Point2f& sample,
+                      Real* pdf, BxDFType* sampledType) const override;
+
+    Spectrum rho(const Vector3f&, int, const Point2f*) const override { return T; }
+    Spectrum rho(int, const Point2f*, const Point2f*) const override { return T; }
+
+    Real pdf(const Vector3f& wo, const Vector3f& wi) const override;
+
+  private:
+    const Spectrum T;
+};
 
 }  // namespace phyr
 
