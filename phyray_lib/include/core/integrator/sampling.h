@@ -20,6 +20,16 @@ void stratifiedSample2D(Point2f* sample, int nxSamples, int nySamples, bool jitt
 
 void latinHypercube(Real* sample, int nSamples, int nDimensions, RNG& rng);
 
+
+// Inline sampling functions
+
+// Sampling a unit hemisphere
+inline Vector3f cosineSampleHemisphere(const Point2f& pt) {
+    Point2f d = concentricSampleDisk(pt);
+    Real z = std::sqrt(std::max(Real(0), 1 - d.x * d.x - d.y * d.y));
+    return Vector3f(d.x, d.y, z);
+}
+
 }  // namespace phyr
 
 #endif
