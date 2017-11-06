@@ -2,12 +2,16 @@
 #include <core/material/microfacet.h>
 #include <core/material/reflectance.h>
 
+/**
+ * @note: Code adapted from the original pbrt-v3 for use with PhyRay
+ */
+
 namespace phyr {
 
 // Microfacet Utility Functions
 static void beckmannSample11(Real cosThetaI, Real U1, Real U2,
                              Real* slope_x, Real* slope_y) {
-    /* Special case (normal incidence) */
+    // Special case (normal incidence)
     if (cosThetaI > .9999) {
         Real r = std::sqrt(-std::log(1.0f - U1));
         Real sinPhi = std::sin(2 * Pi * U2);
@@ -17,40 +21,39 @@ static void beckmannSample11(Real cosThetaI, Real U1, Real U2,
         return;
     }
 
-    /* The original inversion routine from the paper contained
-       discontinuities, which causes issues for QMC integration
-       and techniques like Kelemen-style MLT. The following code
-       performs a numerical inversion with better behavior */
+    // The original inversion routine from the paper contained
+    // discontinuities, which causes issues for QMC integration
+    // and techniques like Kelemen-style MLT. The following code
+    // performs a numerical inversion with better behavior
     Real sinThetaI = std::sqrt(std::max((Real)0, (Real)1 - cosThetaI * cosThetaI));
     Real tanThetaI = sinThetaI / cosThetaI;
     Real cotThetaI = 1 / tanThetaI;
 
-    /* Search interval -- everything is parameterized
-       in the Erf() domain */
+    // Search interval -- everything is parameterized
+    // in the Erf() domain
     Real a = -1, c = erf(cotThetaI);
     Real sample_x = std::max(U1, (Real)1e-6f);
 
-    /* Start with a good initial guess */
+    // Start with a good initial guess
     // Real b = (1-sample_x) * a + sample_x * c;
 
-    /* We can do better (inverse of an approximation computed in Mathematica) */
+    // We can do better (inverse of an approximation computed in Mathematica)
     Real thetaI = std::acos(cosThetaI);
     Real fit = 1 + thetaI * (-0.876f + thetaI * (0.4265f - 0.0594f * thetaI));
     Real b = c - (1 + c) * std::pow(1 - sample_x, fit);
 
-    /* Normalization factor for the CDF */
+    // Normalization factor for the CDF
     static const Real SQRT_PI_INV = 1.f / std::sqrt(Pi);
     Real normalization = 1 / (1 + c + SQRT_PI_INV * tanThetaI * std::exp(-cotThetaI * cotThetaI));
 
     int it = 0;
     while (++it < 10) {
-        /* Bisection criterion -- the oddly-looking
-           Boolean expression are intentional to check
-           for NaNs at little additional cost */
+        // Bisection criterion -- the oddly-looking
+        // Boolean expression are intentional to check
+        // for NaNs at little additional cost
         if (!(b >= a && b <= c)) b = 0.5f * (a + c);
 
-        /* Evaluate the CDF and its derivative
-           (i.e. the density function) */
+        // Evaluate the CDF and its derivative (i.e. the density function)
         Real invErf = erfInv(b);
         Real value =
             normalization *
@@ -60,7 +63,7 @@ static void beckmannSample11(Real cosThetaI, Real U1, Real U2,
 
         if (std::abs(value) < 1e-5f) break;
 
-        /* Update bisection intervals */
+        // Update bisection intervals
         if (value > 0)
             c = b;
         else
@@ -69,10 +72,10 @@ static void beckmannSample11(Real cosThetaI, Real U1, Real U2,
         b -= value / derivative;
     }
 
-    /* Now convert back into a slope value */
+    // Now convert back into a slope value
     *slope_x = erfInv(b);
 
-    /* Simulate Y component */
+    // Simulate Y component
     *slope_y = erfInv(2.0f * std::max(U2, (Real)1e-6f) - 1.0f);
 
     ASSERT(!std::isinf(*slope_x));
@@ -83,24 +86,24 @@ static void beckmannSample11(Real cosThetaI, Real U1, Real U2,
 
 static Vector3f beckmannSample(const Vector3f& wi, Real alpha_x, Real alpha_y,
                                Real U1, Real U2) {
-    // 1. stretch wi
+    // Stretch wi
     Vector3f wiStretched =
         normalize(Vector3f(alpha_x * wi.x, alpha_y * wi.y, wi.z));
 
-    // 2. simulate P22_{wi}(x_slope, y_slope, 1, 1)
+    // Simulate P22_{wi}(x_slope, y_slope, 1, 1)
     Real slope_x, slope_y;
     beckmannSample11(cosTheta(wiStretched), U1, U2, &slope_x, &slope_y);
 
-    // 3. rotate
+    // Rotate
     Real tmp = cosPhi(wiStretched) * slope_x - sinPhi(wiStretched) * slope_y;
     slope_y = sinPhi(wiStretched) * slope_x + cosPhi(wiStretched) * slope_y;
     slope_x = tmp;
 
-    // 4. unstretch
+    // Unstretch
     slope_x = alpha_x * slope_x;
     slope_y = alpha_y * slope_y;
 
-    // 5. compute normal
+    // Compute normal
     return normalize(Vector3f(-slope_x, -slope_y, 1.f));
 }
 
@@ -226,23 +229,23 @@ static void trowbridgeReitzSample11(Real cosTheta, Real U1, Real U2,
 
 static Vector3f trowbridgeReitzSample(const Vector3f& wi, Real alpha_x,
                                       Real alpha_y, Real U1, Real U2) {
-    // 1. Stretch wi
+    // Stretch wi
     Vector3f wiStretched = normalize(Vector3f(alpha_x * wi.x, alpha_y * wi.y, wi.z));
 
-    // 2. Simulate P22_{wi}(x_slope, y_slope, 1, 1)
+    // Simulate P22_{wi}(x_slope, y_slope, 1, 1)
     Real slope_x, slope_y;
     trowbridgeReitzSample11(cosTheta(wiStretched), U1, U2, &slope_x, &slope_y);
 
-    // 3. Rotate
+    // Rotate
     Real tmp = cosPhi(wiStretched) * slope_x - sinPhi(wiStretched) * slope_y;
     slope_y = sinPhi(wiStretched) * slope_x + cosPhi(wiStretched) * slope_y;
     slope_x = tmp;
 
-    // 4. Unstretch
+    // Unstretch
     slope_x = alpha_x * slope_x;
     slope_y = alpha_y * slope_y;
 
-    // 5. compute normal
+    // Compute normal
     return normalize(Vector3f(-slope_x, -slope_y, 1.));
 }
 
@@ -254,8 +257,7 @@ Vector3f TrowbridgeReitzDistribution::sample_wh(const Vector3f& wo, const Point2
             Real tanTheta2 = alphax * alphax * u[0] / (1.0f - u[0]);
             cosTheta = 1 / std::sqrt(1 + tanTheta2);
         } else {
-            phi =
-                std::atan(alphay / alphax * std::tan(2 * Pi * u[1] + .5f * Pi));
+            phi = std::atan(alphay / alphax * std::tan(2 * Pi * u[1] + .5f * Pi));
             if (u[1] > .5f) phi += Pi;
             Real sinPhi = std::sin(phi), cosPhi = std::cos(phi);
             const Real alphax2 = alphax * alphax, alphay2 = alphay * alphay;
@@ -264,8 +266,7 @@ Vector3f TrowbridgeReitzDistribution::sample_wh(const Vector3f& wo, const Point2
             Real tanTheta2 = alpha2 * u[0] / (1 - u[0]);
             cosTheta = 1 / std::sqrt(1 + tanTheta2);
         }
-        Real sinTheta =
-            std::sqrt(std::max((Real)0., (Real)1. - cosTheta * cosTheta));
+        Real sinTheta = std::sqrt(std::max((Real)0., (Real)1. - cosTheta * cosTheta));
         wh = sphericalDirection(sinTheta, cosTheta, phi);
         if (!sameHemisphere(wo, wh)) wh = -wh;
     } else {
