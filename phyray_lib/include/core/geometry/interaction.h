@@ -3,6 +3,7 @@
 
 #include <core/phyr.h>
 #include <core/geometry/geometry.h>
+#include <core/material/material.h>
 
 namespace phyr {
 
@@ -48,9 +49,16 @@ class SurfaceInteraction : public Interaction {
                        const Point2f& uv, const Vector3f& dpdu, const Vector3f& dpdv,
                        const Normal3f& dndu, const Normal3f& dndv, const Shape* shape);
 
+    // Interface
     void setShadingGeomerty(const Vector3f& dpdus, const Vector3f& dpdvs,
                             const Normal3f& dndus, const Normal3f& dndvs,
                             bool overridesOrientation);
+
+    void computeScatteringFunctions(const Ray& ray, MemoryPool& arena,
+                                    bool allowMultipleLobes = false,
+                                    TransportMode mode = TransportMode::Radiance);
+
+    Spectrum le(const Vector3f& w) const;
 
     // The (u, v) coordinates from the parameterization of the surface
     Point2f uv;
@@ -63,6 +71,9 @@ class SurfaceInteraction : public Interaction {
     BSDF* bsdf = nullptr;
     const Shape* shape = nullptr;
     const Object* object = nullptr;
+
+    mutable Vector3f dpdx, dpdy;
+    mutable Real dudx = 0, dvdx = 0, dudy = 0, dvdy = 0;
 
     // Separate geometry data for shading
     // required for bump-mapping, etc.
