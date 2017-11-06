@@ -5,6 +5,7 @@
 #include <core/color/spectrum.h>
 #include <core/material/material.h>
 #include <core/geometry/geometry.h>
+#include <core/material/microfacet.h>
 
 namespace phyr {
 
@@ -343,6 +344,68 @@ class LambertianTransmission : public BxDF {
 
   private:
     const Spectrum T;
+};
+
+class OrenNayar : public BxDF {
+  public:
+    OrenNayar(const Spectrum& R, Real sigma)
+        : BxDF(BxDFType(BSDF_REFLECTION | BSDF_DIFFUSE)), R(R) {
+        sigma = radians(sigma);
+        Real sigma2 = sigma * sigma;
+        A = 1.f - (sigma2 / (2.f * (sigma2 + 0.33f)));
+        B = 0.45f * sigma2 / (sigma2 + 0.09f);
+    }
+
+    // Interface
+    Spectrum f(const Vector3f& wo, const Vector3f& wi) const;
+
+  private:
+    const Spectrum R;
+    Real A, B;
+};
+
+// Microfacet declarations
+class MicrofacetReflection : public BxDF {
+  public:
+    MicrofacetReflection(const Spectrum& R, MicrofacetDistribution* distribution,
+                         Fresnel* fresnel)
+        : BxDF(BxDFType(BSDF_REFLECTION | BSDF_GLOSSY)), R(R),
+          distribution(distribution), fresnel(fresnel) {}
+
+    // Interface
+    Spectrum f(const Vector3f& wo, const Vector3f& wi) const override;
+    Spectrum sample_f(const Vector3f& wo, Vector3f* wi, const Point2f& u,
+                      Real* pdf, BxDFType* sampledType) const override;
+
+    Real pdf(const Vector3f& wo, const Vector3f& wi) const override;
+
+  private:
+    const Spectrum R;
+    const MicrofacetDistribution *distribution;
+    const Fresnel *fresnel;
+};
+
+class MicrofacetTransmission : public BxDF {
+  public:
+    MicrofacetTransmission(const Spectrum& T, MicrofacetDistribution* distribution,
+                           Real etaA, Real etaB, TransportMode mode)
+        : BxDF(BxDFType(BSDF_TRANSMISSION | BSDF_GLOSSY)),
+          T(T), distribution(distribution), etaA(etaA), etaB(etaB),
+          fresnel(etaA, etaB), mode(mode) {}
+
+    // Interface
+    Spectrum f(const Vector3f& wo, const Vector3f& wi) const override;
+    Spectrum sample_f(const Vector3f& wo, Vector3f* wi, const Point2f& u,
+                      Real* pdf, BxDFType* sampledType) const override;
+
+    Real pdf(const Vector3f& wo, const Vector3f& wi) const override;
+
+  private:
+    const Spectrum T;
+    const MicrofacetDistribution *distribution;
+    const Real etaA, etaB;
+    const FresnelDielectric fresnel;
+    const TransportMode mode;
 };
 
 }  // namespace phyr
