@@ -22,6 +22,7 @@ add_library(phyrlib
     # Materials
     src/core/material/material.cpp
     src/core/material/reflectance.cpp
+    src/core/material/microfacet.cpp
     
     # Cameras
     src/core/camera/camera.cpp
