@@ -3,12 +3,11 @@
 
 #include <QMainWindow>
 
-namespace Ui {
-class PhyRayWindow;
-}
+#include <ui_phyraywindow.h>
 
-class PhyRayWindow : public QMainWindow
-{
+namespace Ui {
+
+class PhyRayWindow : public QMainWindow, Ui_PhyRayWindow {
     Q_OBJECT
 
 public:
@@ -19,4 +18,6 @@ private:
     Ui::PhyRayWindow *ui;
 };
 
-#endif // PHYRAYWINDOW_H
+}  // namespace Ui
+
+#endif

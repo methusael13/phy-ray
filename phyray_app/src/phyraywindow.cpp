@@ -1,14 +1,14 @@
-#include "phyraywindow.h"
-#include "ui_phyraywindow.h"
+#include <phyraywindow.h>
+
+namespace Ui {
 
 PhyRayWindow::PhyRayWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::PhyRayWindow)
-{
+    QMainWindow(parent), ui(new Ui::PhyRayWindow) {
     ui->setupUi(this);
 }
 
-PhyRayWindow::~PhyRayWindow()
-{
+PhyRayWindow::~PhyRayWindow() {
     delete ui;
 }
+
+}  // namespace Ui
