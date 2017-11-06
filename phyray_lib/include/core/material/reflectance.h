@@ -3,8 +3,11 @@
 
 #include <core/phyr.h>
 #include <core/color/spectrum.h>
-#include <core/material/material.h>
+
 #include <core/geometry/geometry.h>
+#include <core/geometry/interaction.h>
+
+#include <core/material/material.h>
 #include <core/material/microfacet.h>
 
 namespace phyr {
@@ -169,6 +172,56 @@ class ScaledBxDF : public BxDF {
     Spectrum scale;
 };
 
+// BSDF declarations
+class BSDF {
+  public:
+    BSDF(const SurfaceInteraction& si, Real eta = 1)
+        : eta(eta), ns(si.shadingGeom.n), ng(si.n),
+          ss(normalize(si.shadingGeom.dpdu)), ts(cross(ns, ss)) {}
+
+    // Interface
+    void add(BxDF *b) { ASSERT(nBxDFs < MaxBxDFs); bxdfs[nBxDFs++] = b; }
+
+    int numComponents(BxDFType flags = BSDF_ALL) const;
+
+    Vector3f worldToLocal(const Vector3f& v) const {
+        return Vector3f(dot(v, ss), dot(v, ts), dot(v, ns));
+    }
+
+    Vector3f localToWorld(const Vector3f& v) const {
+        return Vector3f(ss.x * v.x + ts.x * v.y + ns.x * v.z,
+                        ss.y * v.x + ts.y * v.y + ns.y * v.z,
+                        ss.z * v.x + ts.z * v.y + ns.z * v.z);
+    }
+
+    Spectrum rho(int nSamples, const Point2f* samples1, const Point2f* samples2,
+                 BxDFType flags = BSDF_ALL) const;
+    Spectrum rho(const Vector3f& wo, int nSamples, const Point2f* samples,
+                 BxDFType flags = BSDF_ALL) const;
+
+    Spectrum f(const Vector3f& woW, const Vector3f& wiW,
+               BxDFType flags = BSDF_ALL) const;
+    Spectrum sample_f(const Vector3f& wo, Vector3f* wi, const Point2f& u,
+                      Real* pdf, BxDFType type = BSDF_ALL,
+                      BxDFType* sampledType = nullptr) const;
+
+    Real pdf(const Vector3f& wo, const Vector3f& wi, BxDFType flags = BSDF_ALL) const;
+
+    // BSDF Public Data
+    const Real eta;
+
+  private:
+    ~BSDF() {}
+    static constexpr int MaxBxDFs = 8;
+
+    // BSDF Private Data
+    const Normal3f ns, ng;
+    const Vector3f ss, ts;
+    int nBxDFs = 0;
+
+    BxDF *bxdfs[MaxBxDFs];
+    friend class MixMaterial;
+};
 
 // Fresnel declarations
 class Fresnel {
