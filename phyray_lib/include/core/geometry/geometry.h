@@ -1201,7 +1201,7 @@ inline Point3f offsetRayOrigin(const Point3f& p, const Normal3f& n,
 /**
  * Converts spherical solid angle params to spherical direction vectors
  */
-inline Vector3f spehricalDirection(Real sinTheta, Real cosTheta, Real phi) {
+inline Vector3f sphericalDirection(Real sinTheta, Real cosTheta, Real phi) {
     return Vector3f(std::cos(phi) * sinTheta, std::sin(phi) * sinTheta, cosTheta);
 }
 
@@ -1209,7 +1209,7 @@ inline Vector3f spehricalDirection(Real sinTheta, Real cosTheta, Real phi) {
  * Converts spherical solid angle params to spherical direction vectors
  * while maintaining conformity with the original basis vectors
  */
-inline Vector3f spehricalDirection(Real sinTheta, Real cosTheta, Real phi,
+inline Vector3f sphericalDirection(Real sinTheta, Real cosTheta, Real phi,
                                    const Vector3f& x, const Vector3f& y, const Vector3f& z) {
     return std::cos(phi) * sinTheta * x + std::sin(phi) * sinTheta * y + cosTheta * z;
 }
