@@ -1,5 +1,6 @@
 #include <core/geometry/shape.h>
 #include <core/geometry/interaction.h>
+#include <core/object/object.h>
 
 namespace phyr {
 
@@ -44,6 +45,12 @@ void SurfaceInteraction::setShadingGeomerty(const Vector3f& dpdus, const Vector3
     shadingGeom.dpdu = dpdus; shadingGeom.dpdv = dpdvs;
     shadingGeom.dndu = dndus; shadingGeom.dndv = dndvs;
     shadingGeom.overridesOrientation = overridesOrientation;
+}
+
+void SurfaceInteraction::computeScatteringFunctions(const Ray &ray, MemoryPool &arena,
+                                                    bool allowMultipleLobes,
+                                                    TransportMode mode) {
+    object->computeScatteringFunctions(this, arena, mode, allowMultipleLobes);
 }
 
 } // namespace phyr
