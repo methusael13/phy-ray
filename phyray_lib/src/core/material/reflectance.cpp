@@ -187,11 +187,12 @@ Spectrum BSDF::sample_f(const Vector3f& woWorld, Vector3f* wiWorld,
     if (!(bxdf->type & BSDF_SPECULAR) && matchingComps > 1) {
         bool reflect = dot(*wiWorld, ng) * dot(woWorld, ng) > 0;
         f = 0.;
-        for (int i = 0; i < nBxDFs; ++i)
+        for (int i = 0; i < nBxDFs; ++i) {
             if (bxdfs[i]->matchesFlags(type) &&
                 ((reflect && (bxdfs[i]->type & BSDF_REFLECTION)) ||
                  (!reflect && (bxdfs[i]->type & BSDF_TRANSMISSION))))
                 f += bxdfs[i]->f(wo, wi);
+        }
     }
 
     return f;
