@@ -29,6 +29,17 @@ Point2f concentricSampleDisk(const Point2f& pt) {
     return Point2f(rad * std::cos(theta), rad * std::sin(theta));
 }
 
+// Hemisphere sampling definitions
+Vector3f uniformSampleHemisphere(const Point2f& u) {
+    Real z = u[0];
+    Real r = std::sqrt(std::max(Real(0), Real(1.) - z * z));
+    Real phi = 2 * Pi * u[1];
+
+    return Vector3f(r * std::cos(phi), r * std::sin(phi), z);
+}
+
+Real uniformHemispherePdf() { return Inv2Pi; }
+
 template <typename T>
 void shuffle(T* sample, int nSamples, int nDimensions, RNG& rng) {
     for (int i = 0; i < nSamples; i++) {

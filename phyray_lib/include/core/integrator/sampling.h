@@ -20,6 +20,9 @@ void stratifiedSample2D(Point2f* sample, int nxSamples, int nySamples, bool jitt
 
 void latinHypercube(Real* sample, int nSamples, int nDimensions, RNG& rng);
 
+// Hemisphere sampling
+Vector3f uniformSampleHemisphere(const Point2f& u);
+Real uniformHemispherePdf();
 
 // Inline sampling functions
 
