@@ -54,7 +54,7 @@ class SurfaceInteraction : public Interaction {
                             const Normal3f& dndus, const Normal3f& dndvs,
                             bool overridesOrientation);
 
-    void computeScatteringFunctions(const Ray& ray, MemoryPool& arena,
+    void computeScatteringFunctions(const Ray& ray, MemoryPool& pool,
                                     bool allowMultipleLobes = false,
                                     TransportMode mode = TransportMode::Radiance);
 
