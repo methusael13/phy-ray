@@ -24,10 +24,18 @@ add_library(phyrlib
     src/core/material/reflectance.cpp
     src/core/material/microfacet.cpp
     src/core/material/texture.cpp
+    
+    # Supported materials
     src/modules/materials/matte.cpp
+    src/modules/materials/plastic.cpp
+    src/modules/materials/metal.cpp
+    src/modules/materials/glass.cpp
+    src/modules/materials/mirror.cpp
     
     # Textures
     src/modules/textures/consttex.cpp
+    src/modules/textures/scaled.cpp
+    src/modules/textures/mix.cpp
 
     # Cameras
     src/core/camera/camera.cpp
