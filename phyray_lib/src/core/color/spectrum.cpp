@@ -68,6 +68,34 @@ Real averageSampleRange(const Real* lambda, const Real* v, int n,
     return vsum / (lambda1 - lambda0);
 }
 
+// Blackbody utilities
+void blackbody(const Real* lambda, int n, Real t, Real* Le) {
+    if (t <= 0) {
+        for (int i = 0; i < n; ++i) Le[i] = 0.f;
+        return;
+    }
+    const Real c = 299792458;
+    const Real h = 6.62606957e-34;
+    const Real kb = 1.3806488e-23;
+    for (int i = 0; i < n; ++i) {
+        // Compute emitted radiance for blackbody at wavelength {lambda[i]}
+        Real l = lambda[i] * 1e-9;
+        Real lambda5 = (l * l) * (l * l) * l;
+        Le[i] = (2 * h * c * c) /
+                (lambda5 * (std::exp((h * c) / (l * kb * t)) - 1));
+        ASSERT(!std::isnan(Le[i]));
+    }
+}
+
+void blackbodyNormalized(const Real* lambda, int n, Real t, Real* Le) {
+    blackbody(lambda, n, t, Le);
+    // Normalize {Le} values based on maximum blackbody radiance
+    Real lambdaMax = 2.8977721e-3 / t * 1e9;
+    Real maxL;
+
+    blackbody(&lambdaMax, 1, t, &maxL);
+    for (int i = 0; i < n; ++i) Le[i] /= maxL;
+}
 
 // SampledSpectrum definitions
 

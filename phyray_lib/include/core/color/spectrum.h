@@ -29,6 +29,8 @@ inline void convertRGBToXYZ(const Real rgb[3], Real xyz[3]) {
     xyz[2] = 0.019334f * rgb[0] + 0.119193f * rgb[1] + 0.950227f * rgb[2];
 }
 
+extern void blackbody(const Real* lambda, int n, Real t, Real* le);
+extern void blackbodyNormalized(const Real* lambda, int n, Real t, Real* vals);
 
 // Spectral data declarations by CIE
 static const int nCIESamples = 471;  // 360 to 830 nm
@@ -369,6 +371,11 @@ inline CoefficientSpectrum<N> pow(const CoefficientSpectrum<N>& c1, Real e) {
     CoefficientSpectrum<N> cs;
     for (int i = 0; i < N; i++) cs.samples[i] = std::pow(c1.samples[i], e);
     return cs;
+}
+
+inline SampledSpectrum lerp(Real t, const SampledSpectrum& s1,
+                            const SampledSpectrum& s2) {
+    return (1 - t) * s1 + t * s2;
 }
 
 }  // namespace phyrs
