@@ -175,9 +175,9 @@ class ScaledBxDF : public BxDF {
 // BSDF declarations
 class BSDF {
   public:
-    BSDF(const SurfaceInteraction& si, Real eta = 1)
-        : eta(eta), ns(si.shadingGeom.n), ng(si.n),
-          ss(normalize(si.shadingGeom.dpdu)), ts(cross(ns, ss)) {}
+    BSDF(const SurfaceInteraction& si, Real eta = 1) :
+        eta(eta), ns(si.shadingGeom.n), ng(si.n),
+        ss(normalize(si.shadingGeom.dpdu)), ts(cross(ns, ss)) {}
 
     // Interface
     void add(BxDF *b) { ASSERT(nBxDFs < MaxBxDFs); bxdfs[nBxDFs++] = b; }
