@@ -52,17 +52,17 @@ void GlassMaterial::computeScatteringFunctions(SurfaceInteraction* si,
 
 GlassMaterial* createGlassMaterial(Real Kr, Real Kt, Real eta) {
     std::shared_ptr<Texture<Spectrum>> kr =
-            std::make_shared<Texture<Spectrum>>(Kr);
+            std::make_shared<ConstantTexture<Spectrum>>(Kr);
     std::shared_ptr<Texture<Spectrum>> kt =
-            std::make_shared<Texture<Spectrum>>(Kt);
+            std::make_shared<ConstantTexture<Spectrum>>(Kt);
 
     std::shared_ptr<Texture<Real>> _eta =
-            std::make_shared<Texture<Real>>(eta);
+            std::make_shared<ConstantTexture<Real>>(eta);
 
     std::shared_ptr<Texture<Real>> roughu =
-            std::make_shared<Texture<Real>>(0);
+            std::make_shared<ConstantTexture<Real>>(0);
     std::shared_ptr<Texture<Real>> roughv =
-            std::make_shared<Texture<Real>>(0);
+            std::make_shared<ConstantTexture<Real>>(0);
 
     return new GlassMaterial(kr, kt, roughu, roughv, _eta, true);
 }

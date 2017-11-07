@@ -1,6 +1,7 @@
 #include <core/material/reflectance.h>
 
 #include <modules/materials/mirror.h>
+#include <modules/textures/consttex.h>
 
 namespace phyr {
 
@@ -20,7 +21,7 @@ void MirrorMaterial::computeScatteringFunctions(SurfaceInteraction *si,
 
 MirrorMaterial* createMirrorMaterial(Real Kr) {
     std::shared_ptr<Texture<Spectrum>> kr =
-            std::make_shared<Texture<Spectrum>>(Kr);
+            std::make_shared<ConstantTexture<Spectrum>>(Kr);
 
     return new MirrorMaterial(kr);
 }
