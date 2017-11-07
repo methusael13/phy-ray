@@ -18,7 +18,15 @@ add_library(phyrlib
     src/core/concurrency.cpp
     src/core/debug.cpp
     src/core/imageio.cpp
-    
+    src/core/scene.cpp
+    src/core/lowdiscrepancy.cpp
+
+    # Lights
+    src/core/light/light.cpp
+    src/modules/lights/diffuse.cpp
+    src/modules/lights/distant.cpp
+    src/modules/lights/point.cpp
+
     # Materials
     src/core/material/material.cpp
     src/core/material/reflectance.cpp
@@ -48,10 +56,13 @@ add_library(phyrlib
     src/modules/shapes/sphere.cpp
     
     # Integrator and samplers
+    src/core/integrator/integrator.cpp
     src/core/integrator/sampler.cpp
     src/core/integrator/sampling.cpp
     src/core/integrator/filter.cpp
+    src/core/integrator/lightdistrib.cpp
     src/modules/samplers/stratified.cpp
+    src/modules/integrators/path.cpp
     
     # Filters
     src/modules/filters/box.cpp
