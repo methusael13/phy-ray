@@ -23,8 +23,12 @@ add_library(phyrlib
     src/core/material/material.cpp
     src/core/material/reflectance.cpp
     src/core/material/microfacet.cpp
+    src/core/material/texture.cpp
     src/modules/materials/matte.cpp
     
+    # Textures
+    src/modules/textures/consttex.cpp
+
     # Cameras
     src/core/camera/camera.cpp
     src/modules/cameras/perspective.cpp
@@ -66,7 +70,7 @@ set(PHYRAY_LIBS phyrlib m pthread ${OPENEXR_DEP_LIBS})
 # Define test targets
 set(TEST_EXE
     test_vec test_fpe test_math
-    test_isec test_mem
+    test_isec test_mem test_consttex
 )
 foreach(test_exe ${TEST_EXE})
     add_executable(${test_exe} test/${test_exe}.cpp)
