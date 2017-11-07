@@ -25,14 +25,13 @@ void print_trace(size_t buff_size) {
 }
 
 template <typename ... Args>
-std::string formatString(const std::string& fmt, Args... args) {
-    const char* fmt_str = fmt.c_str();
+std::string formatString(const char* fmt, Args... args) {
     // Determine required size (+1 for '\0')
-    size_t size = snprintf(nullptr, 0, fmt_str, args...) + 1;
+    size_t size = snprintf(nullptr, 0, fmt, args...) + 1;
     // Allocate necessary buffer
     std::unique_ptr<char[]> buffer(new char[size]);
 
     // Write string format to buffer
-    snprintf(buffer.get(), size, fmt_str, args...);
+    snprintf(buffer.get(), size, fmt, args...);
     return std::string(buffer.get(), buffer.get() + size - 1);
 }

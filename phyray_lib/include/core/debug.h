@@ -30,6 +30,6 @@
 void printTrace(size_t);
 
 template <typename ... Args>
-std::string formatString(const std::string& fmt, Args... args);
+std::string formatString(const char* fmt, Args... args);
 
 #endif
