@@ -32,11 +32,23 @@ class Shape {
      * and the parametric distance of hit point from the ray as Real value (t0).
      * Rays are assumed to be in the world space.
      */
-    virtual bool intersectRay(const Ray& ray, Real* t0, SurfaceInteraction* si) const = 0;
+    virtual bool intersectRay(const Ray& ray, Real* t0, SurfaceInteraction* si,
+                              bool testAlpha = true) const = 0;
     /**
      * Just checks for a ray intersection without having to fill in any details
      */
-    virtual bool intersectRay(const Ray& ray) const;
+    virtual bool intersectRay(const Ray& ray, bool testAlpha = true) const;
+
+    // Sample a point on the surface of the shape and return the PDF with
+    // respect to area on the surface.
+    virtual Interaction sample(const Point2f& u, Real* pdf) const = 0;
+    virtual Real pdf(const Interaction&) const { return 1 / surfaceArea(); }
+
+    // Sample a point on the shape given a reference point {ref} and
+    // return the PDF with respect to solid angle from {ref}.
+    virtual Interaction sample(const Interaction& ref, const Point2f& u,
+                               Real* pdf) const;
+    virtual Real pdf(const Interaction& ref, const Vector3f& wi) const;
 
     const Transform *localToWorld, *worldToLocal;
     const bool reverseNormals;
