@@ -34,12 +34,14 @@ class Sampler {
 
     virtual int refineRequestCount(int n) const { return n; }
     // This is to be called for use with multiple threads
-    virtual std::unique_ptr<Sampler> clone() = 0;
+    virtual std::unique_ptr<Sampler> clone(int seed) = 0;
     // Manually set the index of the sample to access
     virtual bool setSampleIndex(int64_t sampleIdx);
 
     // Initializes CameraSample for a given pixel
     CameraSample getCameraSample(const Point2i& pRaster);
+
+    int64_t currentSampleIndex() const { return currentPixelSampleIndex; }
 
     const int64_t samplesPerPixel;
 

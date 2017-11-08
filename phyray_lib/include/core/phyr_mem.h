@@ -27,7 +27,9 @@ static const int PhyRayL1CacheLineSize = getL1CacheLineSize();
 void* allocAligned(size_t size);
 
 template <typename T>
-T* allocAligned(size_t count);
+T* allocAligned(size_t count) {
+    return static_cast<T*>(allocAligned(count * sizeof(T)));
+}
 
 void freeAligned(void* ptr);
 

@@ -7,7 +7,7 @@
 
 namespace phyr {
 
-// GeometricObject declarations
+// GeometricObject definitions
 Bounds3f GeometricObject::worldBounds() const { return shape->worldBounds(); }
 
 // GeometricObject intersections
@@ -22,6 +22,22 @@ bool GeometricObject::intersectRay(const Ray& ray, SurfaceInteraction* si) const
     ray.tMax = t0; si->object = this;
 
     return true;
+}
+
+void GeometricObject::computeScatteringFunctions(SurfaceInteraction* si,
+                                                 MemoryPool& pool, TransportMode mode,
+                                                 bool allowMultiLobes) const {
+    if (material)
+        material->computeScatteringFunctions(si, pool, mode,
+                                             allowMultiLobes);
+    ASSERT(dot(si->n, si->shadingGeom.n) >= 0.);
+}
+
+const AreaLight* GeometricObject::getAreaLight() const {
+    return areaLight.get();
+}
+const Material* GeometricObject::getMaterial() const {
+    return material.get();
 }
 
 

@@ -36,4 +36,15 @@ void StratifiedSampler::startPixel(const Point2i& pt) {
     PixelSampler::startPixel(pt);
 }
 
+std::unique_ptr<Sampler> StratifiedSampler::clone(int seed) {
+    StratifiedSampler *ss = new StratifiedSampler(*this);
+    ss->rng.setSequence(seed);
+    return std::unique_ptr<Sampler>(ss);
+}
+
+StratifiedSampler* createStratifiedSampler(bool jitter, int xSamples,
+                                           int ySamples, int dimensions) {
+    return new StratifiedSampler(xSamples, ySamples, jitter, dimensions);
+}
+
 }  // namespace phyr

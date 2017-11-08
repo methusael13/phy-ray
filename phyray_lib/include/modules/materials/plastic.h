@@ -22,7 +22,7 @@ class PlasticMaterial : public Material {
     // Interface
     void computeScatteringFunctions(SurfaceInteraction* si, MemoryPool& pool,
                                     TransportMode mode,
-                                    bool allowMultipleLobes) const;
+                                    bool allowMultipleLobes) const override;
 
   private:
     std::shared_ptr<Texture<Spectrum>> Kd, Ks;

@@ -16,10 +16,16 @@ class StratifiedSampler : public PixelSampler {
 
     void startPixel(const Point2i& pt) override;
 
+    std::unique_ptr<Sampler> clone(int seed) override;
+
   private:
     const int xPixelSamples, yPixelSamples;
     const bool jitterSamples;
 };
+
+StratifiedSampler* createStratifiedSampler(bool jitter = true,
+                                           int xSamples = 4, int ySamples = 4,
+                                           int dimensions = 4);
 
 }  // namespace phyr
 

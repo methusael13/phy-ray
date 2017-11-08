@@ -38,17 +38,38 @@ Vector3f uniformSampleHemisphere(const Point2f& u) {
     return Vector3f(r * std::cos(phi), r * std::sin(phi), z);
 }
 
+// Cone sampling definitions
+Real uniformConePdf(Real cosThetaMax) {
+    return 1 / (2 * Pi * (1 - cosThetaMax));
+}
+
+Vector3f uniformSampleCone(const Point2f& u, Real cosThetaMax) {
+    Real cosTheta = ((Real)1 - u[0]) + u[0] * cosThetaMax;
+    Real sinTheta = std::sqrt((Real)1 - cosTheta * cosTheta);
+    Real phi = u[1] * 2 * Pi;
+    return Vector3f(std::cos(phi) * sinTheta, std::sin(phi) * sinTheta, cosTheta);
+}
+
+Vector3f uniformSampleCone(const Point2f& u, Real cosThetaMax,
+                           const Vector3f& x, const Vector3f& y,
+                           const Vector3f& z) {
+    Real cosTheta = lerp(u[0], cosThetaMax, 1.f);
+    Real sinTheta = std::sqrt((Real)1. - cosTheta * cosTheta);
+    Real phi = u[1] * 2 * Pi;
+    return std::cos(phi) * sinTheta * x + std::sin(phi) * sinTheta * y + cosTheta * z;
+}
+
 Real uniformHemispherePdf() { return Inv2Pi; }
 
-template <typename T>
-void shuffle(T* sample, int nSamples, int nDimensions, RNG& rng) {
-    for (int i = 0; i < nSamples; i++) {
-        int swapIdx = i + rng.uniformUInt32(nSamples - i);
-        for (int j = 0; j < nDimensions; j++) {
-            std::swap(sample[nDimensions * i + j], sample[nDimensions * swapIdx + j]);
-        }
-    }
+// Sphere sampling definitions
+Vector3f uniformSampleSphere(const Point2f& u) {
+    Real z = 1 - 2 * u[0];
+    Real r = std::sqrt(std::max((Real)0, (Real)1 - z * z));
+    Real phi = 2 * Pi * u[1];
+    return Vector3f(r * std::cos(phi), r * std::sin(phi), z);
 }
+
+Real uniformSpherePdf() { return Inv4Pi; }
 
 void stratifiedSample1D(Real* sample, int nSamples, bool jitter, RNG& rng) {
     Real invNSamples = Real(1) / nSamples;

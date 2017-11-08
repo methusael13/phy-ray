@@ -1,6 +1,8 @@
 #include <core/geometry/shape.h>
 #include <core/geometry/interaction.h>
 #include <core/object/object.h>
+#include <core/color/spectrum.h>
+#include <core/light/light.h>
 
 namespace phyr {
 
@@ -51,6 +53,11 @@ void SurfaceInteraction::computeScatteringFunctions(const Ray &ray, MemoryPool &
                                                     bool allowMultipleLobes,
                                                     TransportMode mode) {
     object->computeScatteringFunctions(this, arena, mode, allowMultipleLobes);
+}
+
+Spectrum SurfaceInteraction::le(const Vector3f& w) const {
+    const AreaLight* area = object->getAreaLight();
+    return area ? area->l(*this, w) : Spectrum(0.f);
 }
 
 } // namespace phyr

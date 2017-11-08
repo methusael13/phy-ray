@@ -27,7 +27,7 @@ namespace phyr {
 
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wfloat-equal"
-#pragma GCC diagnostic ignored "-Wdouble-promotion"
+#pragma GCC diagnostic ignored "-Wdouble-promotion" 
 
 // #define PHYRAY_OPTIMIZE
 
@@ -53,6 +53,10 @@ class SurfaceInteraction;
 class Shape;
 class Object;
 class Sphere;
+class Scene;
+
+// Lights
+class Light;
 class AreaLight;
 
 class Material;
@@ -64,6 +68,7 @@ template <int sampleSize>
 class CoefficientSpectrum;
 class SampledSpectrum;
 
+class Sampler;
 typedef SampledSpectrum Spectrum;
 
 // Camera
@@ -151,6 +156,21 @@ inline constexpr Real gamma(int n) {
 
 inline Real clamp(Real v, Real minv, Real maxv) {
     return std::min(std::max(v, minv), maxv);
+}
+
+template <typename Predicate>
+int findInterval(int size, const Predicate& pred) {
+    int first = 0, len = size;
+    while (len > 0) {
+        int half = len >> 1, middle = first + half;
+        // Bisect range based on value of {pred} at {middle}
+        if (pred(middle)) {
+            first = middle + 1;
+            len -= half + 1;
+        } else
+            len = half;
+    }
+    return clamp(first - 1, 0, size - 2);
 }
 
 inline uint32_t floatToBits(float f) {

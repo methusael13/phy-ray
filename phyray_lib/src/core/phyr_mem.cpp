@@ -33,11 +33,6 @@ void* allocAligned(size_t size) {
     return ptr;
 }
 
-template <typename T>
-T* allocAligned(size_t count) {
-    return static_cast<T*>(allocAligned(count * sizeof(T)));
-}
-
 void freeAligned(void* ptr) { free(ptr); }
 
 // MemoryPool declarations

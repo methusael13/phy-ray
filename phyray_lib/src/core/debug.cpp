@@ -2,7 +2,6 @@
 #include <execinfo.h>
 
 #include <core/debug.h>
-#include <memory>
 
 /**
  * Implementation for core/debug.h, print stack trace
@@ -22,16 +21,4 @@ void print_trace(size_t buff_size) {
         printf("\t%s\n", strings[i]);
 
     free(strings);
-}
-
-template <typename ... Args>
-std::string formatString(const char* fmt, Args... args) {
-    // Determine required size (+1 for '\0')
-    size_t size = snprintf(nullptr, 0, fmt, args...) + 1;
-    // Allocate necessary buffer
-    std::unique_ptr<char[]> buffer(new char[size]);
-
-    // Write string format to buffer
-    snprintf(buffer.get(), size, fmt, args...);
-    return std::string(buffer.get(), buffer.get() + size - 1);
 }

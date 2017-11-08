@@ -3,7 +3,7 @@
 
 project(phyrlib VERSION 0.1 LANGUAGES CXX)
 
-add_library(phyrlib
+add_library(phyrlib STATIC
     # Core library
     src/core/phyr.cpp
     src/core/phyr_mem.cpp
@@ -74,17 +74,19 @@ add_library(phyrlib
 
 target_include_directories(phyrlib PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
     ${ILMBASE_INCLUDE_DIRS}
     ${OPENEXR_INCLUDE_DIRS}
     PRIVATE src
 )
 
-set(OPENEXR_DEP_LIBS ${ILMBASE_LIBRARIES} ${OPENEXR_LIBRARIES})
-set(PHYRAY_DEP_LIBS pthread ${OPENEXR_DEP_LIBS})
+set(OPENEXR_DEP_LIBS ${OPENEXR_LIBRARIES} ${ILMBASE_LIBRARIES})
+set(PHYRAY_DEP_LIBS ${OPENEXR_DEP_LIBS} m pthread)
 target_link_libraries(phyrlib ${PHYRAY_DEP_LIBS})
 
-set(PHYRAY_LIBS phyrlib m pthread ${OPENEXR_DEP_LIBS})
+set(PHYRAY_LIBS phyrlib ${OPENEXR_DEP_LIBS} m pthread)
+
+# Make the project importable from the build directory
+# export(TARGETS phyrlib FILE PhyrayLibConfig.cmake)
 
 # Define test targets
 set(TEST_EXE

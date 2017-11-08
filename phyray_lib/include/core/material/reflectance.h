@@ -223,6 +223,14 @@ class BSDF {
     friend class MixMaterial;
 };
 
+// BSDF inline Method Definitions
+inline int BSDF::numComponents(BxDFType flags) const {
+    int num = 0;
+    for (int i = 0; i < nBxDFs; ++i)
+        if (bxdfs[i]->matchesFlags(flags)) ++num;
+    return num;
+}
+
 // Fresnel declarations
 class Fresnel {
   public:

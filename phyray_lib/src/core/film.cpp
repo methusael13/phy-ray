@@ -66,10 +66,10 @@ Film::Film(const Point2i& resolution, const Bounds2f& cropWindow,
 
     for (int y = 0; y < filterTableSize; y++) {
         for (int x = 0; x < filterTableSize; x++) {
-            Point2f p;
-            p.x = (x + 0.5) * filter->radius.x * invFilterTableSize;
-            p.y = (y + 0.5) * filter->radius.y * invFilterTableSize;
-            filterTable[offset++] = filter->evaluate(p);
+            Real px, py;
+            px = (x + 0.5) * filter->radius.x * invFilterTableSize;
+            py = (y + 0.5) * filter->radius.y * invFilterTableSize;
+            filterTable[offset++] = filter->evaluate(Point2f(px, py));
         }
     }
 }

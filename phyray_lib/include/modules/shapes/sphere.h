@@ -4,6 +4,8 @@
 #include <core/phyr.h>
 #include <core/geometry/shape.h>
 
+#include <memory>
+
 namespace phyr {
 
 class Sphere : public Shape {
@@ -29,14 +31,27 @@ class Sphere : public Shape {
     }
     Real surfaceArea() const override { return 2 * Pi * radius * (zMax - zMin); }
 
-    bool intersectRay(const Ray& ray, Real* t0, SurfaceInteraction* si) const override;
-    bool intersectRay(const Ray& ray) const override;
+    bool intersectRay(const Ray& ray, Real* t0, SurfaceInteraction* si,
+                      bool testAlpha = true) const override;
+    bool intersectRay(const Ray& ray, bool testAlpha = true) const override;
+
+    // Sampling
+    Interaction sample(const Point2f& u, Real* pdf) const override;
+    Interaction sample(const Interaction& ref, const Point2f& u,
+                       Real* pdf) const override;
+    Real pdf(const Interaction& ref, const Vector3f& wi) const override;
+    Real solidAngle(const Point3f& p, int nSamples) const;
 
   private:
     Real radius;
     Real zMin, zMax;
     Real thetaMin, thetaMax;
 };
+
+std::shared_ptr<Shape> createSphereShape(const Transform* o2w,
+                                         const Transform* w2o,
+                                         bool reverseOrientation,
+                                         Real radius = 1);
 
 } // namespace phyr
 

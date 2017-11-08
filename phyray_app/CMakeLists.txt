@@ -9,10 +9,5 @@ add_executable(phyrapp
 #    forms/phyraywindow.ui
 )
 
-target_include_directories(phyrlib PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    PRIVATE src
-)
-
 # target_link_libraries(phyrapp phyrlib Qt5::Widgets)
-target_link_libraries(phyrapp phyrlib)
+target_link_libraries(phyrapp PRIVATE phyrlib)

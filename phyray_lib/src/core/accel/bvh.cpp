@@ -6,14 +6,19 @@ namespace phyr {
 
 AccelBVH::~AccelBVH() { if (bvhNodes) freeAligned(bvhNodes); }
 
+const int AccelBVH::DEF_MAX_OBJ_PER_NODE = 255;
+
 void AccelBVH::constructBVH() {
     if (objectList.size() == 0) return;
 
     // Initiate object info list
     size_t sz = objectList.size();
     std::vector<BVHObjectInfo> objectInfoList(sz);
+    LOG_INFO_FMT("Object list size: %d", sz);
+
     for (size_t i = 0; i < sz; i++) {
         objectInfoList[i] = { i, objectList[i]->worldBounds() };
+        std::cout << "Object world bounds: " << objectList[i]->worldBounds() << std::endl;
     }
 
     // Create a BVH Tree from the object info list
@@ -29,17 +34,28 @@ void AccelBVH::constructBVH() {
                                               &nodeCount, orderedObjectList);
     objectList.swap(orderedObjectList);
 
+    std::cout << "Done constructing BHV" << std::endl;
+
     // Compute linear BVH by DFS on {root}
     int linearIdx = 0;
     bvhNodes = allocAligned<LinearBVHNode>(nodeCount);
+    // Initilize components in {LinearBVHNode}
+    for (int i = 0; i < nodeCount; i++)
+        new (&bvhNodes[i]) LinearBVHNode();
+
     // Transform BVH tree to a BVH linear array
     flattenBVH(root, &linearIdx);
+    ASSERT(linearIdx == nodeCount);
 }
 
 constexpr int nBins = 12;
 typedef struct _BinInfo BinInfo;
 
 struct _BinInfo { int freq; Bounds3f bounds; };
+
+Bounds3f AccelBVH::worldBounds() const {
+    return bvhNodes ? bvhNodes[0].bounds : Bounds3f();
+}
 
 BVHTreeNode*
 AccelBVH::constructBVHRecursive(MemoryPool& pool, std::vector<BVHObjectInfo>& objectInfoList,
@@ -48,13 +64,15 @@ AccelBVH::constructBVHRecursive(MemoryPool& pool, std::vector<BVHObjectInfo>& ob
     // Check for trivial invalid case
     if (end - startIdx <= 0) return nullptr;
 
+    std::cout << "Node created at: " << *nodeCount << "\n";
     (*nodeCount)++;
     BVHTreeNode* node = pool.alloc<BVHTreeNode>();
 
     // Build bounds of all the objects within this range
-    Bounds3f nodeBound;
-    for (int i = startIdx; i < end; i++)
+    Bounds3f nodeBound = objectInfoList[startIdx].bounds;
+    for (int i = startIdx + 1; i < end; i++)
         nodeBound = unionBounds(nodeBound, objectInfoList[i].bounds);
+    std::cout << "Node bounds: " << nodeBound << std::endl;
 
 #define CREATE_LEAF_NODE() \
     int offset = orderedObjectList.size(); \
@@ -68,9 +86,10 @@ AccelBVH::constructBVHRecursive(MemoryPool& pool, std::vector<BVHObjectInfo>& ob
     int range = end - startIdx;
     if (range == 1) {
         CREATE_LEAF_NODE();
+        std::cout << "Leaf created with offset: " << offset << std::endl;
     } else {
-        Bounds3f centroidBounds;
-        for (int i = startIdx; i < end; i++)
+        Bounds3f centroidBounds(objectInfoList[startIdx].centroid);
+        for (int i = startIdx + 1; i < end; i++)
             centroidBounds = unionBounds(centroidBounds, objectInfoList[i].centroid);
         int maxDim = centroidBounds.maximumExtent();
 
@@ -88,6 +107,7 @@ AccelBVH::constructBVHRecursive(MemoryPool& pool, std::vector<BVHObjectInfo>& ob
                                  [maxDim](const BVHObjectInfo& a, const BVHObjectInfo& b) {
                                      return a.centroid[maxDim] < b.centroid[maxDim];
                                  });
+                std::cout << "Partitioning into equally sized bins" << std::endl;
             } else {
                 BinInfo bins[nBins];
                 // Initialize bins
@@ -135,11 +155,14 @@ AccelBVH::constructBVHRecursive(MemoryPool& pool, std::vector<BVHObjectInfo>& ob
                     mid = nmid - &objectInfoList[0];
                 } else {
                     CREATE_LEAF_NODE();
+                    std::cout << "Leaf created with offset due to high cost: " << offset << std::endl;
                 }
             }
 
+            std::cout << "Traversing left from mid: " << mid << "\n";
             BVHTreeNode* lc = constructBVHRecursive(pool, objectInfoList, startIdx, mid,
                                                     nodeCount, orderedObjectList);
+            std::cout << "Traversing right from mid: " << mid << "\n";
             BVHTreeNode* rc = constructBVHRecursive(pool, objectInfoList, mid, end,
                                                     nodeCount, orderedObjectList);
             node->createInteriorNode(maxDim, lc, rc);
@@ -151,9 +174,13 @@ AccelBVH::constructBVHRecursive(MemoryPool& pool, std::vector<BVHObjectInfo>& ob
     return node;
 }
 
-int AccelBVH::flattenBVH(BVHTreeNode* treeNode, int* linearIdx) const {
+int AccelBVH::flattenBVH(BVHTreeNode* treeNode, int* linearIdx) {
+    std::cout << "Tree node: " << treeNode->bounds << std::endl;
+
     // Copy data from tree node
     LinearBVHNode* linearNode = &bvhNodes[*linearIdx];
+    std::cout << "Linear node: " << linearNode->bounds << std::endl;
+
     linearNode->bounds = treeNode->bounds;
     int currentIdx = (*linearIdx)++;
 
@@ -161,12 +188,15 @@ int AccelBVH::flattenBVH(BVHTreeNode* treeNode, int* linearIdx) const {
     if (treeNode->nObjects > 0) {
         linearNode->objectStartIdx = treeNode->startIdx;
         linearNode->nObjects = treeNode->nObjects;
+        std::cout << "Found a leaf\n";
     } else {
         linearNode->nObjects = 0;
         linearNode->splitAxis = treeNode->splitAxis;
         // Recursive traverse left child
+        std::cout << "Traversing left\n";
         flattenBVH(treeNode->child[0], linearIdx);
         // Store index of right child with a recursive call
+        std::cout << "Traversing right\n";
         linearNode->secondChildIdx = flattenBVH(treeNode->child[1], linearIdx);
     }
 
@@ -213,6 +243,47 @@ bool AccelBVH::intersectRay(const Ray& ray, SurfaceInteraction* si) const {
     }
 
     return intersected;
+}
+
+bool AccelBVH::intersectRay(const Ray& ray) const {
+    // Initialize ray intersection parameters
+    Vector3f invDir(1 / ray.d.x, 1 / ray.d.y, 1 / ray.d.z);
+    int isDirNeg[3] = { invDir.x < 0, invDir.y < 0, invDir.z < 0 };
+
+    // Test against each BVH node
+    int nodeStack[64];
+    int stackSize = 0, itrIdx = 0, i;
+
+    while (true) {
+        const LinearBVHNode* node = &bvhNodes[itrIdx];
+        // Inspect current node
+        if (node->bounds.intersectRay(ray, invDir, isDirNeg)) {
+            if (node->nObjects > 0) {
+                // Node is leaf. Test against all objects in leaf
+                for (i = 0; i < node->nObjects; i++)
+                    if (objectList[node->objectStartIdx + i]->intersectRay(ray))
+                        return true;
+                if (stackSize == 0) break;
+                itrIdx = nodeStack[--stackSize];
+            } else {
+                // Internal node. Test near nodes first. Put far nodes in the stack
+                if (isDirNeg[node->splitAxis]) {
+                    // Stash first child and inspect second child first
+                    nodeStack[stackSize++] = itrIdx + 1;
+                    itrIdx = node->secondChildIdx;
+                } else {
+                    // Stash second child and inspect first child first
+                    nodeStack[stackSize++] = node->secondChildIdx;
+                    itrIdx++;
+                }
+            }
+        } else {
+            if (stackSize == 0) break;
+            itrIdx = nodeStack[--stackSize];
+        }
+    }
+
+    return false;
 }
 
 }  // namespace phyr

@@ -8,13 +8,9 @@
 
 namespace phyr {
 
-typedef struct _BVHTreeNode BVHTreeNode;
-typedef struct _BVHObjectInfo BVHObjectInfo;
-typedef struct _LinearBVHNode LinearBVHNode;
-
-struct _BVHObjectInfo {
-    _BVHObjectInfo() {}
-    _BVHObjectInfo(size_t objectIdx, const Bounds3f& bounds) :
+struct BVHObjectInfo {
+    BVHObjectInfo() {}
+    BVHObjectInfo(size_t objectIdx, const Bounds3f& bounds) :
         objectIdx(objectIdx), bounds(bounds),
         centroid(0.5 * bounds.pMin + 0.5 * bounds.pMax) {}
 
@@ -22,7 +18,12 @@ struct _BVHObjectInfo {
     Point3f centroid;
 };
 
-struct _BVHTreeNode {
+struct BVHTreeNode {
+    BVHTreeNode() {
+        bounds = Bounds3f();
+        child[0] = child[1] = nullptr;
+    }
+
     void createLeafNode(int sIdx, int n, const Bounds3f& b) {
         startIdx = sIdx; nObjects = n; bounds = b;
         child[0] = child[1] = nullptr;
@@ -45,7 +46,9 @@ struct _BVHTreeNode {
     int splitAxis, startIdx, nObjects;
 };
 
-struct _LinearBVHNode {
+struct LinearBVHNode {
+    LinearBVHNode() { bounds = Bounds3f(); }
+
     Bounds3f bounds;
     union {
         int objectStartIdx;  // To be used for leaf nodes
@@ -59,24 +62,28 @@ struct _LinearBVHNode {
     uint8_t _padding[1];
 };
 
-class AccelBVH {
+class AccelBVH : public ObjectGroup {
   public:
     // Support Surface Area Heuristic for tree splitting
     enum class TreeSplitMethod { SAH };
-    static const int DEF_MAX_OBJ_PER_NODE = 255;
+    static const int DEF_MAX_OBJ_PER_NODE;
 
     AccelBVH(const std::vector<std::shared_ptr<Object>>& objList,
-             const int maxObjectsPerNode, const TreeSplitMethod tspMethod) :
+             const int maxObjectsPerNode = 1,
+             const TreeSplitMethod tspMethod = TreeSplitMethod::SAH) :
         // Ensure {maxObjectsPerNode} does not exceed {DEF_MAX_OBJ_PER_NODE}
         maxObjectsPerNode(std::min(DEF_MAX_OBJ_PER_NODE, maxObjectsPerNode)),
         tspMethod(tspMethod), objectList(objList) { constructBVH(); }
 
     ~AccelBVH();
 
+    Bounds3f worldBounds() const override;
+
     /**
      * Test ray intersections with the scene BVH
      */
-    bool intersectRay(const Ray& ray, SurfaceInteraction* si) const;
+    bool intersectRay(const Ray& ray, SurfaceInteraction* si) const override;
+    bool intersectRay(const Ray& ray) const override;
 
   private:
     void constructBVH();
@@ -91,7 +98,7 @@ class AccelBVH {
     /**
      * Transforms the BVH binary tree structure into a linear array
      */
-    int flattenBVH(BVHTreeNode* treeNode, int* linearIdx) const;
+    int flattenBVH(BVHTreeNode* treeNode, int* linearIdx);
 
     const int maxObjectsPerNode;
     const TreeSplitMethod tspMethod;

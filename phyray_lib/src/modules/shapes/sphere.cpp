@@ -2,12 +2,14 @@
 #include <core/phyr_math.h>
 #include <core/geometry/geometry.h>
 #include <core/geometry/interaction.h>
+#include <core/integrator/sampling.h>
 
 #include <modules/shapes/sphere.h>
 
 namespace phyr {
 
-bool Sphere::intersectRay(const Ray& ray, Real* t0, SurfaceInteraction* si) const {
+bool Sphere::intersectRay(const Ray& ray, Real* t0, SurfaceInteraction* si,
+                          bool testAlpha) const {
     Vector3f roErr, rdErr;
     // Transform ray to local space
     Ray lr = (*worldToLocal)(ray, &roErr, &rdErr);
@@ -92,7 +94,7 @@ bool Sphere::intersectRay(const Ray& ray, Real* t0, SurfaceInteraction* si) cons
     return true;
 }
 
-bool Sphere::intersectRay(const Ray& ray) const {
+bool Sphere::intersectRay(const Ray& ray, bool testAlpha) const {
     Vector3f roErr, rdErr;
     // Transform ray to local space
     Ray lr = (*worldToLocal)(ray, &roErr, &rdErr);
@@ -137,6 +139,114 @@ bool Sphere::intersectRay(const Ray& ray) const {
     }
 
     return true;
+}
+
+// Sampling definitions for Sphere
+Interaction Sphere::sample(const Point2f& u, Real* pdf) const {
+    Point3f pObj = Point3f(0, 0, 0) + radius * uniformSampleSphere(u);
+    Interaction it;
+
+    it.n = normalize((*localToWorld)(Normal3f(pObj.x, pObj.y, pObj.z)));
+    if (reverseNormals) it.n *= -1;
+
+    // Reproject _pObj_ to sphere surface and compute _pObjError_
+    pObj *= radius / distance(pObj, Point3f(0, 0, 0));
+    Vector3f pObjError = gamma(5) * abs((Vector3f)pObj);
+    it.p = (*localToWorld)(pObj, pObjError, &it.pfError);
+    *pdf = 1 / surfaceArea();
+
+    return it;
+}
+
+Interaction Sphere::sample(const Interaction& ref, const Point2f& u,
+                           Real* pdf) const {
+    Point3f pCenter = (*localToWorld)(Point3f(0, 0, 0));
+
+    // Sample uniformly on sphere if $\pt{}$ is inside it
+    Point3f pOrigin = offsetRayOrigin(ref.p, ref.n, pCenter - ref.p, ref.pfError);
+
+    if (distanceSquared(pOrigin, pCenter) <= radius * radius) {
+        Interaction intr = sample(u, pdf);
+        Vector3f wi = intr.p - ref.p;
+        if (wi.lengthSquared() == 0) {
+            *pdf = 0;
+        } else {
+            // Convert from area measure returned by Sample() call above to
+            // solid angle measure.
+            wi = normalize(wi);
+            *pdf *= distanceSquared(ref.p, intr.p) / absDot(intr.n, -wi);
+        }
+
+        if (std::isinf(*pdf)) *pdf = 0.f;
+        return intr;
+    }
+
+    // Compute coordinate system for sphere sampling
+    Vector3f wc = normalize(pCenter - ref.p);
+    Vector3f wcX, wcY;
+    coordinateSystem(wc, &wcX, &wcY);
+
+    // Sample sphere uniformly inside subtended cone
+
+    // Compute $\theta$ and $\phi$ values for sample in cone
+    Real sinThetaMax2 = radius * radius / distanceSquared(ref.p, pCenter);
+    Real cosThetaMax = std::sqrt(std::max((Real)0, 1 - sinThetaMax2));
+    Real cosTheta = (1 - u[0]) + u[0] * cosThetaMax;
+    Real sinTheta = std::sqrt(std::max((Real)0, 1 - cosTheta * cosTheta));
+    Real phi = u[1] * 2 * Pi;
+
+    // Compute angle $\alpha$ from center of sphere to sampled point on surface
+    Real dc = distance(ref.p, pCenter);
+    Real ds = dc * cosTheta -
+               std::sqrt(std::max(
+                   (Real)0, radius * radius - dc * dc * sinTheta * sinTheta));
+    Real cosAlpha = (dc * dc + radius * radius - ds * ds) / (2 * dc * radius);
+    Real sinAlpha = std::sqrt(std::max((Real)0, 1 - cosAlpha * cosAlpha));
+
+    // Compute surface normal and sampled point on sphere
+    Vector3f nWorld = sphericalDirection(sinAlpha, cosAlpha, phi, -wcX, -wcY, -wc);
+    Point3f pWorld = pCenter + radius * Point3f(nWorld.x, nWorld.y, nWorld.z);
+
+    // Return _Interaction_ for sampled point on sphere
+    Interaction it; it.p = pWorld;
+    it.pfError = gamma(5) * abs((Vector3f)pWorld);
+    it.n = Normal3f(nWorld);
+    if (reverseNormals) it.n *= -1;
+
+    // Uniform cone PDF.
+    *pdf = 1 / (2 * Pi * (1 - cosThetaMax));
+
+    return it;
+}
+
+Real Sphere::pdf(const Interaction& ref, const Vector3f& wi) const {
+    Point3f pCenter = (*localToWorld)(Point3f(0, 0, 0));
+    // Return uniform PDF if point is inside sphere
+    Point3f pOrigin =
+        offsetRayOrigin(ref.p, ref.n, pCenter - ref.p, ref.pfError);
+    if (distanceSquared(pOrigin, pCenter) <= radius * radius)
+        return Shape::pdf(ref, wi);
+
+    // Compute general sphere PDF
+    Real sinThetaMax2 = radius * radius / distanceSquared(ref.p, pCenter);
+    Real cosThetaMax = std::sqrt(std::max((Real)0, 1 - sinThetaMax2));
+    return uniformConePdf(cosThetaMax);
+}
+
+Real Sphere::solidAngle(const Point3f& p, int nSamples) const {
+    Point3f pCenter = (*localToWorld)(Point3f(0, 0, 0));
+    if (distanceSquared(p, pCenter) <= radius * radius) return 4 * Pi;
+
+    Real sinTheta2 = radius * radius / distanceSquared(p, pCenter);
+    Real cosTheta = std::sqrt(std::max((Real)0, 1 - sinTheta2));
+    return (2 * Pi * (1 - cosTheta));
+}
+
+std::shared_ptr<Shape> createSphereShape(const Transform* o2w,
+                                         const Transform* w2o,
+                                         bool reverseNormals, Real radius) {
+    return std::make_shared<Sphere>(o2w, w2o, radius, reverseNormals,
+                                    -radius, radius);
 }
 
 } // namespace phyr

@@ -90,8 +90,7 @@ void blackbody(const Real* lambda, int n, Real t, Real* Le) {
 void blackbodyNormalized(const Real* lambda, int n, Real t, Real* Le) {
     blackbody(lambda, n, t, Le);
     // Normalize {Le} values based on maximum blackbody radiance
-    Real lambdaMax = 2.8977721e-3 / t * 1e9;
-    Real maxL;
+    Real maxL, lambdaMax = 2.8977721e-3 / t * 1e9;
 
     blackbody(&lambdaMax, 1, t, &maxL);
     for (int i = 0; i < n; ++i) Le[i] /= maxL;

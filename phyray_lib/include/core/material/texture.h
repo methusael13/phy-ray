@@ -11,7 +11,8 @@ class Texture {
   public:
     // Interface
     virtual T evaluate(const SurfaceInteraction& si) const = 0;
-    virtual ~Texture();
+
+    virtual ~Texture() {}
 };
 
 }  // namespace phyr

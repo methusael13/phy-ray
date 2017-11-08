@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Suppress deprecated warnings
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -g")
 
 # Add OpenEXR
 find_package(PkgConfig REQUIRED)
@@ -25,3 +25,9 @@ pkg_search_module(ILMBASE REQUIRED IlmBase)
 enable_testing()
 add_subdirectory(phyray_lib)
 add_subdirectory(phyray_app)
+
+target_include_directories(phyrapp PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/phyray_app/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/phyray_lib/include>
+    PRIVATE phyray_app/src
+)

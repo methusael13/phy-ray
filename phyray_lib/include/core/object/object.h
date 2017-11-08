@@ -83,7 +83,7 @@ class InstancedObject : public Object {
     // Function has no purpose in this context
     void computeScatteringFunctions(SurfaceInteraction* si,
                                     MemoryPool& mem, TransportMode mode,
-                                    bool allowMultiLobes) const;
+                                    bool allowMultiLobes) const {}
 };
 
 class ObjectGroup : public Object {

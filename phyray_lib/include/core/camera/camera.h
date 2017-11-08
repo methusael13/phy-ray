@@ -21,6 +21,7 @@ class Camera {
     cameraToWorld(cameraToWorld), film(film) {}
 
     // Interface
+    virtual ~Camera() {}
 
     /**
      * Computes the ray corresponding to the given sample.
