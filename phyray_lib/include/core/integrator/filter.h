@@ -13,6 +13,7 @@ class Filter {
         invRadius(Vector2f(Real(1) / radius.x, Real(1) / radius.y)) {}
 
     // Interface
+    virtual ~Filter();
     virtual Real evaluate(const Point2f& pt) const = 0;
 
     const Vector2f radius, invRadius;

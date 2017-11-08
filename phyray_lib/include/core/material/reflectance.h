@@ -97,6 +97,8 @@ class BxDF {
     // Constructor
     BxDF(BxDFType type) : type(type) {}
 
+    virtual ~BxDF();
+
     // Interface
     bool matchesFlags(BxDFType _type) const { return (type & _type) == type; }
 

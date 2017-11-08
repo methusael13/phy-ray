@@ -5,6 +5,8 @@ namespace phyr {
 // Sampler definitions
 #define RESET_OFFSETS (array1DOffset = array2DOffset = 0)
 
+Sampler::~Sampler() {}
+
 void Sampler::startPixel(const Point2i& pt) {
     currentPixel = pt;
     currentPixelSampleIndex = 0;

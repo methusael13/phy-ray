@@ -15,6 +15,8 @@ class Sampler {
   public:
     Sampler(int64_t samplesPerPixel) : samplesPerPixel(samplesPerPixel) {}
 
+    virtual ~Sampler();
+
     // Interface declarations
     // Starts sampling
     virtual void startPixel(const Point2i& pt);

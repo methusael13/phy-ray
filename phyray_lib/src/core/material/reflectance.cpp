@@ -61,6 +61,8 @@ Spectrum frConductor(Real cosThetaI, const Spectrum& etaI, const Spectrum& etaT,
 }
 
 // BxDF definitions
+BxDF::~BxDF() {}
+
 Spectrum BxDF::sample_f(const Vector3f& wo, Vector3f* wi, const Point2f& u,
                         Real* pdf, BxDFType* sampledType) const {
     // Cosine-sample the hemisphere, flipping the direction if necessary
