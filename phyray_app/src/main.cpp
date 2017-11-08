@@ -4,10 +4,11 @@
 
 int main(int argc, const char* argv[]) {
     using namespace phyr;
-    std::cout << "Initiating PhyRay" << std::endl;
+    LOG_INFO("Initiating Phyray...");
 
     Spectrum::init();
 
+    LOG_INFO("Constructing scene...\n");
     // Create textures and material
     std::shared_ptr<Material> plastic(createPlasticMaterial());
 
