@@ -349,7 +349,6 @@ class Point3 {
     }
 
     Point3<T>& operator=(const Point3<T>& rhs) {
-        std::cout << "Recieved point: " << rhs << std::endl;
         ASSERT(!rhs.hasNaNs());
         x = rhs.x; y = rhs.y; z = rhs.z;
         return *this;
