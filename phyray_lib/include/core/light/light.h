@@ -27,7 +27,7 @@ class Light {
   public:
     // Constructor
     Light(int flags, const Transform& lightToWorld, int nSamples = 1) :
-        flags(flags), nSamples(std::min(1, nSamples)),
+        flags(flags), nSamples(std::max(1, nSamples)),
         lightToWorld(lightToWorld), worldToLight(Transform::inverse(lightToWorld)) {}
 
     virtual ~Light();

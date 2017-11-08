@@ -245,8 +245,7 @@ Real Sphere::solidAngle(const Point3f& p, int nSamples) const {
 std::shared_ptr<Shape> createSphereShape(const Transform* o2w,
                                          const Transform* w2o,
                                          bool reverseNormals, Real radius) {
-    return std::make_shared<Sphere>(o2w, w2o, radius, reverseNormals,
-                                    -radius, radius);
+    return std::make_shared<Sphere>(o2w, w2o, radius, reverseNormals);
 }
 
 } // namespace phyr

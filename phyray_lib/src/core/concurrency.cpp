@@ -137,8 +137,7 @@ static void workerThreadFunc(int tIndex, std::shared_ptr<Barrier> barrier) {
 }
 
 // Parallel Definitions
-void ParallelFor(std::function<void(int64_t)> func, int64_t count,
-                 int chunkSize) {
+void ParallelFor(std::function<void(int64_t)> func, int64_t count, int chunkSize) {
     ASSERT(threads.size() > 0 || maxThreadIndex() == 1);
 
     // Run iterations immediately if not using threads or if _count_ is small
@@ -249,7 +248,7 @@ int numSystemCores() {
     return std::max(1u, std::thread::hardware_concurrency());
 }
 
-void ParallelInit() {
+void parallelInit() {
     ASSERT(threads.size() == 0);
     int nThreads = maxThreadIndex();
     ThreadIndex = 0;

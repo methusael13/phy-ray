@@ -44,8 +44,8 @@ class SamplerIntegrator : public Integrator {
         : camera(camera), sampler(sampler), pixelBounds(pixelBounds) {}
 
     // Interface
-    virtual void preprocess(const Scene &scene, Sampler &sampler) {}
-    void render(const Scene &scene);
+    virtual void preprocess(const Scene& scene, Sampler& sampler) {}
+    void render(const Scene& scene);
 
     virtual Spectrum li(const Ray& ray, const Scene& scene,
                         Sampler& sampler, MemoryPool& arena,

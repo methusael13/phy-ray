@@ -19,7 +19,7 @@ static constexpr int PhyRayL1CacheLineSize = PHYR_L1_CACHE_LINESZ;
 static const int PhyRayL1CacheLineSize = getL1CacheLineSize();
 #endif
 
-#define STACK_ALLOC(T, CNT) ((T*)(alloca(CNT * sizeof(T))))
+#define STACK_ALLOC(T, CNT) ((T*)(alloca((CNT) * sizeof(T))))
 
 // Macro for memory allocation with the new placement op and MemoryPool
 #define POOL_ALLOC(pool, Type) new ((pool).alloc(sizeof(Type))) Type

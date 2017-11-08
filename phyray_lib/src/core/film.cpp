@@ -6,7 +6,7 @@
 namespace phyr {
 
 // FilmTile definitions
-void FilmTile::addSample(const Point2f& pFilm, const Spectrum& spec, Real sampleWeight) {
+void FilmTile::addSample(const Point2f& pFilm, const Spectrum& L, Real sampleWeight) {
     // Compute sample's raster bounds
     // Convert continuous pixel coordinates to discrete
     Point2f pFilmDiscrete = pFilm - Vector2f(0.5, 0.5);
@@ -18,6 +18,7 @@ void FilmTile::addSample(const Point2f& pFilm, const Spectrum& spec, Real sample
 
     // Loop over filter support and add sample to pixel arrays
     // Precompute x and y filter table offsets
+
     int* ftx = STACK_ALLOC(int, p1.x - p0.x);
     for (int x = p0.x; x < p1.x; x++) {
         Real fx = std::abs((x - pFilmDiscrete.x) * invFilterRadius.x * filterTableSize);
@@ -38,7 +39,7 @@ void FilmTile::addSample(const Point2f& pFilm, const Spectrum& spec, Real sample
 
             // Update filter values with filtered sample contribution
             FilmTilePixel& pixel = getPixel(Point2i(x, y));
-            pixel.contributionSum += spec * sampleWeight * filterWeight;
+            pixel.contributionSum += L * sampleWeight * filterWeight;
             pixel.filterWeightSum += filterWeight;
         }
     }
@@ -47,9 +48,9 @@ void FilmTile::addSample(const Point2f& pFilm, const Spectrum& spec, Real sample
 
 // Film definitions
 Film::Film(const Point2i& resolution, const Bounds2f& cropWindow,
-           std::unique_ptr<Filter> filter, Real filmSize,
+           std::unique_ptr<Filter> _filter, Real filmSize,
            const std::string& filename, Real scale) :
-    resolution(resolution), filmSize(filmSize * .001), filter(std::move(filter)),
+    resolution(resolution), filmSize(filmSize * .001), filter(std::move(_filter)),
     filename(filename), scale(scale) {
     // Compute film image bounds
     croppedImageBounds = Bounds2i(Point2i(std::ceil(resolution.x * cropWindow.pMin.x),
@@ -97,7 +98,7 @@ Bounds2f Film::getPhysicalExtent() const {
 std::unique_ptr<FilmTile> Film::getFilmTile(const Bounds2i& sampleBounds) {
     // Bound image pixels that samples in sampleBounds contribute to
     const Vector2f halfPixel(0.5, 0.5);
-    Bounds2f bounds = Bounds2f(sampleBounds);
+    Bounds2f bounds(sampleBounds);
     // Convert from continuous to discrete pixel coordinates
     Point2i p0 = Point2i(ceil(bounds.pMin - halfPixel - filter->radius));
     Point2i p1 = Point2i(floor(bounds.pMax - halfPixel + filter->radius)) + Point2i(1, 1);

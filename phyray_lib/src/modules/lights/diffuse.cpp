@@ -6,8 +6,8 @@ namespace phyr {
 
 // DiffuseAreaLight Method Definitions
 DiffuseAreaLight::DiffuseAreaLight(const Transform& lightToWorld,
-                                   const Spectrum &Lemit, int nSamples,
-                                   const std::shared_ptr<Shape> &shape,
+                                   const Spectrum& Lemit, int nSamples,
+                                   const std::shared_ptr<Shape>& shape,
                                    bool twoSided)
     : AreaLight(lightToWorld, nSamples), Lemit(Lemit),
       shape(shape), twoSided(twoSided), area(shape->surfaceArea()) {}
@@ -67,7 +67,7 @@ Spectrum DiffuseAreaLight::sample_le(const Point2f& u1, const Point2f& u2,
 
 void DiffuseAreaLight::pdf_le(const Ray& ray, const Normal3f& n, Real* pdfPos,
                               Real* pdfDir) const {
-    Interaction it(ray.o, n, Vector3f(), Vector3f(n));
+    Interaction it(ray.o, n, Vector3f(n), Vector3f());
     *pdfPos = shape->pdf(it);
     *pdfDir = twoSided ? (.5 * cosineHemispherePdf(absDot(n, ray.d)))
                        : cosineHemispherePdf(dot(n, ray.d));

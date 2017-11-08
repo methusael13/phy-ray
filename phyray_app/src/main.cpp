@@ -7,6 +7,7 @@ int main(int argc, const char* argv[]) {
     LOG_INFO("Initiating Phyray...");
 
     Spectrum::init();
+    parallelInit();
 
     LOG_INFO("Constructing scene...\n");
     // Create textures and material
@@ -66,17 +67,18 @@ int main(int argc, const char* argv[]) {
     }
 
     std::shared_ptr<const Camera> camera(
-                new PerspectiveCamera(camLook, screen, 2.f, 1e6, 90., film));
+                new PerspectiveCamera(camLook, screen, 2.f, 10, 90., film));
 
     // Create Sampler
-    std::shared_ptr<Sampler> sampler(createStratifiedSampler(true, 10, 10, 4));
+    std::shared_ptr<Sampler> sampler(createStratifiedSampler());
 
     Integrator* integrator = createPathIntegrator(sampler, camera);
 
-    std::cout << "Done initiating scene.\nRendering...\n";
+    LOG_INFO("Done constructing scene.\nRendering...");
     integrator->render(scene);
 
-    std::cout << "Done rendering\n";
+    LOG_INFO("Done rendering\n");
+    parallelCleanup();
 
     delete film;
     return 0;
