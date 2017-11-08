@@ -14,12 +14,9 @@ void AccelBVH::constructBVH() {
     // Initiate object info list
     size_t sz = objectList.size();
     std::vector<BVHObjectInfo> objectInfoList(sz);
-    LOG_INFO_FMT("Object list size: %d", sz);
 
-    for (size_t i = 0; i < sz; i++) {
+    for (size_t i = 0; i < sz; i++)
         objectInfoList[i] = { i, objectList[i]->worldBounds() };
-        std::cout << "Object world bounds: " << objectList[i]->worldBounds() << std::endl;
-    }
 
     // Create a BVH Tree from the object info list
     int nodeCount = 0;
@@ -30,11 +27,11 @@ void AccelBVH::constructBVH() {
     std::vector<std::shared_ptr<Object>> orderedObjectList;
 
     // Recursively build the BVH Tree
+    LOG_INFO("Computing BVH tree...");
     BVHTreeNode* root = constructBVHRecursive(pool, objectInfoList, 0, sz,
                                               &nodeCount, orderedObjectList);
     objectList.swap(orderedObjectList);
-
-    std::cout << "Done constructing BHV" << std::endl;
+    LOG_INFO_FMT("Computed BVH nodes: %d", nodeCount);
 
     // Compute linear BVH by DFS on {root}
     int linearIdx = 0;
@@ -44,6 +41,7 @@ void AccelBVH::constructBVH() {
         new (&bvhNodes[i]) LinearBVHNode();
 
     // Transform BVH tree to a BVH linear array
+    LOG_INFO("Flattening BVH nodes...");
     flattenBVH(root, &linearIdx);
     ASSERT(linearIdx == nodeCount);
 }
@@ -64,7 +62,6 @@ AccelBVH::constructBVHRecursive(MemoryPool& pool, std::vector<BVHObjectInfo>& ob
     // Check for trivial invalid case
     if (end - startIdx <= 0) return nullptr;
 
-    std::cout << "Node created at: " << *nodeCount << "\n";
     (*nodeCount)++;
     BVHTreeNode* node = pool.alloc<BVHTreeNode>();
 
@@ -72,7 +69,6 @@ AccelBVH::constructBVHRecursive(MemoryPool& pool, std::vector<BVHObjectInfo>& ob
     Bounds3f nodeBound = objectInfoList[startIdx].bounds;
     for (int i = startIdx + 1; i < end; i++)
         nodeBound = unionBounds(nodeBound, objectInfoList[i].bounds);
-    std::cout << "Node bounds: " << nodeBound << std::endl;
 
 #define CREATE_LEAF_NODE() \
     int offset = orderedObjectList.size(); \
@@ -86,7 +82,6 @@ AccelBVH::constructBVHRecursive(MemoryPool& pool, std::vector<BVHObjectInfo>& ob
     int range = end - startIdx;
     if (range == 1) {
         CREATE_LEAF_NODE();
-        std::cout << "Leaf created with offset: " << offset << std::endl;
     } else {
         Bounds3f centroidBounds(objectInfoList[startIdx].centroid);
         for (int i = startIdx + 1; i < end; i++)
@@ -107,7 +102,6 @@ AccelBVH::constructBVHRecursive(MemoryPool& pool, std::vector<BVHObjectInfo>& ob
                                  [maxDim](const BVHObjectInfo& a, const BVHObjectInfo& b) {
                                      return a.centroid[maxDim] < b.centroid[maxDim];
                                  });
-                std::cout << "Partitioning into equally sized bins" << std::endl;
             } else {
                 BinInfo bins[nBins];
                 // Initialize bins
@@ -155,14 +149,11 @@ AccelBVH::constructBVHRecursive(MemoryPool& pool, std::vector<BVHObjectInfo>& ob
                     mid = nmid - &objectInfoList[0];
                 } else {
                     CREATE_LEAF_NODE();
-                    std::cout << "Leaf created with offset due to high cost: " << offset << std::endl;
                 }
             }
 
-            std::cout << "Traversing left from mid: " << mid << "\n";
             BVHTreeNode* lc = constructBVHRecursive(pool, objectInfoList, startIdx, mid,
                                                     nodeCount, orderedObjectList);
-            std::cout << "Traversing right from mid: " << mid << "\n";
             BVHTreeNode* rc = constructBVHRecursive(pool, objectInfoList, mid, end,
                                                     nodeCount, orderedObjectList);
             node->createInteriorNode(maxDim, lc, rc);
@@ -175,11 +166,8 @@ AccelBVH::constructBVHRecursive(MemoryPool& pool, std::vector<BVHObjectInfo>& ob
 }
 
 int AccelBVH::flattenBVH(BVHTreeNode* treeNode, int* linearIdx) {
-    std::cout << "Tree node: " << treeNode->bounds << std::endl;
-
     // Copy data from tree node
     LinearBVHNode* linearNode = &bvhNodes[*linearIdx];
-    std::cout << "Linear node: " << linearNode->bounds << std::endl;
 
     linearNode->bounds = treeNode->bounds;
     int currentIdx = (*linearIdx)++;
@@ -188,15 +176,12 @@ int AccelBVH::flattenBVH(BVHTreeNode* treeNode, int* linearIdx) {
     if (treeNode->nObjects > 0) {
         linearNode->objectStartIdx = treeNode->startIdx;
         linearNode->nObjects = treeNode->nObjects;
-        std::cout << "Found a leaf\n";
     } else {
         linearNode->nObjects = 0;
         linearNode->splitAxis = treeNode->splitAxis;
         // Recursive traverse left child
-        std::cout << "Traversing left\n";
         flattenBVH(treeNode->child[0], linearIdx);
         // Store index of right child with a recursive call
-        std::cout << "Traversing right\n";
         linearNode->secondChildIdx = flattenBVH(treeNode->child[1], linearIdx);
     }
 

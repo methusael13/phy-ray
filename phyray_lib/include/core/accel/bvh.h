@@ -73,7 +73,12 @@ class AccelBVH : public ObjectGroup {
              const TreeSplitMethod tspMethod = TreeSplitMethod::SAH) :
         // Ensure {maxObjectsPerNode} does not exceed {DEF_MAX_OBJ_PER_NODE}
         maxObjectsPerNode(std::min(DEF_MAX_OBJ_PER_NODE, maxObjectsPerNode)),
-        tspMethod(tspMethod), objectList(objList) { constructBVH(); }
+        tspMethod(tspMethod), objectList(objList) {
+        LOG_INFO("Constructing BVH...");
+        LOG_INFO_FMT("Number of objects received: %d", objList.size());
+        constructBVH();
+        LOG_INFO("Done constructing BVH.\n");
+    }
 
     ~AccelBVH();
 
