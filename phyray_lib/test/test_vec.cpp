@@ -20,10 +20,14 @@ int main(int argc, const char* argv[]) {
     std::cout << "v2: " << v2 << std::endl;
     std::cout << "v3: " << v3 << std::endl;
     
-    bool valid1 = phyr::epsEqual(dot(v1, v2), 0, 1);
-    bool valid2 = phyr::epsEqual(dot(v2, v3), 0, 1);
-    bool valid3 = phyr::epsEqual(dot(v1, v3), 0, 1);
+    bool valid1 = dot(v1, v2) < 1e-10;
+    bool valid2 = dot(v2, v3) < 1e-10;
+    bool valid3 = dot(v1, v3) < 1e-10;
     bool valid = (valid1 && valid2 && valid3);
+
+    std::cout << "\nValid1: " << std::round(dot(v1, v2)) 
+              << "\nValid2: " << std::round(dot(v2, v3)) 
+              << "\nValid3: " << std::round(dot(v1, v3)) << std::endl;  
 
     std::cout << "Result: " << valid << std::endl;
 
@@ -32,7 +36,7 @@ int main(int argc, const char* argv[]) {
     phyr::Vector3f v = p1 - p2;
     bool pass = v.x == 0 && v.y == 0 && v.z == 0;
 
-    return pass ? 0 : 1;
+    return valid ? 0 : 1;
 }
 
 #pragma GCC diagnostic pop

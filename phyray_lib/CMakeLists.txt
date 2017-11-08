@@ -92,6 +92,7 @@ set(PHYRAY_LIBS phyrlib ${OPENEXR_DEP_LIBS} m pthread)
 set(TEST_EXE
     test_vec test_fpe test_math
     test_isec test_mem test_consttex
+    test_point
 )
 foreach(test_exe ${TEST_EXE})
     add_executable(${test_exe} test/${test_exe}.cpp)
