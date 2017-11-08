@@ -8,7 +8,7 @@ namespace phyr {
 
 // Vector declarations
 template <typename T>
-class Vector2 : public NaNCandidate {
+class Vector2 {
   public:
     // Constructor definition
     Vector2() : x(0), y(0) {}
@@ -16,7 +16,7 @@ class Vector2 : public NaNCandidate {
 
     explicit Vector2(const Point2<T>& p) { ASSERT(!p.hasNaNs()); x = p.x; y = p.y; }
     explicit Vector2(const Point3<T>& p) { ASSERT(!p.hasNaNs()); x = p.x; y = p.y; }
-    bool hasNaNs() const override { return isNaN(x) || isNaN(y); }
+    bool hasNaNs() const { return isNaN(x) || isNaN(y); }
 
 #ifndef PHYRAY_OPTIMIZE
     Vector2(const Vector2<T>& ref) {
@@ -94,7 +94,7 @@ class Vector2 : public NaNCandidate {
 
 
 template <typename T>
-class Vector3 : public NaNCandidate {
+class Vector3 {
   public:
     // Constructor definition
     Vector3() : x(0), y(0), z(0) {}
@@ -106,7 +106,7 @@ class Vector3 : public NaNCandidate {
     explicit Vector3(const Normal3<T>& n) {
         ASSERT(!n.hasNaNs()); x = n.x; y = n.y; z = n.z;
     }
-    bool hasNaNs() const override { return isNaN(x) || isNaN(y) || isNaN(z); }
+    bool hasNaNs() const { return isNaN(x) || isNaN(y) || isNaN(z); }
 
 #ifndef PHYRAY_OPTIMIZE
     Vector3(const Vector3<T>& ref) {
@@ -207,13 +207,13 @@ inline std::ostream& operator<<(std::ostream& os, const Vector3<T>& vec) {
 
 // Point declarations
 template <typename T>
-class Point2 : public NaNCandidate {
+class Point2 {
   public:
     Point2() : x(0), y(0) {}
     Point2(T _x, T _y) : x(_x), y(_y) { ASSERT(!hasNaNs()); }
 
     explicit Point2(const Point3<T>& p) { ASSERT(!p.hasNaNs()); x = p.x; y = p.y; }
-    bool hasNaNs() const override { return isNaN(x) || isNaN(y); }
+    bool hasNaNs() const { return isNaN(x) || isNaN(y); }
 
     // Construction from other types
     template <typename U>
@@ -319,12 +319,12 @@ class Point2 : public NaNCandidate {
 
 
 template <typename T>
-class Point3 : public NaNCandidate {
+class Point3 {
   public:
     Point3() : x(0), y(0), z(0) {}
     Point3(T _x, T _y, T _z) : x(_x), y(_y), z(_z) { ASSERT(!hasNaNs()); }
 
-    bool hasNaNs() const override { return isNaN(x) || isNaN(y); }
+    bool hasNaNs() const { return isNaN(x) || isNaN(y) || isNaN(z); }
 
     // Construction from other types
     template <typename U>
@@ -454,7 +454,7 @@ inline std::ostream& operator<<(std::ostream& os, const Point3<T>& p) {
 
 // Normal declarations
 template <typename T>
-class Normal3 : public NaNCandidate {
+class Normal3 {
   public:
     Normal3() : x(0), y(0), z(0) {}
     Normal3(T _x, T _y, T _z) : x(_x), y(_y), z(_z) { ASSERT(!hasNaNs()); }
@@ -463,7 +463,7 @@ class Normal3 : public NaNCandidate {
         ASSERT(!ref.hasNaNs());
         x = ref.x; y = ref.y; z = ref.z;
     }
-    bool hasNaNs() const override { return isNaN(x) || isNaN(y) || isNaN(z); }
+    bool hasNaNs() const { return isNaN(x) || isNaN(y) || isNaN(z); }
 
 #ifndef PHYRAY_OPTIMIZE
     Normal3(const Normal3<T>& ref) {
@@ -555,14 +555,14 @@ inline std::ostream& operator<<(std::ostream& os, const Normal3<T>& n) {
 
 
 // Ray declarations
-class Ray : public NaNCandidate {
+class Ray {
   public:
     Ray() : tMax(Infinity) {}
     Ray(const Point3f& origin, const Vector3f& direction, Real tMax = Infinity) :
         o(origin), d(direction), tMax(tMax) {}
 
     Point3f operator()(Real t) const { return o + d * t; }
-    bool hasNaNs() const override { return o.hasNaNs() || d.hasNaNs() || isNaN(tMax); }
+    bool hasNaNs() const { return o.hasNaNs() || d.hasNaNs() || isNaN(tMax); }
 
     Point3f o;   // Origin
     Vector3f d;  // Direction

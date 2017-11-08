@@ -77,12 +77,6 @@ class Camera;
 // Film
 class Film;
 
-class NaNCandidate {
-  public:
-    virtual bool hasNaNs() const;
-    virtual ~NaNCandidate();
-};
-
 // Global constants
 static constexpr Int MaxInt = std::numeric_limits<Int>::max();
 static constexpr Real MaxReal = std::numeric_limits<Real>::max();

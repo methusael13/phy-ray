@@ -3,9 +3,6 @@
 
 namespace phyr {
 
-NaNCandidate::~NaNCandidate() {}
-bool NaNCandidate::hasNaNs() const { return false; }
-
 Int ulpsDistance(const Real v1, const Real v2) {
     // Handle +0 == -0
     if (v1 == v2) return 0;
