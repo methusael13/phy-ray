@@ -1,0 +1,156 @@
+.
+├── CMakeLists.txt
+├── file
+├── include
+│   ├── core
+│   │   ├── accel
+│   │   │   └── bvh.h
+│   │   ├── camera
+│   │   │   └── camera.h
+│   │   ├── color
+│   │   │   └── spectrum.h
+│   │   ├── concurrency.h
+│   │   ├── debug.h
+│   │   ├── film.h
+│   │   ├── fperror.h
+│   │   ├── geometry
+│   │   │   ├── geometry.h
+│   │   │   ├── interaction.h
+│   │   │   ├── shape.h
+│   │   │   └── transform.h
+│   │   ├── imageio.h
+│   │   ├── integrator
+│   │   │   ├── filter.h
+│   │   │   ├── integrator.h
+│   │   │   ├── lightdistrib.h
+│   │   │   ├── sampler.h
+│   │   │   └── sampling.h
+│   │   ├── light
+│   │   │   └── light.h
+│   │   ├── lowdiscrepancy.h
+│   │   ├── material
+│   │   │   ├── material.h
+│   │   │   ├── microfacet.h
+│   │   │   ├── reflectance.h
+│   │   │   └── texture.h
+│   │   ├── object
+│   │   │   └── object.h
+│   │   ├── phyr_api.h
+│   │   ├── phyr.h
+│   │   ├── phyr_math.h
+│   │   ├── phyr_mem.h
+│   │   ├── rng.h
+│   │   └── scene.h
+│   └── modules
+│       ├── cameras
+│       │   └── perspective.h
+│       ├── filters
+│       │   ├── box.h
+│       │   ├── gaussian.h
+│       │   ├── lanczos.h
+│       │   ├── mitchell.h
+│       │   └── triangle.h
+│       ├── integrators
+│       │   └── path.h
+│       ├── lights
+│       │   ├── diffuse.h
+│       │   ├── distant.h
+│       │   └── point.h
+│       ├── materials
+│       │   ├── glass.h
+│       │   ├── matte.h
+│       │   ├── metal.h
+│       │   ├── mirror.h
+│       │   └── plastic.h
+│       ├── samplers
+│       │   └── stratified.h
+│       ├── shapes
+│       │   └── sphere.h
+│       └── textures
+│           ├── consttex.h
+│           ├── mix.h
+│           └── scaled.h
+├── src
+│   ├── core
+│   │   ├── accel
+│   │   │   ├── bvh.cpp
+│   │   │   └── bvh.pdf
+│   │   ├── camera
+│   │   │   └── camera.cpp
+│   │   ├── color
+│   │   │   └── spectrum.cpp
+│   │   ├── concurrency.cpp
+│   │   ├── debug.cpp
+│   │   ├── film.cpp
+│   │   ├── geometry
+│   │   │   ├── geometry.cpp
+│   │   │   ├── interaction.cpp
+│   │   │   ├── interaction.pdf
+│   │   │   ├── shape.cpp
+│   │   │   ├── shape.pdf
+│   │   │   ├── transform.cpp
+│   │   │   └── transform.pdf
+│   │   ├── imageio.cpp
+│   │   ├── integrator
+│   │   │   ├── filter.cpp
+│   │   │   ├── integrator.cpp
+│   │   │   ├── integrator.pdf
+│   │   │   ├── lightdistrib.cpp
+│   │   │   ├── sampler.cpp
+│   │   │   ├── sampler.pdf
+│   │   │   ├── sampling.cpp
+│   │   │   └── sampling.pdf
+│   │   ├── light
+│   │   │   ├── light.cpp
+│   │   │   └── light.pdf
+│   │   ├── lowdiscrepancy.cpp
+│   │   ├── material
+│   │   │   ├── material.cpp
+│   │   │   ├── microfacet.cpp
+│   │   │   ├── reflectance.cpp
+│   │   │   └── texture.cpp
+│   │   ├── object
+│   │   │   └── object.cpp
+│   │   ├── phyr.cpp
+│   │   ├── phyr_math.cpp
+│   │   ├── phyr_mem.cpp
+│   │   └── scene.cpp
+│   └── modules
+│       ├── cameras
+│       │   └── perspective.cpp
+│       ├── filters
+│       │   ├── box.cpp
+│       │   ├── gaussian.cpp
+│       │   ├── lanczos.cpp
+│       │   ├── mitchell.cpp
+│       │   └── triangle.cpp
+│       ├── integrators
+│       │   └── path.cpp
+│       ├── lights
+│       │   ├── diffuse.cpp
+│       │   ├── distant.cpp
+│       │   └── point.cpp
+│       ├── materials
+│       │   ├── glass.cpp
+│       │   ├── matte.cpp
+│       │   ├── metal.cpp
+│       │   ├── mirror.cpp
+│       │   └── plastic.cpp
+│       ├── samplers
+│       │   └── stratified.cpp
+│       ├── shapes
+│       │   └── sphere.cpp
+│       └── textures
+│           ├── consttex.cpp
+│           ├── mix.cpp
+│           └── scaled.cpp
+└── test
+    ├── test_consttex.cpp
+    ├── test_fpe.cpp
+    ├── test_isec.cpp
+    ├── test_math.cpp
+    ├── test_mem.cpp
+    ├── test_point.cpp
+    └── test_vec.cpp
+
+39 directories, 114 files

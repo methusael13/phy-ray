@@ -74,7 +74,7 @@ int main(int argc, const char* argv[]) {
                 new PerspectiveCamera(camLook, screen, 2.f, 1e6, 60., film));
 
     // Create Sampler and Integrator
-    std::shared_ptr<Sampler> sampler(createStratifiedSampler(true, 1, 1));
+    std::shared_ptr<Sampler> sampler(createStratifiedSampler(true, 8, 8));
     Integrator* integrator = createPathIntegrator(sampler, camera, 2);
 
     LOG_INFO("Done constructing scene.\nRendering...");
