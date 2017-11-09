@@ -444,8 +444,8 @@ class MicrofacetReflection : public BxDF {
 
   private:
     const Spectrum R;
-    const MicrofacetDistribution *distribution;
-    const Fresnel *fresnel;
+    const MicrofacetDistribution* distribution;
+    const Fresnel* fresnel;
 };
 
 class MicrofacetTransmission : public BxDF {

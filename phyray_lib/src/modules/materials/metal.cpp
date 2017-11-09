@@ -79,4 +79,4 @@ MetalMaterial* createMetalMaterial(Real rough) {
     return new MetalMaterial(eta, k, roughness, nullptr, nullptr, false);
 }
 
-}  // namespace pbrt
+}  // namespace phyr

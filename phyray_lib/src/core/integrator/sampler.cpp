@@ -26,11 +26,13 @@ bool Sampler::setSampleIndex(int64_t sampleIdx) {
 }
 
 void Sampler::request1DArray(int n) {
+    ASSERT(n == refineRequestCount(n));
     samples1DArraySizes.push_back(n);
     sampleArray1D.push_back(std::vector<Real>(n * samplesPerPixel));
 }
 
 void Sampler::request2DArray(int n) {
+    ASSERT(n == refineRequestCount(n));
     samples2DArraySizes.push_back(n);
     sampleArray2D.push_back(std::vector<Point2f>(n * samplesPerPixel));
 }

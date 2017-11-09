@@ -18,8 +18,8 @@ pkg_search_module(OPENEXR REQUIRED OpenEXR)
 pkg_search_module(ILMBASE REQUIRED IlmBase)
 
 # Add Qt
-# find_package(Qt5Core)
-# find_package(Qt5Widgets)
+find_package(Qt5Core)
+find_package(Qt5Widgets)
 
 # PhyRay
 enable_testing()

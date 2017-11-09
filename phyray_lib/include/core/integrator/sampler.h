@@ -66,17 +66,17 @@ class PixelSampler : public Sampler {
     PixelSampler(int64_t samplesPerPixel, int nSampledDimensions);
 
     // Interface
-    virtual bool startNextSample() override;
-    virtual bool setSampleIndex(int64_t sampleIdx) override;
+    bool startNextSample() override;
+    bool setSampleIndex(int64_t sampleIdx) override;
 
-    virtual Real getNextSample1D() override;
-    virtual Point2f getNextSample2D() override;
+    Real getNextSample1D() override;
+    Point2f getNextSample2D() override;
 
   protected:
     std::vector<std::vector<Real>> samples1D;
     std::vector<std::vector<Point2f>> samples2D;
 
-    size_t current1DDimension, current2DDimension;
+    size_t current1DDimension = 0, current2DDimension = 0;
     RNG rng;
 };
 

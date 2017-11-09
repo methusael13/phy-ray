@@ -23,7 +23,7 @@ Point2f concentricSampleDisk(const Point2f& pt) {
         theta = PiOver4 * (nrand.y / nrand.x);
     } else {
         rad = nrand.y;
-        theta = PiOver4 * (nrand.x / nrand.y);
+        theta = PiOver2 - PiOver4 * (nrand.x / nrand.y);
     }
 
     return Point2f(rad * std::cos(theta), rad * std::sin(theta));
@@ -87,6 +87,7 @@ void stratifiedSample2D(Point2f* sample, int nxSamples, int nySamples, bool jitt
             Real offY = jitter ? rng.uniformReal() : 0.5;
             sample->x = std::min((x + offX) * invXSamples, OneMinusEpsilon);
             sample->y = std::min((y + offY) * invYSamples, OneMinusEpsilon);
+            ++sample;
         }
     }
 }

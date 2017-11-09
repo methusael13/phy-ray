@@ -123,8 +123,7 @@ PathIntegrator* createPathIntegrator(std::shared_ptr<Sampler> sampler,
         return nullptr;
     }
 
-    return new PathIntegrator(maxDepth, camera, sampler, _pixelBounds,
-                              1, "spatial");
+    return new PathIntegrator(maxDepth, camera, sampler, _pixelBounds, 1, "spatial");
 }
 
 }  // namespace phyr

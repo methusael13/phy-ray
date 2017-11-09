@@ -101,11 +101,20 @@ class Transform {
                           invMat.d[0][2] * n.x + invMat.d[1][2] * n.y + invMat.d[2][2] * n.z);
     }
 
+    /**
+     * @todo: Needs optimization
+     */
     inline Bounds3f operator()(const Bounds3f& b) const {
-        // Transform the bounds points
-        Point3f p1 = (*this)(b.pMin), p2 = (*this)(b.pMax);
-        // The Bounds constructor will create the necessary limits
-        return Bounds3f(p1, p2);
+        const Transform &M = *this;
+        Bounds3f ret(M(Point3f(b.pMin.x, b.pMin.y, b.pMin.z)));
+        ret = unionBounds(ret, M(Point3f(b.pMax.x, b.pMin.y, b.pMin.z)));
+        ret = unionBounds(ret, M(Point3f(b.pMin.x, b.pMax.y, b.pMin.z)));
+        ret = unionBounds(ret, M(Point3f(b.pMin.x, b.pMin.y, b.pMax.z)));
+        ret = unionBounds(ret, M(Point3f(b.pMin.x, b.pMax.y, b.pMax.z)));
+        ret = unionBounds(ret, M(Point3f(b.pMax.x, b.pMax.y, b.pMin.z)));
+        ret = unionBounds(ret, M(Point3f(b.pMax.x, b.pMin.y, b.pMax.z)));
+        ret = unionBounds(ret, M(Point3f(b.pMax.x, b.pMax.y, b.pMax.z)));
+        return ret;
     }
 
     SurfaceInteraction operator()(const SurfaceInteraction& si) const;
@@ -325,7 +334,7 @@ inline Ray Transform::operator()(const Ray& r, Vector3f* roAbsError, Vector3f* r
     Real tMax = r.tMax, lengthSq = d.lengthSquared();
     if (lengthSq > 0) {
         Real factor = dot(abs(d), *roAbsError) / lengthSq;
-        o += d * factor; tMax -= factor;
+        o += d * factor; // tMax -= factor;
     }
 
     return Ray(o, d, tMax);
@@ -340,7 +349,7 @@ inline Ray Transform::operator()(const Ray& r, const Vector3f& roAbsError, const
     Real tMax = r.tMax, lengthSq = d.lengthSquared();
     if (lengthSq > 0) {
         Real factor = dot(abs(d), *roTransError) / lengthSq;
-        o += d * factor; tMax -= factor;
+        o += d * factor; // tMax -= factor;
     }
 
     return Ray(o, d, tMax);

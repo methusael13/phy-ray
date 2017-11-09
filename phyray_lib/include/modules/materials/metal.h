@@ -33,7 +33,7 @@ class MetalMaterial : public Material {
     bool remapRoughness;
 };
 
-MetalMaterial* createMetalMaterial(Real rough);
+MetalMaterial* createMetalMaterial(Real rough = .01);
 
 }  // namespace phyr
 

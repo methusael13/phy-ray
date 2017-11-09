@@ -49,10 +49,10 @@ void SurfaceInteraction::setShadingGeomerty(const Vector3f& dpdus, const Vector3
     shadingGeom.overridesOrientation = overridesOrientation;
 }
 
-void SurfaceInteraction::computeScatteringFunctions(const Ray &ray, MemoryPool &arena,
+void SurfaceInteraction::computeScatteringFunctions(const Ray &ray, MemoryPool &pool,
                                                     bool allowMultipleLobes,
                                                     TransportMode mode) {
-    object->computeScatteringFunctions(this, arena, mode, allowMultipleLobes);
+    object->computeScatteringFunctions(this, pool, mode, allowMultipleLobes);
 }
 
 Spectrum SurfaceInteraction::le(const Vector3f& w) const {

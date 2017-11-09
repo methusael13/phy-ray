@@ -257,7 +257,7 @@ Spectrum SpecularTransmission::sample_f(const Vector3f& wo, Vector3f* wi,
         return 0;
 
     *pdf = 1;
-    Spectrum ft = T * (Spectrum(Real(0)) - fresnel.evaluate(cosTheta(*wi)));
+    Spectrum ft = T * (Spectrum(Real(1)) - fresnel.evaluate(cosTheta(*wi)));
     // Account for non-symmetry with transmission to different medium
     if (mode == TransportMode::Radiance)
         ft *= (_etaI * _etaI) / (_etaT * _etaT);

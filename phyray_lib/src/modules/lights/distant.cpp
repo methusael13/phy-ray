@@ -51,7 +51,7 @@ std::shared_ptr<DistantLight> createDistantLight(const Transform& light2world,
                                                  const Point3f& from,
                                                  const Point3f& to) {
     Spectrum _L(L), sc(scale);
-    Vector3f dir = from - to;
+    Vector3f dir = to - from;
 
     return std::make_shared<DistantLight>(light2world, _L * sc, dir);
 }
