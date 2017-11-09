@@ -108,7 +108,7 @@ Transform Transform::rotate(const Vector3f& axis, Real theta) {
     m.d[1][0] = axis.x * axis.y * (1 - cosTheta) + axis.z * sinTheta;
     m.d[1][1] = cosTheta + axis.y * axis.y * (1 - cosTheta);
     m.d[1][2] = axis.y * axis.z * (1 - cosTheta) - axis.x * sinTheta;
-    m.d[1][2] = 0;
+    m.d[1][3] = 0;
 
     m.d[2][0] = axis.x * axis.z * (1 - cosTheta) - axis.y * sinTheta;
     m.d[2][1] = axis.y * axis.z * (1 - cosTheta) + axis.x * sinTheta;

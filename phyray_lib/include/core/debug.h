@@ -17,7 +17,7 @@
  * @author: Methusael Murmu
  */
 
-inline void errPrint(const std::string& msg) { std::cerr << msg; }
+inline void errPrintFail(const std::string& msg) { std::cerr << msg; exit(2); }
 
 // Logger functions defined with string format specifiers
 #define LOG_ERR_FMT(S, ...) std::cerr << formatString("[%s] ERROR(%d): " S "\n", __FILE__, __LINE__, __VA_ARGS__)
