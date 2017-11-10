@@ -47,6 +47,9 @@ class SamplerIntegrator : public Integrator {
     virtual void preprocess(const Scene& scene, Sampler& sampler) {}
     void render(const Scene& scene);
 
+    /**
+     * Evaluates the radiance along a given camera ray {ray}
+     */
     virtual Spectrum li(const Ray& ray, const Scene& scene,
                         Sampler& sampler, MemoryPool& arena,
                         int depth = 0) const = 0;
