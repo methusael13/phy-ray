@@ -4,6 +4,8 @@
 #include <core/phyr.h>
 #include <core/camera/camera.h>
 
+#include <core/light/light.h>
+
 namespace phyr {
 
 class PerspectiveCamera : public ProjectiveCamera {
@@ -22,11 +24,17 @@ class PerspectiveCamera : public ProjectiveCamera {
         imagePlaneArea = std::abs((pMax.x - pMin.x) * (pMax.y - pMin.y));
     }
 
+    // Interface
     Real generateRay(const CameraSample& sample, Ray* ray) const override;
 
   private:
     Real imagePlaneArea;
 };
+
+PerspectiveCamera* createPerspectiveCamera(const Transform& cameraToWorld,
+                                           Film* film, Real lensRadius = 0,
+                                           Real focalDistance = 1e6,
+                                           Real fov = 90.0);
 
 }  // namespace phyr
 
