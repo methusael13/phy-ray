@@ -73,13 +73,13 @@ void DiffuseAreaLight::pdf_le(const Ray& ray, const Normal3f& n, Real* pdfPos,
                        : cosineHemispherePdf(dot(n, ray.d));
 }
 
-std::shared_ptr<AreaLight> createDiffuseAreaLight(const Transform& light2world,
-                                                  const std::shared_ptr<Shape>& shape,
+std::shared_ptr<AreaLight> createDiffuseAreaLight(const std::shared_ptr<Shape>& shape,
                                                   Real L, Real scale, int nSamples,
                                                   bool twoSided) {
+    ASSERT(shape != nullptr);
     Spectrum _L(L), sc(scale);
     nSamples = std::max(1, nSamples);
-    return std::make_shared<DiffuseAreaLight>(light2world, _L * sc,
+    return std::make_shared<DiffuseAreaLight>(*shape->localToWorld, _L * sc,
                                               nSamples, shape, twoSided);
 }
 

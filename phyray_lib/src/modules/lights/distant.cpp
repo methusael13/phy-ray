@@ -46,14 +46,13 @@ void DistantLight::pdf_le(const Ray&, const Normal3f&, Real* pdfPos,
     *pdfDir = 0;
 }
 
-std::shared_ptr<DistantLight> createDistantLight(const Transform& light2world,
-                                                 Real L, Real scale,
+std::shared_ptr<DistantLight> createDistantLight(Real L, Real scale,
                                                  const Point3f& from,
                                                  const Point3f& to) {
     Spectrum _L(L), sc(scale);
     Vector3f dir = from - to;
 
-    return std::make_shared<DistantLight>(light2world, _L * sc, dir);
+    return std::make_shared<DistantLight>(Transform(), _L * sc, dir);
 }
 
 }  // namespace phyr

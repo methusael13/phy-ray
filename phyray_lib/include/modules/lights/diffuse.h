@@ -40,8 +40,7 @@ class DiffuseAreaLight : public AreaLight {
     const Real area;
 };
 
-std::shared_ptr<AreaLight> createDiffuseAreaLight(const Transform& light2world,
-                                                  const std::shared_ptr<Shape>& shape,
+std::shared_ptr<AreaLight> createDiffuseAreaLight(const std::shared_ptr<Shape>& shape,
                                                   Real L = 1, Real scale = 1, int nSamples = 1,
                                                   bool twoSided = false);
 }  // namespace phyr

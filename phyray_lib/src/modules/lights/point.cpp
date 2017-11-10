@@ -33,13 +33,12 @@ void PointLight::pdf_le(const Ray&, const Normal3f&, Real* pdfPos,
     *pdfDir = uniformSpherePdf();
 }
 
-std::shared_ptr<PointLight> createPointLight(const Transform& light2world,
-                                             Real I, Real scale, const Point3f& point) {
+std::shared_ptr<PointLight> createPointLight(const Point3f& point, Real I, Real scale) {
     Spectrum _I = Spectrum(I);
     Spectrum sc = Spectrum(scale);
     Point3f P = point;
 
-    Transform l2w = Transform::translate(Vector3f(P.x, P.y, P.z)) * light2world;
+    Transform l2w = Transform::translate(Vector3f(P.x, P.y, P.z));
     return std::make_shared<PointLight>(l2w, I * sc);
 }
 

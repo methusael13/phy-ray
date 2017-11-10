@@ -36,9 +36,8 @@ class PointLight : public Light {
     const Spectrum I;
 };
 
-std::shared_ptr<PointLight> createPointLight(const Transform& lightToworld,
-                                             Real I = 1, Real scale = 1,
-                                             const Point3f& point = Point3f(0, 0, 0));
+std::shared_ptr<PointLight> createPointLight(const Point3f& point = Point3f(0, 0, 0),
+                                             Real I = 1, Real scale = 1);
 
 }  // namespace phyr
 

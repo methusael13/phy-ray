@@ -39,8 +39,7 @@ class DistantLight : public Light {
     Real worldRadius;
 };
 
-std::shared_ptr<DistantLight> createDistantLight(const Transform& light2world,
-                                                 Real L = 1, Real scale = 1,
+std::shared_ptr<DistantLight> createDistantLight(Real L = 1, Real scale = 1,
                                                  const Point3f& from = Point3f(0, 0, 0),
                                                  const Point3f& to = Point3f(0, 0, 1));
 
