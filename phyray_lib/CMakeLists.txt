@@ -54,6 +54,7 @@ add_library(phyrlib STATIC
 
     # Shapes
     src/modules/shapes/sphere.cpp
+    src/modules/shapes/disk.cpp
     
     # Integrator and samplers
     src/core/integrator/integrator.cpp
