@@ -29,4 +29,4 @@ bool Scene::intersectTr(Ray ray, Sampler& sampler, SurfaceInteraction* isect,
     }
 }
 
-}  // namespace pbrt
+}  // namespace phyr

@@ -28,11 +28,11 @@ Spectrum PathIntegrator::li(const Ray& r, const Scene& scene,
     bool specularBounce = false;
     int bounces;
 
-    // etaScale tracks the accumulated effect
+    // {etaScale} tracks the accumulated effect
     // of radiance scaling due to rays passing through refractive
-    // boundaries. We track this value in order to remove it from beta when we apply
-    // Russian roulette; this is worthwhile, since it lets us sometimes
-    // avoid terminating refracted rays that are about to be refracted back
+    // boundaries. This value is tracked in order to remove it from beta
+    // when Russian roulette is applied; this is worthwhile, since it helps
+    // avoiding terminating refracted rays that are about to be refracted back
     // out of a medium and thus have their beta value increased.
     Real etaScale = 1;
 

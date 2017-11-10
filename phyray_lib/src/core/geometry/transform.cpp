@@ -134,9 +134,8 @@ Transform Transform::lookAt(const Point3f& loc, const Point3f& targetLoc, const 
     Mat4x4 camMatrix = Mat4x4(nxAxis.x, yAxis.x, zAxis.x, loc.x,
                               nxAxis.y, yAxis.y, zAxis.y, loc.y,
                               nxAxis.z, yAxis.z, zAxis.z, loc.z,
-                                    0,       0,       0,     1);
+                                    0,       0,       0,      1);
 
-    // LookAt transform creates a viewMatrix which is the inverse of cameraMatrix
     return Transform(Mat4x4::inverse(camMatrix), camMatrix);
 }
 
