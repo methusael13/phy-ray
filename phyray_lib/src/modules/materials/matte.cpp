@@ -1,6 +1,8 @@
 #include <core/phyr_mem.h>
-#include <modules/materials/matte.h>
 #include <core/material/reflectance.h>
+
+#include <modules/materials/matte.h>
+#include <modules/textures/consttex.h>
 
 namespace phyr {
 
@@ -18,6 +20,15 @@ void MatteMaterial::computeScatteringFunctions(SurfaceInteraction* si,
         else
             si->bsdf->add(POOL_ALLOC(pool, OrenNayar)(r, sig));
     }
+}
+
+MatteMaterial* createMatteMaterial(Real Kd, Real sigma) {
+    std::shared_ptr<Texture<Spectrum>> kd =
+            std::make_shared<ConstantTexture<Spectrum>>(Spectrum(Kd));
+    std::shared_ptr<Texture<Real>> _sigma =
+            std::make_shared<ConstantTexture<Real>>(sigma);
+
+    return new MatteMaterial(kd, _sigma);
 }
 
 }  // namespace phyr

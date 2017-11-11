@@ -62,10 +62,11 @@ struct LinearBVHNode {
     uint8_t _padding[1];
 };
 
+// Support Surface Area Heuristic for tree splitting
+enum class TreeSplitMethod { SAH };
+
 class AccelBVH : public ObjectGroup {
   public:
-    // Support Surface Area Heuristic for tree splitting
-    enum class TreeSplitMethod { SAH };
     static const int DEF_MAX_OBJ_PER_NODE;
 
     AccelBVH(const std::vector<std::shared_ptr<Object>>& objList,
@@ -111,6 +112,10 @@ class AccelBVH : public ObjectGroup {
 
     LinearBVHNode* bvhNodes = nullptr;
 };
+
+std::shared_ptr<AccelBVH> createBVHAccel(const std::vector<std::shared_ptr<Object>>& objList,
+                                         int maxObjectsPerNode = 4,
+                                         const TreeSplitMethod tsp = TreeSplitMethod::SAH);
 
 }  // namespace phyr
 

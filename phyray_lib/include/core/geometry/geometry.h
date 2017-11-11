@@ -1258,14 +1258,14 @@ inline bool Bounds3<T>::intersectRay(const Ray& ray, const Vector3<T>& invDir,
     if (tzmin > tmin) tmin = tzmin;
     if (tzmax < tmax) tmax = tzmax;
 
-    return (tmax < ray.tMax) && (tmin > 0);
+    return (tmin < ray.tMax) && (tmax > 0);
 }
 
 inline Point3f offsetRayOrigin(const Point3f& p, const Normal3f& n,
                                const Vector3f& w, const Vector3f& fpError) {
     Real d = dot(abs(n), fpError);
 #ifdef PHYRAY_USE_LONG_P
-    d *= 512;  // Use higher ulps factor for double
+    d *= 1024;  // Use higher ulps factor for double
 #endif
 
     Vector3f offset = Vector3f(n) * d;

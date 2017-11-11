@@ -22,7 +22,7 @@ void PathIntegrator::preprocess(const Scene& scene, Sampler& sampler) {
 
 Spectrum PathIntegrator::li(const Ray& r, const Scene& scene,
                             Sampler& sampler, MemoryPool& pool, int depth) const {
-    Spectrum L(0.f), beta(1.f);
+    Spectrum L(0); Spectrum beta(1.f);
     Ray ray(r);
 
     bool specularBounce = false;

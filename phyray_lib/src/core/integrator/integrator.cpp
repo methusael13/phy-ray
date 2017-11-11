@@ -232,7 +232,6 @@ void SamplerIntegrator::render(const Scene& scene) {
                     // Initialize _CameraSample_ for current sample
                     CameraSample cameraSample = tileSampler->getCameraSample(pixel);
 
-
                     // Generate camera ray for current sample
                     Ray ray;
                     Real rayWeight = camera->generateRay(cameraSample, &ray);

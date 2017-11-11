@@ -34,6 +34,8 @@ class MatteMaterial : public Material {
     std::shared_ptr<Texture<Real>> sigma;
 };
 
+MatteMaterial* createMatteMaterial(Real Kd = 1, Real sigma = 0);
+
 }  // namespace phyr
 
 #endif

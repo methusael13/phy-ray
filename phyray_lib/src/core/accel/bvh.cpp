@@ -47,9 +47,7 @@ void AccelBVH::constructBVH() {
 }
 
 constexpr int nBins = 12;
-typedef struct _BinInfo BinInfo;
-
-struct _BinInfo { int freq; Bounds3f bounds; };
+struct BinInfo { int freq; Bounds3f bounds; };
 
 Bounds3f AccelBVH::worldBounds() const {
     return bvhNodes ? bvhNodes[0].bounds : Bounds3f();
@@ -73,7 +71,7 @@ AccelBVH::constructBVHRecursive(MemoryPool& pool, std::vector<BVHObjectInfo>& ob
 #define CREATE_LEAF_NODE() \
     int offset = orderedObjectList.size(); \
     for (int i = startIdx; i < end; i++) { \
-        int idx = objectInfoList[startIdx].objectIdx; \
+        int idx = objectInfoList[i].objectIdx; \
         orderedObjectList.push_back(objectList[idx]); \
     } \
     node->createLeafNode(offset, range, nodeBound); \
@@ -94,7 +92,8 @@ AccelBVH::constructBVHRecursive(MemoryPool& pool, std::vector<BVHObjectInfo>& ob
         } else {
             int mid = (startIdx + end) / 2;
 
-            // Partition primitives
+            // @todo: Support other tree split methods
+            // Partition primitives using SAH
             if (range <= 2) {
                 // Partition into equally sized subsets
                 std::nth_element(&objectInfoList[startIdx], &objectInfoList[mid],
@@ -108,7 +107,11 @@ AccelBVH::constructBVHRecursive(MemoryPool& pool, std::vector<BVHObjectInfo>& ob
                 for (int i = startIdx; i < end; i++) {
                     int bidx = centroidBounds.offset(objectInfoList[i].centroid)[maxDim] * nBins;
                     if (bidx == nBins) bidx--; bins[bidx].freq++;
-                    bins[bidx].bounds = unionBounds(bins[bidx].bounds, objectInfoList[i].bounds);
+
+                    if (bins[bidx].freq == 1)
+                        bins[bidx].bounds = objectInfoList[i].bounds;
+                    else
+                        bins[bidx].bounds = unionBounds(bins[bidx].bounds, objectInfoList[i].bounds);
                 }
 
                 // Compute optimum split
@@ -117,21 +120,22 @@ AccelBVH::constructBVHRecursive(MemoryPool& pool, std::vector<BVHObjectInfo>& ob
 
                 /* @todo Optimize the O(n^2) runtime */
                 for (int i = 0; i < nBins - 1; i++) {
-                    Bounds3f bl, br;
                     int f0 = 0, f1 = 0, j;
 
-                    for (j = 0; j <= i; j++) {
+                    Bounds3f bl = bins[0].bounds;
+                    for (j = 1; j <= i; j++) {
                         bl = unionBounds(bl, bins[j].bounds);
                         f0 += bins[j].freq;
                     }
 
-                    for (j = i + 1; j < nBins; j++) {
+                    Bounds3f br = bins[i + 1].bounds;
+                    for (j = i + 2; j < nBins; j++) {
                         br = unionBounds(br, bins[j].bounds);
                         f1 += bins[j].freq;
                     }
 
                     // Assumed cost of intersection = 1; cost of traversal = 1/8
-                    cost = .125f + (f0 * bl.surfaceArea() + f1 * br.surfaceArea()) / nodeBoundSurfaceArea;
+                    cost = 1 + (f0 * bl.surfaceArea() + f1 * br.surfaceArea()) / nodeBoundSurfaceArea;
                     if (cost < minCost) { minCost = cost; splitIdx = i; }
                 }
 
@@ -269,6 +273,11 @@ bool AccelBVH::intersectRay(const Ray& ray) const {
     }
 
     return false;
+}
+
+std::shared_ptr<AccelBVH> createBVHAccel(const std::vector<std::shared_ptr<Object>>& objList,
+                                         int maxObjectsPerNode, const TreeSplitMethod tsp) {
+    return std::make_shared<AccelBVH>(objList, maxObjectsPerNode, tsp);
 }
 
 }  // namespace phyr

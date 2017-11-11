@@ -51,8 +51,7 @@ class SamplerIntegrator : public Integrator {
      * Evaluates the radiance along a given camera ray {ray}
      */
     virtual Spectrum li(const Ray& ray, const Scene& scene,
-                        Sampler& sampler, MemoryPool& arena,
-                        int depth = 0) const = 0;
+                        Sampler& sampler, MemoryPool& arena, int depth = 0) const = 0;
 
     Spectrum specularReflect(const Ray& ray,
                              const SurfaceInteraction& isect,

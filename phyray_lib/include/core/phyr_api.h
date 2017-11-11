@@ -13,10 +13,13 @@
 
 #include <modules/integrators/path.h>
 #include <modules/cameras/perspective.h>
-#include <modules/lights/distant.h>
 
+#include <modules/shapes/disk.h>
 #include <modules/shapes/sphere.h>
+
 #include <modules/textures/consttex.h>
+#include <modules/textures/scaled.h>
+#include <modules/textures/mix.h>
 
 #include <modules/materials/glass.h>
 #include <modules/materials/matte.h>

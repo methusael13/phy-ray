@@ -5,6 +5,7 @@
 #include <core/geometry/geometry.h>
 #include <core/object/object.h>
 #include <core/light/light.h>
+#include <core/color/spectrum.h>
 
 #include <memory>
 

@@ -18,7 +18,7 @@ struct CameraSample { Point2f pLens, pFilm; };
 class Camera {
   public:
     Camera(const Transform& cameraToWorld, Film* film) :
-    cameraToWorld(cameraToWorld), film(film) {}
+        cameraToWorld(cameraToWorld), film(film) {}
 
     // Interface
     virtual ~Camera() {}
