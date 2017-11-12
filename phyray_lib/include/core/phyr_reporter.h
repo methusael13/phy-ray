@@ -1,9 +1,13 @@
 #include <iostream>
 #include <string>
-#include <stdlib>
+#include <cstdlib>
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <ctime>
+#include <chrono>
+#include <thread>
+
+#define itoa(n) ((n)+48)
 
 class ProgressReporter {
     public:
@@ -108,3 +112,53 @@ class ProgressReporter {
 
 // Create object like this
 // ProgressReporter *ProgressReporter::pr_obj = 0;
+
+/* Timer Class */
+class Timer {
+    public:
+        void startTimer () {
+            start_time = std::chrono::system_clock::now();
+            std::cout << "Timer started" << std::endl;
+        }
+        
+        int getElapsedTime () {
+            auto current_time = std::chrono::system_clock::now();
+            std::chrono::duration<double> elapsed_time = current_time - start_time;
+            //std::cout << elapsed_time.count() << std::endl;
+            
+            double elapsed_seconds = elapsed_time.count();
+            return int(elapsed_seconds);
+        }
+        
+        std::string getFormatedTime (int sec) {
+            std::string formated_time = "";
+            int hh, mm, ss;
+            hh = sec / 3600;
+            sec %= 3600;
+            mm = sec / 60;
+            sec %= 60;
+            ss = sec;
+            
+            formated_time+= itoa(hh/10);
+            formated_time+= itoa(hh%10);
+            formated_time+= ':';
+            
+            formated_time+= itoa(mm/10);
+            formated_time+= itoa(mm%10);
+            formated_time+= ':';
+            
+            formated_time+= itoa(ss/10);
+            formated_time+= itoa(ss%10);
+            
+            return formated_time;
+        }
+        
+        void resetTimer () {
+            
+        }
+        
+        Timer() {}
+        
+    private:
+        std::chrono::system_clock::time_point start_time; 
+};
