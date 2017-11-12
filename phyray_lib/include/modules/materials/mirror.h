@@ -23,7 +23,7 @@ class MirrorMaterial : public Material {
     std::shared_ptr<Texture<Spectrum>> Kr;
 };
 
-MirrorMaterial* createMirrorMaterial(Real Kr);
+MirrorMaterial* createMirrorMaterial(Real Kr = 1);
 
 }  // namespace phyr
 
