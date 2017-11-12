@@ -136,7 +136,7 @@ Transform Transform::lookAt(const Point3f& loc, const Point3f& targetLoc, const 
                               nxAxis.z, yAxis.z, zAxis.z, loc.z,
                                     0,       0,       0,      1);
 
-    return Transform(Mat4x4::inverse(camMatrix), camMatrix);
+    return Transform(camMatrix, Mat4x4::inverse(camMatrix));
 }
 
 Transform Transform::perspective(Real fov, Real near, Real far) {
