@@ -1,4 +1,5 @@
 #include <core/scene.h>
+#include <core/phyr_reporter.h>
 #include <core/integrator/integrator.h>
 
 namespace phyr {
@@ -191,7 +192,10 @@ void SamplerIntegrator::render(const Scene& scene) {
     Point2i nTiles((sampleExtent.x + tileSize - 1) / tileSize,
                    (sampleExtent.y + tileSize - 1) / tileSize);
 
-    // ProgressReporter reporter(nTiles.x * nTiles.y, "Rendering");
+    // Get access to the Progress reporter
+    ProgressReporter* reporter = ProgressReporter::getInstance();
+    const std::string token = reporter->startReport(nTiles.x * nTiles.y);
+
     {
         ParallelFor2D([&](Point2i tile) {
             // Render section of image corresponding to {tile}
@@ -209,8 +213,6 @@ void SamplerIntegrator::render(const Scene& scene) {
             int y0 = sampleBounds.pMin.y + tile.y * tileSize;
             int y1 = std::min(y0 + tileSize, sampleBounds.pMax.y);
             Bounds2i tileBounds(Point2i(x0, y0), Point2i(x1, y1));
-
-            std::cout << "Starting image tile: " << tileBounds << std::endl;
 
             // Get {FilmTile} for tile
             std::unique_ptr<FilmTile> filmTile = camera->film->getFilmTile(tileBounds);
@@ -272,13 +274,14 @@ void SamplerIntegrator::render(const Scene& scene) {
                     pool.reset();
                 } while (tileSampler->startNextSample());
             }
-            std::cout << "Finished image tile " << tileBounds << std::endl;
 
             // Merge image tile into _Film_
             camera->film->mergeFilmTile(std::move(filmTile));
+            // Report update
+            reporter->updateReport(token);
         }, nTiles);
+        reporter->endReport(token);
     }
-    LOG_INFO("Rendering finished");
 
     // Save final image after rendering
     camera->film->writeImage();
