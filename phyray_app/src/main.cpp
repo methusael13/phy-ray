@@ -114,15 +114,17 @@ int main(int argc, const char* argv[]) {
     std::shared_ptr<const Camera> camera(createPerspectiveCamera(camLook, film, 2, 10, 45));
 
     // Create Sampler and Integrator
-    std::shared_ptr<Sampler> sampler(createStratifiedSampler(true, 20, 20, 10));
+    std::shared_ptr<Sampler> sampler(createStratifiedSampler(true, 1, 1, 10));
     std::unique_ptr<Integrator> integrator(createPathIntegrator(sampler, camera, 5));
 
-    LOG_INFO("Done constructing scene.\nRendering...");
+    LOG_INFO("Done constructing scene.");
+
+    std::cout << "\nRendering:\n" << std::endl;
     integrator->render(scene);
+    std::cout << "Done rendering\n";
+    std::cout << "Saved rendered image to file: " << film->filename << ".exr\n" << std::endl;
 
-    LOG_INFO("Done rendering\n");
     parallelCleanup();
-
-    // delete film;
+    delete film;
     return 0;
 }
