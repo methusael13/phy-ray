@@ -24,8 +24,8 @@ int main(int argc, const char* argv[]) {
     std::shared_ptr<Material> metal(createMetalMaterial(0.04));
 
     // Plastic material
-    Real red[3] = { 1, 0, 0 };
-    Spectrum kdRed = Spectrum::getFromRGB(red, SpectrumType::Reflectance);
+    Real plasticCol[3] = { 1, 0, 0 };
+    Spectrum kdRed = Spectrum::getFromRGB(plasticCol, SpectrumType::Reflectance);
     // Generate textures
     std::shared_ptr<Texture<Spectrum>> texRed =
             std::make_shared<ConstantTexture<Spectrum>>(kdRed);
@@ -110,11 +110,11 @@ int main(int argc, const char* argv[]) {
                           std::move(filter), 35., filename, 20.);
 
     // Create camera
-    Transform camLook = Transform::lookAt(Point3f(0, 0, 0), Point3f(0, 0, 1), Vector3f(0, 1, 0));
-    std::shared_ptr<const Camera> camera(createPerspectiveCamera(camLook, film, 0, 1e6, 45));
+    Transform camLook = Transform::lookAt(Point3f(0, 4, -2), Point3f(0, 0, 8), Vector3f(0, 1, 0));
+    std::shared_ptr<const Camera> camera(createPerspectiveCamera(camLook, film, 2, 10, 45));
 
     // Create Sampler and Integrator
-    std::shared_ptr<Sampler> sampler(createStratifiedSampler(true, 20, 20, 16));
+    std::shared_ptr<Sampler> sampler(createStratifiedSampler(true, 20, 20, 10));
     std::unique_ptr<Integrator> integrator(createPathIntegrator(sampler, camera, 5));
 
     LOG_INFO("Done constructing scene.\nRendering...");
