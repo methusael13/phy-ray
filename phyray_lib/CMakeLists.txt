@@ -8,6 +8,7 @@ add_library(phyrlib STATIC
     src/core/phyr.cpp
     src/core/phyr_mem.cpp
     src/core/phyr_math.cpp
+    src/core/phyr_reporter.cpp
     src/core/geometry/geometry.cpp
     src/core/geometry/transform.cpp
     src/core/geometry/interaction.cpp
