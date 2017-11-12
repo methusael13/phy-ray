@@ -78,7 +78,7 @@ class AccelBVH : public ObjectGroup {
         LOG_INFO("Constructing BVH...");
         LOG_INFO_FMT("Number of objects received: %d", objList.size());
         constructBVH();
-        LOG_INFO("Done constructing BVH.\n");
+        LOG_INFO("Done constructing BVH.");
     }
 
     ~AccelBVH();
