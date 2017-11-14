@@ -9,6 +9,9 @@
 
 namespace phyr {
 
+// Available ready-made metal materials
+enum MetalType { Copper, Gold, Silver, Aluminium };
+
 // MetalMaterial Declarations
 class MetalMaterial : public Material {
   public:
@@ -33,7 +36,8 @@ class MetalMaterial : public Material {
     bool remapRoughness;
 };
 
-MetalMaterial* createMetalMaterial(Real rough = .01);
+MetalMaterial* createMetalMaterial(MetalType type = MetalType::Copper,
+                                   Real rough = .01);
 
 }  // namespace phyr
 
