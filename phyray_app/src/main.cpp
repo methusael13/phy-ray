@@ -21,7 +21,7 @@ int main(int argc, const char* argv[]) {
     LOG_INFO("Constructing scene...\n");
 
     // Create textures and material
-    std::shared_ptr<Material> metal(createMetalMaterial(0.04));
+    std::shared_ptr<Material> metal(createMetalMaterial(MetalType::Gold, 0.04));
 
     // Plastic material
     Real plasticCol[3] = { 1, 0, 0 };
@@ -110,11 +110,11 @@ int main(int argc, const char* argv[]) {
                           std::move(filter), 35., filename, 20.);
 
     // Create camera
-    Transform camLook = Transform::lookAt(Point3f(0, 4, -2), Point3f(0, 0, 8), Vector3f(0, 1, 0));
-    std::shared_ptr<const Camera> camera(createPerspectiveCamera(camLook, film, 2, 10, 45));
+    Transform camLook = Transform::lookAt(Point3f(0, 2, 2), Point3f(0, -1, 8), Vector3f(0, 1, 0));
+    std::shared_ptr<const Camera> camera(createPerspectiveCamera(camLook, film, 0, 1e6, 45));
 
     // Create Sampler and Integrator
-    std::shared_ptr<Sampler> sampler(createStratifiedSampler(true, 1, 1, 10));
+    std::shared_ptr<Sampler> sampler(createStratifiedSampler(true, 16, 16, 10));
     std::unique_ptr<Integrator> integrator(createPathIntegrator(sampler, camera, 5));
 
     LOG_INFO("Done constructing scene.");
