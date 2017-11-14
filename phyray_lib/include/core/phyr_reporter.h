@@ -6,6 +6,7 @@
 #include <core/phyr_mem.h>
 
 // Standard library imports
+#include <mutex>
 #include <string>
 #include <chrono>
 #include <thread>
@@ -20,29 +21,68 @@
 
 namespace phyr {
 
+struct NoOpFunctor { void operator()(...) {} };
+
 // Timer declarations
 class Timer {
   public:
-    Timer() {}
+    /**
+     * Treat this timer as a task scheduler if {asScheduler} is true.
+     * The parameters for the scheduler will be then taken from a call
+     * to {startTimer()}
+     */
+    explicit Timer(bool asScheduler = false) : asScheduler(asScheduler) {}
+
+    ~Timer() {
+        // Stop the internal scheduler
+        if (asScheduler)
+            setTimerState(TimerState::IDLE);
+    }
 
     // Interface
 
     /**
      * Starts and seeds the timer. Further calls to this function
-     * simply resets the timer.
+     * simply resets the timer. The parameters {delay},
+     * {f} and {args} are ignored if {asScheduler} is false.
+     *
+     * @param delay         The amount of duration in milliseconds after which
+     *                      the functor {f()} is called repeatedly.
+     * @param f             The functor specifying the operation to be executed
+     *                      on every timer tick as defined by the {delay} amount.
+     * @param args          Variadic arguments used for calling {f()}
      */
-    void startTimer() {
+    template <class Functor = NoOpFunctor, typename ... Args>
+    void startTimer(int delay = 1000,
+                    std::unique_ptr<Functor> f = std::unique_ptr<Functor>(new NoOpFunctor),
+                    Args... args) {
         startTime = std::chrono::system_clock::now();
+        setTimerState(TimerState::ACTIVE);
+
+        // Initiate scheduler if {asScheduler} is true
+        if (asScheduler) {
+            std::thread thrd(TimerLoop<Functor, Args...>(this), std::move(f), delay, args...);
+
+            // Move thread control of {thrd} to {timerThread} to extend
+            // its scope to that of the parent {Timer} object.
+            schedulerThread = std::move(thrd);
+        }
     }
 
     /**
-     * Returns the elapsed time since the last call to {startTimer}
+     * Returns the elapsed time since the last call to {startTimer} in milliseconds
      */
     uint64_t getElapsedTime() const {
         auto currentTime = std::chrono::system_clock::now();
-        std::chrono::duration<double> elapsed = currentTime - startTime;
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime);
         return static_cast<uint64_t>(elapsed.count());
     }
+
+    /**
+     * Resets timer state to idle. Stops the internal scheduler if
+     * this timer was set to be a scheduler.
+     */
+    void resetTimer() { setTimerState(TimerState::IDLE); }
 
     /**
      * Returns the formatted time in string from the given
@@ -52,6 +92,9 @@ class Timer {
         int hh, mm, ss;
 
         // Extract time components from given duration
+
+        // Convert to seconds
+        duration /= 1000;
         hh = duration / 3600; duration %= 3600;
         mm = duration / 60; duration %= 60;
         ss = duration;
@@ -60,8 +103,58 @@ class Timer {
         return formattedTime;
     }
 
+    inline bool isActive() {
+        std::lock_guard<std::mutex> lock(mutex);
+        return state == TimerState::ACTIVE;
+    }
+
   private:
+    enum TimerState { IDLE, ACTIVE };
+
     std::chrono::system_clock::time_point startTime;
+    TimerState state = TimerState::IDLE;
+    bool asScheduler;
+
+    std::mutex mutex;
+    std::thread schedulerThread;
+
+    inline void setTimerState(TimerState _state) {
+        std::lock_guard<std::mutex> lock(mutex);
+        state = _state;
+    }
+
+    friend class TimerLoop;
+
+    // TimerLoop declarations
+    template <class Functor, typename ... Args>
+    class TimerLoop {
+      public:
+        TimerLoop(Timer* timer) : timer(timer) {}
+
+        void operator()(std::unique_ptr<Functor> f, int delay, Args... args) {
+            uint64_t elapsed, delta;
+            uint64_t last_call_tstamp = timer->getElapsedTime();
+
+            while (timer->isActive()) {
+                elapsed = timer->getElapsedTime();
+                delta = elapsed - last_call_tstamp;
+
+                // Check if {elapsed} is more than provided delay
+                if (delta >= delay) {
+                    // Reset {last_call_tstamp}
+                    last_call_tstamp = elapsed;
+                    // Call the provided functor
+                    (*f)(args...);
+                }
+
+                // Sleep to allow for context switches
+                std::this_thread::sleep_for(std::chrono::milliseconds(20));
+            }
+        }
+
+      private:
+        Timer* timer;
+    };
 };
 
 // ProgressReporterException declarations
@@ -105,10 +198,9 @@ class ProgressReporter {
             state = ProgressReporterStates::ACQUIRED;
             nSteps = steps; currentStepNumber = 0;
 
-            timer.startTimer();
-            // Show an initial progress
-            showProgress(0);
-
+            std::unique_ptr<RefreshFunctor> f =
+                    std::unique_ptr<RefreshFunctor>(new RefreshFunctor(this));
+            timer->startTimer(250, std::move(f));
             return token;
         } else {
             throw ProgressReporterException();
@@ -119,10 +211,12 @@ class ProgressReporter {
      * Report progress to the this reporter. Must be called with the
      * access token returned on calling {startReport()}
      */
-    void updateReport(const std::string& p_token) {
+    void updateProgress(const std::string& p_token) {
+        // Acquire lock on mutex
+        std::lock_guard<std::mutex> lock(mutex);
+
         if (state == ProgressReporterStates::ACQUIRED && token == p_token) {
             currentStepNumber = std::min(currentStepNumber + 1, nSteps);
-            showProgress(float(currentStepNumber) / nSteps);
         } else {
             if (state != ProgressReporterStates::ACQUIRED)
                 throw ProgressReporterException("Invalid ProgressReporter state");
@@ -152,7 +246,10 @@ class ProgressReporter {
     int nSteps, currentStepNumber;
     std::string token;
 
-    Timer timer;
+    // Lock mutexes
+    std::mutex mutex;
+
+    std::unique_ptr<Timer> timer;
     struct winsize term;
     int termWidth;
 
@@ -162,6 +259,8 @@ class ProgressReporter {
     ProgressReporter() :
         state(ProgressReporterStates::AVAILABLE),
         nSteps(0), currentStepNumber(0), token(std::string()) {
+        // Create the timer
+        timer = std::unique_ptr<Timer>(new Timer(true));
         updateTerminalSpecs();
     }
 
@@ -190,8 +289,12 @@ class ProgressReporter {
         return token_chars;
     }
 
-    void showProgress(float perc) {
+    void showProgress() {
+        std::lock_guard<std::mutex> lock(mutex);
         updateTerminalSpecs();
+
+        // Compute progress
+        float perc = float(currentStepNumber) / nSteps;
 
         // Clear line
         std::cout << "\033[A\33[2K\r";
@@ -211,10 +314,22 @@ class ProgressReporter {
         std::cout << "]\x1b[0m";
         std::cout << " " << static_cast<int>(perc * 100) << "% ";
 
-        uint64_t sec = timer.getElapsedTime();
-        std::cout << " ET: \x1b[31;1m" << timer.getFormattedTime(sec);
+        uint64_t msec = timer->getElapsedTime();
+        std::cout << " ET: \x1b[31;1m" << timer->getFormattedTime(msec);
         std::cout << "\x1b[0m" << std::endl;
     }
+
+    friend class RefreshFunctor;
+
+    struct RefreshFunctor {
+      public:
+        RefreshFunctor(ProgressReporter* reporter) : reporter(reporter) {}
+
+        void operator()(...) { reporter->showProgress(); }
+
+      private:
+        ProgressReporter* reporter;
+    };
 };
 
 }  // namespace phyr
