@@ -278,7 +278,7 @@ void SamplerIntegrator::render(const Scene& scene) {
             // Merge image tile into _Film_
             camera->film->mergeFilmTile(std::move(filmTile));
             // Report update
-            reporter->updateReport(token);
+            reporter->updateProgress(token);
         }, nTiles);
         reporter->endReport(token);
     }
