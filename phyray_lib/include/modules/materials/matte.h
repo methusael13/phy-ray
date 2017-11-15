@@ -36,6 +36,8 @@ class MatteMaterial : public Material {
 
 MatteMaterial* createMatteMaterial(Real Kd = 1, Real sigma = 0);
 
+MatteMaterial* createMatteMaterial(Real rgb[3], Real sigma = 0);
+
 }  // namespace phyr
 
 #endif

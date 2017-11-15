@@ -43,4 +43,18 @@ PlasticMaterial* createPlasticMaterial(Real Kd, Real Ks, Real roughness,
     return new PlasticMaterial(kd, ks, _roughness, remapRoughness);
 }
 
+PlasticMaterial* createPlasticMaterial(Real rgb[3], Real Ks, Real roughness,
+                                       bool remapRoughness) {
+    Spectrum kdRGB = Spectrum::getFromRGB(rgb, SpectrumType::Reflectance);
+
+    std::shared_ptr<Texture<Spectrum>> kd =
+            std::make_shared<ConstantTexture<Spectrum>>(kdRGB);
+    std::shared_ptr<Texture<Spectrum>> ks =
+            std::make_shared<ConstantTexture<Spectrum>>(Ks);
+    std::shared_ptr<Texture<Real>> _roughness =
+            std::make_shared<ConstantTexture<Real>>(roughness);
+
+    return new PlasticMaterial(kd, ks, _roughness, remapRoughness);
+}
+
 }  // namespace phyr

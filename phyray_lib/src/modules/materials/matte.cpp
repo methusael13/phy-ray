@@ -31,4 +31,14 @@ MatteMaterial* createMatteMaterial(Real Kd, Real sigma) {
     return new MatteMaterial(kd, _sigma);
 }
 
+MatteMaterial* createMatteMaterial(Real rgb[3], Real sigma) {
+    Spectrum matteRGB = Spectrum::getFromRGB(rgb);
+    std::shared_ptr<Texture<Spectrum>> kd =
+            std::make_shared<ConstantTexture<Spectrum>>(matteRGB);
+    std::shared_ptr<Texture<Real>> _sigma =
+            std::make_shared<ConstantTexture<Real>>(sigma);
+
+    return new MatteMaterial(kd, _sigma);
+}
+
 }  // namespace phyr

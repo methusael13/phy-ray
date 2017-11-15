@@ -34,6 +34,10 @@ PlasticMaterial* createPlasticMaterial(Real Kd = 0.25, Real Ks = 0.25,
                                        Real roughness = 0.1,
                                        bool remapRoughness = true);
 
+PlasticMaterial* createPlasticMaterial(Real rgb[3], Real Ks = 0.25,
+                                       Real roughness = 0.1,
+                                       bool remapRoughness = true);
+
 }  // namespace phyr
 
 #endif
