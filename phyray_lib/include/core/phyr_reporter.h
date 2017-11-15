@@ -63,7 +63,7 @@ class Timer {
         if (asScheduler) {
             std::thread thrd(TimerLoop<Functor, Args...>(this), std::move(f), delay, args...);
 
-            // Move thread control of {thrd} to {timerThread} to extend
+            // Move thread control from {thrd} to {schedulerThread} to extend
             // its scope to that of the parent {Timer} object.
             schedulerThread = std::move(thrd);
         }
@@ -139,7 +139,7 @@ class Timer {
                 elapsed = timer->getElapsedTime();
                 delta = elapsed - last_call_tstamp;
 
-                // Check if {elapsed} is more than provided delay
+                // Check if elapsed time is more than provided delay
                 if (delta >= delay) {
                     // Reset {last_call_tstamp}
                     last_call_tstamp = elapsed;
@@ -200,6 +200,8 @@ class ProgressReporter {
 
             std::unique_ptr<RefreshFunctor> f =
                     std::unique_ptr<RefreshFunctor>(new RefreshFunctor(this));
+            // Start the scheduler to ping the
+            // {RefreshFunctor} every 250 milliseconds
             timer->startTimer(250, std::move(f));
             return token;
         } else {
@@ -230,8 +232,13 @@ class ProgressReporter {
      */
     void endReport(const std::string& p_token) {
         if (state == ProgressReporterStates::ACQUIRED && token == p_token) {
+            timer->resetTimer();
             state = ProgressReporterStates::AVAILABLE;
             token = std::string();
+
+            // Last call to {showProgress()} to make sure
+            // progress has been shown to 100%
+            showProgress();
         } else {
             if (state != ProgressReporterStates::ACQUIRED)
                 throw ProgressReporterException("Invalid ProgressReporter state");
@@ -311,8 +318,7 @@ class ProgressReporter {
         for (; i < termWidth; i++) { std::cout << " "; }
 
         // Print terminating bracket and reset color
-        std::cout << "]\x1b[0m";
-        std::cout << " " << static_cast<int>(perc * 100) << "% ";
+        std::cout << "] \x1b[37;1m" << static_cast<int>(perc * 100) << "%\x1b[0m ";
 
         uint64_t msec = timer->getElapsedTime();
         std::cout << " ET: \x1b[31;1m" << timer->getFormattedTime(msec);
