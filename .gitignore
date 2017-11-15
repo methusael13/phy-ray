@@ -87,3 +87,4 @@ CTestTestfile.cmake
 # Project related ignorables
 bin
 build
+phyray_app/src/scenes
