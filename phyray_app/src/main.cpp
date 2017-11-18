@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include <core/phyr_api.h>
-#include <modules/materials/matte.h>
+#include <core/configparser.h>
 
 int main(int argc, const char* argv[]) {
     // Get filename from command line args
@@ -97,10 +97,31 @@ int main(int argc, const char* argv[]) {
     // Create the scene
     Scene scene(accel, sceneLights);
 
+    // Get render settings
+    bool success = true;
+    RenderConfig config; ConfigArgsList args;
+    try {
+        success = config.parseConfig("phyray_app/config/render.conf");
+    } catch (UnsupportedConfigException& ex1) {
+        LOG_ERR_FMT("%s", ex1.what()); parallelCleanup();
+        return 1;
+    } catch (MalformedConfigException& ex2) {
+        LOG_ERR_FMT("%s", ex2.what()); parallelCleanup();
+        return 2;
+    }
+
+    if (!success) { parallelCleanup(); return 3; }
+
+    int resx = 640, resy = 400;
+    if (config.getConfigArgs("resolution", &args)) {
+        resx = args.getParam<int>(0).value;
+        resy = args.getParam<int>(1).value;
+    }
+
     // Create film
     const Real oneOverThree = 1. / 3.;
     std::unique_ptr<Filter> filter(new MitchellFilter(Vector2f(4, 4), oneOverThree, oneOverThree));
-    Film* film = new Film(Point2i(640, 400), Bounds2f(Point2f(0, 0), Point2f(1, 1)),
+    Film* film = new Film(Point2i(resx, resy), Bounds2f(Point2f(0, 0), Point2f(1, 1)),
                           std::move(filter), 35., filename, 20.);
 
     // Create camera
@@ -108,8 +129,14 @@ int main(int argc, const char* argv[]) {
     std::shared_ptr<const Camera> camera(createPerspectiveCamera(camLook, film, 0, 1e6, 45));
 
     // Create Sampler and Integrator
-    int maxBounces = 6;
-    std::shared_ptr<Sampler> sampler(createStratifiedSampler(true, 10, 10, 10));
+    int maxBounces = 6, nSamples = 6;
+    if (config.getConfigArgs("bounces", &args))
+        maxBounces = args.getParam<int>(0).value;
+
+    if (config.getConfigArgs("samples", &args))
+        nSamples = args.getParam<int>(0).value;
+
+    std::shared_ptr<Sampler> sampler(createStratifiedSampler(true, nSamples, nSamples, 10));
     std::unique_ptr<Integrator> integrator(createPathIntegrator(sampler, camera, maxBounces));
 
     LOG_INFO("Done constructing scene.");
