@@ -21,6 +21,7 @@ add_library(phyrlib STATIC
     src/core/imageio.cpp
     src/core/scene.cpp
     src/core/lowdiscrepancy.cpp
+    src/core/configparser.cpp
 
     # Lights
     src/core/light/light.cpp
