@@ -20,17 +20,23 @@
 inline void errPrintFail(const std::string& msg) { std::cerr << msg; exit(2); }
 
 // Logger functions defined with string format specifiers
-#define LOG_ERR_FMT(S, ...) std::cerr << formatString("[%s] ERROR(%d): " S "\n", __FILE__, __LINE__, __VA_ARGS__)
-#define LOG_INFO_FMT(S, ...) std::cout << formatString("[%s] INFO(%d): " S "\n", __FILE__, __LINE__, __VA_ARGS__)
-#define LOG_WARNING_FMT(S, ...) std::cout << formatString("[%s] WARNING(%d): " S "\n", __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_ERR_FMT(S, ...) \
+    std::cerr << formatString("[%s] \x1b[31;1mERROR(%d):\x1b[0m " S "\n", __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_INFO_FMT(S, ...) \
+    std::cout << formatString("[%s] \x1b[37;1mINFO(%d):\x1b[0m " S "\n", __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_WARNING_FMT(S, ...) \
+    std::cout << formatString("[%s] \x1b[33;1mWARNING(%d):\x1b[0m " S "\n", __FILE__, __LINE__, __VA_ARGS__)
 
 // Specialized for Assert
 #define ALOG_ERR_FMT(S, ...) errPrint(formatString("[%s] ERROR(%d): " S "\n", __FILE__, __LINE__, __VA_ARGS__))
 
 // Logger functions defined without string format specifiers
-#define LOG_ERR(S) std::cerr << formatString("[%s] ERROR(%d): " S "\n", __FILE__, __LINE__)
-#define LOG_INFO(S) std::cout << formatString("[%s] INFO(%d): " S "\n", __FILE__, __LINE__)
-#define LOG_WARNING(S) std::cout << formatString("[%s] WARNING(%d): " S "\n", __FILE__, __LINE__)
+#define LOG_ERR(S) \
+    std::cerr << formatString("[%s] \x1b[31;1mERROR(%d):\x1b[0m " S "\n", __FILE__, __LINE__)
+#define LOG_INFO(S) \
+    std::cout << formatString("[%s] \x1b[37;1mINFO(%d):\x1b[0m " S "\n", __FILE__, __LINE__)
+#define LOG_WARNING(S) \
+    std::cout << formatString("[%s] \x1b[33;1mWARNING(%d):\x1b[0m " S "\n", __FILE__, __LINE__)
 
 #ifdef NDEBUG
 #define ASSERT(C) ((void)0)
