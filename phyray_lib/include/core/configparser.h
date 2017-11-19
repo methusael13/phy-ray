@@ -7,6 +7,7 @@
 
 namespace phyr {
 
+// Supported argument types for PhyRay configuration params
 enum ParamType { INT, REAL, STRING };
 
 class ParamAbstract {
@@ -27,6 +28,10 @@ class ConfigArgsList {
   public:
     ConfigArgsList() {}
 
+    /**
+     * Returns the index in {argList} at which the next
+     * argument, if any, is to be inserted.
+     */
     int getNextExpectedIndex() const { return argList.size(); }
 
     template <typename U>
@@ -75,6 +80,12 @@ class RenderConfig {
     // Interface
     bool parseConfig(const std::string& filename);
 
+    /**
+     * Populates {args} with the argument list represented as
+     * {ConfigArgsList} for the configuration mapped to {key}.
+     *
+     * Returns true if {key} was found in the conf file, false otherwise.
+     */
     bool getConfigArgs(const std::string& key, ConfigArgsList* args = nullptr) {
         if (SupportedConfigMap.count(key) == 0)
             throw UnsupportedConfigException(key);
