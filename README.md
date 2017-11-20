@@ -9,7 +9,7 @@ Project is under active development. No release candidates yet.
 
 | Platform | Command |
 | -------- | ------- |
-| Fedora | `sudo dnf install OpenEXR OpenEXR-libs OpenEXR-devel` |
+| Fedora | `sudo dnf install OpenEXR OpenEXR-libs OpenEXR-devel OpenEXR_Viewers` |
 
 #### Building
 - Clone this repository
@@ -26,4 +26,12 @@ make
 - Run unit tests
 ```
 make test
+```
+- Render a test scene (defined in `phyray_app/src/main.cpp`)
+```
+phyray_app/phyrapp <filename>
+```
+- View rendered image
+```
+exrdisplay <filename>.exr
 ```
