@@ -37,14 +37,22 @@ exrdisplay <filename>.exr
 ```
 
 ### Render Previews
-![Render01](https://raw.githubusercontent.com/methusael13/phy-ray/master/preview/render01.png)
+<p align="center">
+    <img src="https://raw.githubusercontent.com/methusael13/phy-ray/master/preview/render01.png" alt="Render01">
+</p>
 > Materials: Plastic, Glass, Metal(Gold) | Samples: 400 | Lights: AreaLights(Disk, Sphere)
 
-![Render02](https://raw.githubusercontent.com/methusael13/phy-ray/master/preview/render02.png)
+<p align="center">
+    <img src="https://raw.githubusercontent.com/methusael13/phy-ray/master/preview/render02.png" alt="Render02">
+</p>
 > Materials: Plastic, Glass, Metal(Copper) | Samples: 400 | Lights: AreaLights(Disk, Sphere)
 
-![Render03](https://raw.githubusercontent.com/methusael13/phy-ray/master/preview/render03.png)
+<p align="center">
+    <img src="https://raw.githubusercontent.com/methusael13/phy-ray/master/preview/render03.png" alt="Render03">
+</p>
 > Materials: Plastic | Samples: 256 | Lights: AreaLights(Disk, Sphere)
 
-![Render04](https://raw.githubusercontent.com/methusael13/phy-ray/master/preview/render04.png)
+<p align="center">
+    <img src="https://raw.githubusercontent.com/methusael13/phy-ray/master/preview/render04.png" alt="Render04">
+</p>
 > Materials: Plastic, Glass, Mirror, Matte, Metal(Silver)  | Samples: 2500 | Lights: AreaLights(Disk)
