@@ -35,3 +35,9 @@ View rendered image
 ```
 exrdisplay <filename>.exr
 ```
+
+### Render Previews
+![Render01](https://raw.githubusercontent.com/methusael13/phy-ray/master/preview/render01.png)
+![Render01](https://raw.githubusercontent.com/methusael13/phy-ray/master/preview/render02.png)
+![Render01](https://raw.githubusercontent.com/methusael13/phy-ray/master/preview/render03.png)
+![Render01](https://raw.githubusercontent.com/methusael13/phy-ray/master/preview/render04.png)
