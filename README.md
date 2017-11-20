@@ -39,32 +39,32 @@ exrdisplay <filename>.exr
 ### Render Previews
 <p align="center">
     <img src="https://raw.githubusercontent.com/methusael13/phy-ray/master/preview/render01.png" alt="Render01">
+    <blockquote><p>
+    Materials: Plastic, Glass, Metal(Gold) | Samples: 400 | Lights: AreaLights(Disk, Sphere)
+    </p></blockquote>
 </p>
-<blockquote><p>
-Materials: Plastic, Glass, Metal(Gold) | Samples: 400 | Lights: AreaLights(Disk, Sphere)
-</p></blockquote>
 </br>
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/methusael13/phy-ray/master/preview/render02.png" alt="Render02">
+    <blockquote><p>
+    Materials: Plastic, Glass, Metal(Copper) | Samples: 400 | Lights: AreaLights(Disk, Sphere)
+    </p></blockquote>
 </p>
-<blockquote><p>
-Materials: Plastic, Glass, Metal(Copper) | Samples: 400 | Lights: AreaLights(Disk, Sphere)
-</p></blockquote>
 </br>
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/methusael13/phy-ray/master/preview/render03.png" alt="Render03">
+    <blockquote><p>
+    Materials: Plastic | Samples: 256 | Lights: AreaLights(Disk, Sphere)
+    </p></blockquote>
 </p>
-<blockquote><p>
-Materials: Plastic | Samples: 256 | Lights: AreaLights(Disk, Sphere)
-</p></blockquote>
 </br>
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/methusael13/phy-ray/master/preview/render04.png" alt="Render04">
+    <blockquote><p>
+    Materials: Plastic, Glass, Mirror, Matte, Metal(Silver)  | Samples: 2500 | Lights: AreaLights(Disk)
+    </p></blockquote>
 </p>
-<blockquote><p>
-Materials: Plastic, Glass, Mirror, Matte, Metal(Silver)  | Samples: 2500 | Lights: AreaLights(Disk)
-</p></blockquote>
 </br>
