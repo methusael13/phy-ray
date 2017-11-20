@@ -82,7 +82,11 @@ class Timer {
      * Resets timer state to idle. Stops the internal scheduler if
      * this timer was set to be a scheduler.
      */
-    void resetTimer() { setTimerState(TimerState::IDLE); }
+    void resetTimer() {
+        setTimerState(TimerState::IDLE);
+        // Wait for {schedulerThread} to actually stop
+        schedulerThread.join();
+    }
 
     /**
      * Returns the formatted time in string from the given
