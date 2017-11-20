@@ -98,10 +98,10 @@ int main(int argc, const char* argv[]) {
     Scene scene(accel, sceneLights);
 
     // Get render settings
-    bool success = true;
+    bool useConfig = true;
     RenderConfig config; ConfigArgsList args;
     try {
-        success = config.parseConfig("phyray_app/config/render.conf");
+        useConfig = config.parseConfig("phyray_app/config/render.conf");
     } catch (UnsupportedConfigException& ex1) {
         LOG_ERR_FMT("%s", ex1.what()); parallelCleanup();
         return 1;
@@ -110,10 +110,10 @@ int main(int argc, const char* argv[]) {
         return 2;
     }
 
-    if (!success) { parallelCleanup(); return 3; }
+    if (!useConfig) LOG_WARNING("Using default render settings");
 
     int resx = 640, resy = 400;
-    if (config.getConfigArgs("resolution", &args)) {
+    if (useConfig && config.getConfigArgs("resolution", &args)) {
         resx = args.getParam<int>(0).value;
         resy = args.getParam<int>(1).value;
     }
@@ -130,10 +130,10 @@ int main(int argc, const char* argv[]) {
 
     // Create Sampler and Integrator
     int maxBounces = 6, nSamples = 6;
-    if (config.getConfigArgs("bounces", &args))
+    if (useConfig && config.getConfigArgs("bounces", &args))
         maxBounces = args.getParam<int>(0).value;
 
-    if (config.getConfigArgs("samples", &args))
+    if (useConfig && config.getConfigArgs("samples", &args))
         nSamples = args.getParam<int>(0).value;
 
     std::shared_ptr<Sampler> sampler(createStratifiedSampler(true, nSamples, nSamples, 10));
