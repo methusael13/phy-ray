@@ -9,5 +9,5 @@ add_executable(phyrapp
 #    forms/phyraywindow.ui
 )
 
-target_link_libraries(phyrapp PRIVATE phyrlib Qt5::Widgets)
-# target_link_libraries(phyrapp PRIVATE phyrlib)
+target_link_libraries(phyrapp PRIVATE phyrlib)
+# target_link_libraries(phyrapp PRIVATE phyrlib Qt5::Widgets)
