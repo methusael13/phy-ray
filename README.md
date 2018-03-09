@@ -10,6 +10,7 @@ Project is under active development. No release candidates yet.
 | Platform | Command |
 | -------- | ------- |
 | Fedora | `sudo dnf install OpenEXR OpenEXR-libs OpenEXR-devel OpenEXR_Viewers` |
+| Ubuntu | `sudo apt-get install openexr libopenexr-dev libopenexr22 openexr-viewers` |
 
 ### Building
 Clone this repository
